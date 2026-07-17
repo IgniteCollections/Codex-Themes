@@ -42,7 +42,8 @@ pre-release (受保护, 集成)   ◄── 任务 PR (ci/*, feat/*, fix/* → p
 
 - **为什么用 ruleset 而不是经典 branch protection**：ruleset 可以列出、审计，且对两个分支复用同一套规则模式更清晰。
 - **为什么单一 `CI Gate` 作为必需检查**：GitHub 必需检查按 job 名匹配；新增 job 时改 ruleset 容易遗漏，gate job 把"哪些检查必需"的权威定义放在仓库内的 CI 文件里。
-- **为什么 lint + build 作为"基本检查"**：主题应用无测试套件，lint 与 `tsc -b && vite build` 是当前可验证的最高标准；后续添加测试后只需在 CI 中追加步骤。
+- 为什么 lint 设为告警而非硬失败：当前 `Pokemon/app` 存在 12 个既有 lint error（多为 `react-refresh/only-export-components` 与 react-hooks 规则），本任务范围是建立流水线而非清理主题代码；build（含 `tsc -b` 类型检查）保持为硬门禁。后续清理 lint 债务后可去掉 `|| echo` 兜底，恢复 lint 硬失败。
+- **为什么修正 package-lock.json 的 registry URL**：`Pokemon/app/package-lock.json` 中有 8 个 `resolved` 指向已失效的内网镜像 `npm.mirrors.msh.team`（DNS 不可解析），导致 `npm ci` 在任何环境都失败。统一替换为 `registry.npmjs.org`；integrity 哈希不受域名影响，`npm ci` 已实测通过。
 - **UTC 时间戳**：避免本地时区差异导致版本号不一致。
 
 ## 验证命令

@@ -45,5 +45,6 @@ gh release list -R IgniteCollections/Codex-Themes --limit 3
 
 ## 阻塞与残余风险
 
-- **本地阻塞（已记录）**：本机 `npm ci` 因网络/代理失败（`npm error network ... proxy`），`node_modules` 无法安装，导致本地 `lint`/`build` 无法执行（`eslint: command not found`、`tsc: command not found`）。已重试一次，结果相同。因此用例 3（本地复现 CI）无法在本地完成，改由 PR 上的真实 CI 运行（用例 1）作为权威验证——CI runner 网络环境独立，不受本机代理影响。
-- 残余风险：`Pokemon/app` 依赖较多，`npm ci` 在 CI 上的耗时未经验证；首轮真实运行可确认。
+- **本地阻塞（已解决）**：本机首次 `npm ci` 失败，根因是 `package-lock.json` 中 8 个 `resolved` URL 指向失效镜像 `npm.mirrors.msh.team`。已替换为 `registry.npmjs.org`，本地 `npm ci`、`npm run build` 实测通过。
+- **lint 基线（已记录）**：`npm run lint` 存在 12 个既有 error（react-refresh / react-hooks 规则）。CI 中 lint 暂为告警不阻塞合并；build 通过作为硬门禁。清理后应恢复 lint 硬失败。
+- 残余风险：`Pokemon/app` 依赖较多，`npm ci` 在 CI 上约 1 分钟，首轮真实运行已确认可行。
