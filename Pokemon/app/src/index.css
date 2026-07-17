@@ -1,0 +1,285 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   CODEX · 宝可梦皮肤计划 — 全局样式
+   唯一配色真源：design.md §2（默认态）+ §7（6 场景皮肤）
+   组件只引用 var(--sc-*)，不写死颜色。
+   ============================================================ */
+
+@layer base {
+  :root {
+    /* shadcn 兼容变量（深色） */
+    --background: 222 24% 6%;
+    --foreground: 225 20% 93%;
+    --card: 223 22% 9%;
+    --card-foreground: 225 20% 93%;
+    --popover: 223 22% 9%;
+    --popover-foreground: 225 20% 93%;
+    --primary: 8 82% 47%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 14% 16%;
+    --secondary-foreground: 225 20% 93%;
+    --muted: 222 14% 16%;
+    --muted-foreground: 222 10% 59%;
+    --accent: 222 14% 16%;
+    --accent-foreground: 225 20% 93%;
+    --destructive: 0 85% 64%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 222 14% 16%;
+    --input: 222 14% 16%;
+    --ring: 8 82% 47%;
+    --radius: 0.125rem;
+
+    /* 品牌色（恒定，不随场景变化） */
+    --brand: #E3350D;
+    --brand-2: #FFCB05;
+
+    /* 默认态（未选场景）— design.md §2 */
+    --sc-bg: #0B0E14;
+    --sc-panel: #12151D;
+    --sc-inset: #0A0C11;
+    --sc-fg: #E8EAF0;
+    --sc-fg-dim: #8B91A0;
+    --sc-prompt: #FFCB05;
+    --sc-output: #C6CBD6;
+    --sc-success: #4CC38A;
+    --sc-warning: #F5A623;
+    --sc-error: #F25757;
+    --sc-accent: #FFCB05;
+    --sc-accent-2: #E3350D;
+    --sc-border: #232733;
+    --sc-selection: #26314A;
+    --sc-diff-add-bg: rgba(76, 195, 138, .14);
+    --sc-diff-add-fg: #4CC38A;
+    --sc-diff-del-bg: rgba(242, 87, 87, .14);
+    --sc-diff-del-fg: #F25757;
+    --sc-status-bg: #1A1F2B;
+    --sc-status-fg: #E8EAF0;
+
+    /* 2x2 抖动棋盘 */
+    --dither: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='1' height='1' fill='%23fff'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23fff'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- No.001 草原 GRASSLAND ---------- */
+  [data-scene="grassland"] {
+    --sc-bg: #0D1B0A; --sc-panel: #12220D; --sc-inset: #0A1507;
+    --sc-fg: #F5FBEA; --sc-fg-dim: #9DBF8A; --sc-prompt: #7AC74C;
+    --sc-output: #D9E8C8; --sc-success: #A3E176; --sc-warning: #F7D02C;
+    --sc-error: #F2788A; --sc-accent: #F7D02C; --sc-accent-2: #57C7B0;
+    --sc-border: #2E4A22; --sc-selection: #31511F;
+    --sc-diff-add-bg: rgba(122, 199, 76, .15); --sc-diff-add-fg: #A3E176;
+    --sc-diff-del-bg: rgba(217, 83, 96, .15); --sc-diff-del-fg: #F2788A;
+    --sc-status-bg: #4A7C2F; --sc-status-fg: #F5FBEA;
+    --ansi-0: #1E3A13; --ansi-1: #D95360; --ansi-2: #7AC74C; --ansi-3: #F7D02C;
+    --ansi-4: #5FA8D3; --ansi-5: #C77DBB; --ansi-6: #57C7B0; --ansi-7: #F5FBEA;
+    --ansi-8: #3D5A2E; --ansi-9: #F2788A; --ansi-10: #A3E176; --ansi-11: #FFE169;
+    --ansi-12: #8CC8E8; --ansi-13: #E2A3D8; --ansi-14: #87E0CD; --ansi-15: #FFFFFF;
+  }
+
+  /* ---------- No.002 海洋 OCEAN ---------- */
+  [data-scene="ocean"] {
+    --sc-bg: #05141F; --sc-panel: #0A2233; --sc-inset: #030E17;
+    --sc-fg: #EAF7FD; --sc-fg-dim: #8FB8CC; --sc-prompt: #5FD4D0;
+    --sc-output: #C4E4F2; --sc-success: #67D3A2; --sc-warning: #F2C94C;
+    --sc-error: #FF8A75; --sc-accent: #5FBDF0; --sc-accent-2: #FF7F50;
+    --sc-border: #14384F; --sc-selection: #12344A;
+    --sc-diff-add-bg: rgba(63, 169, 124, .16); --sc-diff-add-fg: #67D3A2;
+    --sc-diff-del-bg: rgba(242, 97, 76, .16); --sc-diff-del-fg: #FF8A75;
+    --sc-status-bg: #0C3B5D; --sc-status-fg: #EAF7FD;
+    --ansi-0: #062032; --ansi-1: #F2614C; --ansi-2: #3FA97C; --ansi-3: #F2C94C;
+    --ansi-4: #2E9BD6; --ansi-5: #A06CD5; --ansi-6: #5FD4D0; --ansi-7: #EAF7FD;
+    --ansi-8: #1A4258; --ansi-9: #FF8A75; --ansi-10: #67D3A2; --ansi-11: #FFE08A;
+    --ansi-12: #5FBDF0; --ansi-13: #C49BEB; --ansi-14: #8FE8E4; --ansi-15: #FFFFFF;
+  }
+
+  /* ---------- No.003 洞穴 CAVE ---------- */
+  [data-scene="cave"] {
+    --sc-bg: #15151B; --sc-panel: #1D1D25; --sc-inset: #101016;
+    --sc-fg: #D8D5C8; --sc-fg-dim: #8E8C93; --sc-prompt: #7BD3C8;
+    --sc-output: #C4C1B4; --sc-success: #ADBE7C; --sc-warning: #D9B44A;
+    --sc-error: #E07A6C; --sc-accent: #8F7DBB; --sc-accent-2: #8A9A5B;
+    --sc-border: #34343F; --sc-selection: #2C2C38;
+    --sc-diff-add-bg: rgba(138, 154, 91, .18); --sc-diff-add-fg: #ADBE7C;
+    --sc-diff-del-bg: rgba(196, 86, 74, .18); --sc-diff-del-fg: #E07A6C;
+    --sc-status-bg: #3B3B42; --sc-status-fg: #D8D5C8;
+    --ansi-0: #26262E; --ansi-1: #C4564A; --ansi-2: #8A9A5B; --ansi-3: #D9B44A;
+    --ansi-4: #4F7FA6; --ansi-5: #6B5B95; --ansi-6: #7BD3C8; --ansi-7: #D8D5C8;
+    --ansi-8: #44444F; --ansi-9: #E07A6C; --ansi-10: #ADBE7C; --ansi-11: #F2D078;
+    --ansi-12: #7AA8CC; --ansi-13: #8F7DBB; --ansi-14: #A3E6DC; --ansi-15: #F2F0E6;
+  }
+
+  /* ---------- No.004 岩浆 MAGMA ---------- */
+  [data-scene="magma"] {
+    --sc-bg: #120B08; --sc-panel: #1E1410; --sc-inset: #0C0705;
+    --sc-fg: #F2E6D8; --sc-fg-dim: #A89585; --sc-prompt: #F5A623;
+    --sc-output: #E3CFB8; --sc-success: #B5C85E; --sc-warning: #FFD166;
+    --sc-error: #FF6B4A; --sc-accent: #FFD166; --sc-accent-2: #84D8D2;
+    --sc-border: #3A241A; --sc-selection: #3D2318;
+    --sc-diff-add-bg: rgba(143, 163, 63, .18); --sc-diff-add-fg: #B5C85E;
+    --sc-diff-del-bg: rgba(212, 61, 42, .22); --sc-diff-del-fg: #FF6B4A;
+    --sc-status-bg: #B73422; --sc-status-fg: #FFE9D6;
+    --ansi-0: #1C1512; --ansi-1: #D43D2A; --ansi-2: #8FA33F; --ansi-3: #FFD166;
+    --ansi-4: #4FA3D1; --ansi-5: #A85D9E; --ansi-6: #5FB8B3; --ansi-7: #EFE3D6;
+    --ansi-8: #3A2C25; --ansi-9: #FF6B4A; --ansi-10: #B5C85E; --ansi-11: #FFE08F;
+    --ansi-12: #7FC4E8; --ansi-13: #C986BE; --ansi-14: #84D8D2; --ansi-15: #FFF8EE;
+  }
+
+  /* ---------- No.005 雪原 SNOWFIELD ---------- */
+  [data-scene="snowfield"] {
+    --sc-bg: #0A1622; --sc-panel: #102338; --sc-inset: #071019;
+    --sc-fg: #F2F9FC; --sc-fg-dim: #9DB8CC; --sc-prompt: #A8D8EA;
+    --sc-output: #D8EAF4; --sc-success: #82E0AC; --sc-warning: #F2CE6B;
+    --sc-error: #F28597; --sc-accent: #93C4E8; --sc-accent-2: #D4D4F2;
+    --sc-border: #1E3D5C; --sc-selection: #1C3A57;
+    --sc-diff-add-bg: rgba(92, 201, 142, .15); --sc-diff-add-fg: #82E0AC;
+    --sc-diff-del-bg: rgba(217, 93, 114, .18); --sc-diff-del-fg: #F28597;
+    --sc-status-bg: #16324A; --sc-status-fg: #D9ECF8;
+    --ansi-0: #16324A; --ansi-1: #D95D72; --ansi-2: #5CC98E; --ansi-3: #F2CE6B;
+    --ansi-4: #6BA8D8; --ansi-5: #B8B8E0; --ansi-6: #7FC7DE; --ansi-7: #F2F9FC;
+    --ansi-8: #2C4E6A; --ansi-9: #F28597; --ansi-10: #82E0AC; --ansi-11: #FFE08F;
+    --ansi-12: #93C4E8; --ansi-13: #D4D4F2; --ansi-14: #A8D8EA; --ansi-15: #FFFFFF;
+  }
+
+  /* ---------- No.006 无人发电厂 POWER PLANT ---------- */
+  [data-scene="plant"] {
+    --sc-bg: #14171C; --sc-panel: #1B1F26; --sc-inset: #0E1114;
+    --sc-fg: #E8ECF0; --sc-fg-dim: #8B919C; --sc-prompt: #F8D030;
+    --sc-output: #C9CFD8; --sc-success: #9EFF00; --sc-warning: #F8D030;
+    --sc-error: #FF6E64; --sc-accent: #9EFF00; --sc-accent-2: #C46A1E;
+    --sc-border: #343A44; --sc-selection: #2B313B;
+    --sc-diff-add-bg: rgba(158, 255, 0, .12); --sc-diff-add-fg: #BFFF4D;
+    --sc-diff-del-bg: rgba(229, 72, 63, .18); --sc-diff-del-fg: #FF6E64;
+    --sc-status-bg: #23272E; --sc-status-fg: #F8D030;
+    --ansi-0: #23272E; --ansi-1: #E5483F; --ansi-2: #9EFF00; --ansi-3: #F8D030;
+    --ansi-4: #45B7E8; --ansi-5: #B06FD8; --ansi-6: #4DD8C8; --ansi-7: #D8DCE2;
+    --ansi-8: #3B414B; --ansi-9: #FF6E64; --ansi-10: #BFFF4D; --ansi-11: #FFE066;
+    --ansi-12: #7FD4F2; --ansi-13: #CD97E8; --ansi-14: #7FE8DB; --ansi-15: #F2F5F8;
+  }
+
+  /* 换肤过渡：仅在 .theme-anim 期间加 transition（900ms 后移除） */
+  html.theme-anim body,
+  html.theme-anim body * {
+    transition: background-color .45s ease, color .45s ease, border-color .45s ease, fill .45s ease, box-shadow .45s ease !important;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--sc-bg);
+    color: var(--sc-fg);
+    font-family: "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--sc-selection);
+    color: var(--sc-fg);
+  }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--sc-bg); }
+  ::-webkit-scrollbar-thumb { background: var(--sc-border); border: 2px solid var(--sc-bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--sc-fg-dim); }
+
+  /* 自定义光标开启时隐藏系统光标（文本输入区除外） */
+  html.custom-cursor, html.custom-cursor * { cursor: none; }
+  html.custom-cursor input, html.custom-cursor textarea { cursor: text; }
+}
+
+@layer components {
+  /* 像素阶梯切角（4px 缺口） */
+  .pixel-corners {
+    clip-path: polygon(
+      0 4px, 4px 4px, 4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
+      100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
+      4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px)
+    );
+  }
+
+  /* 玻璃材质 */
+  .glass {
+    background: color-mix(in srgb, var(--sc-panel) 72%, transparent);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    border: 1px solid color-mix(in srgb, var(--sc-fg) 10%, transparent);
+  }
+
+  /* 抖动纹理 */
+  .dither-bg {
+    background-image: var(--dither);
+  }
+
+  /* CRT 扫描线（终端屏幕区） */
+  .terminal-screen { position: relative; }
+  .terminal-screen::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 5;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 1px, transparent 1px 3px);
+    mix-blend-mode: multiply;
+    animation: scanline-scroll 8s linear infinite;
+  }
+
+  /* 黄黑警示条纹（发电厂专属装饰） */
+  .warning-stripe {
+    background: repeating-linear-gradient(45deg, #F8D030 0 12px, #14171C 12px 24px);
+  }
+
+  /* 像素英文小标签 */
+  .pixel-label {
+    font-family: "Press Start 2P", monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  @media (max-width: 640px) { .pixel-label { font-size: 10px; } }
+
+  /* 硬偏移像素影 */
+  .shadow-pixel { box-shadow: 4px 4px 0 0 rgba(0,0,0,.45); }
+  .shadow-pixel-lg { box-shadow: 6px 6px 0 0 rgba(0,0,0,.45); }
+
+  /* 终端辉光 */
+  .terminal-glow { box-shadow: 0 0 42px color-mix(in srgb, var(--sc-prompt) 12%, transparent), 4px 4px 0 0 rgba(0,0,0,.45); }
+
+  .ascii-art {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.15;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  @media (max-width: 640px) { .ascii-art { font-size: 10px; } }
+}
+
+/* ---------- 关键帧 ---------- */
+@keyframes cursor-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes pixel-flash { 0% { opacity: 0; } 25% { opacity: 1; } 50% { opacity: 0; } 75% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes float-window { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes drift-bg { from { background-position: 0 0; } to { background-position: 40px 40px; } }
+@keyframes scanline-scroll { from { background-position: 0 0; } to { background-position: 0 3px; } }
+@keyframes rise-in { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes rise-in-sm { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes spin-once { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes toast-in { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes pixel-bob { 0% { transform: translateY(0); } 50% { transform: translateY(-2px); } 100% { transform: translateY(0); } }
+@keyframes breathe-glow { 0%, 100% { opacity: .08; } 50% { opacity: .16; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scale-in { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.anim-cursor { animation: cursor-blink .8s step-end infinite; }
+.anim-pixel-flash { animation: pixel-flash .3s steps(4) both; }
+.anim-float-y { animation: float-y 6s ease-in-out infinite; }
+.anim-float-window { animation: float-window 6s ease-in-out infinite; }
+.anim-rise { animation: rise-in .5s cubic-bezier(.22,1,.36,1) both; }
+.anim-toast-in { animation: toast-in .3s cubic-bezier(.22,1,.36,1) both; }
+.anim-fade-in { animation: fade-in .2s ease both; }
+.anim-breathe { animation: breathe-glow 4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-float-y, .anim-float-window, .anim-breathe, .terminal-screen::after { animation: none !important; }
+}
