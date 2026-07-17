@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, pre-release]
+
+permissions:
+  contents: read
+
+jobs:
+  theme-app-build:
+    name: Theme apps (lint + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Discover theme apps
+        id: apps
+        run: |
+          files=$(git ls-files '*/app/package.json' | jq -R -c -s 'split("\n")[:-1] | map(gsub("/package.json$"; ""))')
+          echo "matrix=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Skip when no theme apps
+        if: steps.apps.outputs.matrix == '[]'
+        run: echo "No theme apps found; nothing to check."
+
+      - name: Setup Node
+        if: steps.apps.outputs.matrix != '[]'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Lint and build each theme app
+        if: steps.apps.outputs.matrix != '[]'
+        shell: bash
+        run: |
+          set -e
+          for app in $(echo '${{ steps.apps.outputs.matrix }}' | jq -r '.[]'); do
+            echo "=== Checking $app ==="
+            npm --prefix "$app" ci
+            npm --prefix "$app" run lint
+            npm --prefix "$app" run build
+          done
+
+  ci-gate:
+    name: CI Gate
+    runs-on: ubuntu-latest
+    needs: [theme-app-build]
+    if: always()
+    steps:
+      - name: Verify all checks passed
+        run: |
+          results='${{ toJSON(needs) }}'
+          echo "$results"
+          failed=$(echo "$results" | jq '[to_entries[] | select(.value.result != "success")] | length')
+          if [ "$failed" -gt 0 ]; then
+            echo "One or more required checks did not succeed."
+            exit 1
+          fi
+          echo "All required checks passed."
