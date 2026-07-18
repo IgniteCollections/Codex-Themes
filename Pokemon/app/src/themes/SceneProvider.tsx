@@ -5,34 +5,16 @@
    - 状态持久化：localStorage + ?scene= URL 参数；provider 位于
      BrowserRouter 内、Routes 之上，路由切换不丢状态。
    ============================================================ */
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import gsap from 'gsap';
 import { SCENE_MAP, isSceneId } from './scenes';
 import type { SceneDef, SceneId } from './scenes';
+import { SceneContext, type SceneContextValue, type ToastState } from './use-scene';
 
 const STORAGE_KEY = 'codex-scene';
-
-interface ToastState { key: number; text: string; symbol: string }
-
-interface SceneContextValue {
-  scene: SceneDef | null;
-  sceneId: SceneId | null;
-  switching: boolean;
-  switchScene: (id: SceneId) => void;
-  /** 通用右下角 toast（如「已复制到剪贴板！」） */
-  notify: (text: string, symbol?: string) => void;
-}
-
-const SceneContext = createContext<SceneContextValue>({
-  scene: null, sceneId: null, switching: false, switchScene: () => {}, notify: () => {},
-});
-
-export function useScene() {
-  return useContext(SceneContext);
-}
 
 function applyToDocument(id: SceneId | null) {
   const html = document.documentElement;
@@ -131,7 +113,6 @@ export function SceneProvider({ children }: { children: ReactNode }) {
       setSceneId(initial);
       document.documentElement.dataset.scene = initial;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* 监听 ?scene= 变化（如 footer 场景链接）——直接应用，不播遭遇动效 */

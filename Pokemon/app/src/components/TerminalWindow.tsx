@@ -103,7 +103,6 @@ export default function TerminalWindow({
   const playingRef = useRef(false);
   const speedRef = useRef(1);
   const sceneRef = useRef(scene);
-  sceneRef.current = scene;
 
   const [done, setDone] = useState<ScriptLine[]>([]);
   const [cur, setCur] = useState<ScriptLine | null>(null);
@@ -112,12 +111,20 @@ export default function TerminalWindow({
   const [speed, setSpeed] = useState<1 | 2>(1);
   const [cycle, setCycle] = useState(0);
 
+  // 最新 scene 经 ref 提供给打字机循环读取（渲染期间不写 ref，由 effect 同步）
+  useEffect(() => {
+    sceneRef.current = scene;
+  }, [scene]);
+
+  const stepRef = useRef<() => void>(() => {});
+
   const step = useCallback(() => {
     if (!playingRef.current) return;
     const p = progRef.current;
     const sc = sceneRef.current;
     const later = (ms: number) => {
-      timerRef.current = window.setTimeout(step, ms / speedRef.current);
+      // 经 ref 自引用，避免在声明前捕获 step 本身
+      timerRef.current = window.setTimeout(() => stepRef.current(), ms / speedRef.current);
     };
     if (p.phase === 'banner') {
       p.phase = 'typing';
@@ -168,6 +175,12 @@ export default function TerminalWindow({
     later(400);
   }, []);
 
+  // step 通过 ref 暴露给 later() 的自引用调用（避免声明前捕获）；
+  // 渲染期间不写 ref，由 effect 同步
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
+
   const play = useCallback(() => {
     if (playingRef.current) return;
     playingRef.current = true;
@@ -200,7 +213,7 @@ export default function TerminalWindow({
   /* 场景切换：0.2s 交叉淡化（key 重挂载 + anim-fade-in），对话流重置重播 */
   useEffect(() => {
     const wasPlaying = playingRef.current;
-    reset();
+    reset(); // eslint-disable-line react-hooks/set-state-in-effect -- 场景 prop 变化即外部事件，重置打字机进度是预期同步
     if (wasPlaying) {
       timerRef.current = window.setTimeout(step, 600);
     }

@@ -4,7 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SCENES, pokemonSprite } from '@/themes/scenes';
 import type { BannerRole, SceneDef } from '@/themes/scenes';
-import { useScene } from '@/themes/SceneProvider';
+import { useScene } from '@/themes/use-scene';
 import PokeChip from '@/components/PokeChip';
 import PixelButton from '@/components/PixelButton';
 import PokeballDivider from '@/components/PokeballDivider';
