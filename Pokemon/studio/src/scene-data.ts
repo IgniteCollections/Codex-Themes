@@ -453,7 +453,7 @@ const plant: SceneDef = {
 const space: SceneDef = {
   id: 'space',
   no: 'No.007', name: '宇宙', en: 'SPACE', route: '天空之柱顶点 · SKY PILLAR APEX',
-  symbol: '☄', icon: '/icon-space.svg', image: '/scene-space.svg',
+  symbol: '☄', icon: '/icon-space.svg', image: '/scene-space.png',
   encounter: 'Mega 裂空座 撕裂云层！',
   flavor: 'Mega 裂空座 撕裂云层！臭氧层的风暴在为它让路。',
   flavorShort: '臭氧层的风暴在为它让路。',
@@ -517,7 +517,7 @@ const space: SceneDef = {
 const city: SceneDef = {
   id: 'city',
   no: 'No.008', name: '城市', en: 'CITY', route: '金黄市天际线 · SAFFRON SKYLINE',
-  symbol: '✦', icon: '/icon-city.svg', image: '/scene-city.svg',
+  symbol: '✦', icon: '/icon-city.svg', image: '/scene-city.png',
   encounter: '野生的 梦幻 在霓虹间闪现！',
   flavor: '野生的 梦幻 在霓虹间闪现！整座城市的灯都为它亮了一拍。',
   flavorShort: '整座城市的灯都为它亮了一拍。',
@@ -571,7 +571,7 @@ const city: SceneDef = {
 const lab: SceneDef = {
   id: 'lab',
   no: 'No.009', name: '实验室', en: 'LABORATORY', route: '红莲岛研究所 · CINNABAR LAB',
-  symbol: '⚗', icon: '/icon-lab.svg', image: '/scene-lab.svg',
+  symbol: '⚗', icon: '/icon-lab.svg', image: '/scene-lab.png',
   encounter: '超梦 在培养舱后睁开了眼睛！',
   flavor: '超梦 在培养舱后睁开了眼睛！仪器的读数全部爆表。',
   flavorShort: '仪器的读数全部爆表。',
