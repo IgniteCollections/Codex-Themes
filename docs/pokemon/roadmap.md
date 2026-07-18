@@ -4,8 +4,10 @@
 
 依赖资料：
 - [requirements.md](requirements.md) — 需求与验收标准（6 场景 × 宝可梦 × 配色为不可更改项）
-- [codex-official-theming.md](codex-official-theming.md) — Codex 官方主题机制（.tmTheme + /theme + tui.* 键）
-- [pokemon-assets.md](pokemon-assets.md) — 素材版权与取用结论
+- [theme-development-guide.md](theme-development-guide.md) — Codex 主题开发指南（.tmTheme 结构、scope 清单、验证流程）
+- [pokemon-theme-design.md](pokemon-theme-design.md) — 宝可梦主题设计总纲（场景选角逻辑、配色推导、素材使用）
+- [codex-official-theming.md](codex-official-theming.md) — 官方机制调研存档
+- [pokemon-assets.md](pokemon-assets.md) — 素材库调研存档（策略已修订为直接入库）
 
 每个任务遵循仓库流程：从最新 `pre-release` 建任务分支 → PR 到 `pre-release`（CI Gate 必须通过）→ 需要发布时开 `pre-release → main` PR，合并自动出日期版本 release。
 
@@ -15,7 +17,7 @@
 |---|------|------|------|
 | 0 | 资料沉淀到 docs/（本任务） | docs/pokemon/ 四份文档 | 进行中 |
 | 1 | 6 场景 .tmTheme 主题产物 | `Pokemon/themes/pokemon-*.tmTheme` × 6 | 待办 |
-| 2 | 主题数据建模 | `src/data/scenes.ts`：6 场景的调色板/宝可梦/文案/提示符/tmTheme 名，单一数据源 | 待办 |
+| 2 | 主题数据建模 + 素材入库 | `src/data/scenes.ts` 单一数据源；24 只 Gen III sprite 下载至 `public/pokemon/`；24 只中文名/图鉴描述摘录入库 | 待办 |
 | 3 | 安装页对接真实产物 | 真实安装命令（复制 .tmTheme + config.toml 片段），一键复制 | 待办 |
 | 4 | 场景图鉴页补全 | 每场景完整档案卡：16 色色板、diff 预览、宝可梦、设计说明 | 待办 |
 | 5 | 终端模拟器配色导出（可选） | 每场景 ANSI 16 色 JSON / itermcolors | 待办 |

@@ -41,7 +41,8 @@
 
 - 每个场景一个 `.tmTheme` 文件（Codex TUI 官方支持的自定义主题格式，见 [codex-official-theming.md](codex-official-theming.md)），放入仓库 `Pokemon/themes/`，用户复制到 `~/.codex/themes/` 即可用 `/theme` 选择
 - 安装页提供真实可用的安装命令与 config.toml 片段（`tui.theme = "pokemon-<scene>"`）
-- 素材调研结论与版权风险见 [pokemon-assets.md](pokemon-assets.md)
+- 素材调研结论与使用设计见 [pokemon-assets.md](pokemon-assets.md) 与 [pokemon-theme-design.md](pokemon-theme-design.md)（2026-07-18 起：私人用途，官方 sprite 直接入库使用）
+- 开发方法遵循 [theme-development-guide.md](theme-development-guide.md)
 
 ## 验收标准
 
