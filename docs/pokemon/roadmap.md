@@ -17,7 +17,7 @@
 |---|------|------|------|
 | 0 | 资料沉淀到 docs/（本任务） | docs/pokemon/ 四份文档 | 进行中 |
 | 1 | 6 场景 .tmTheme 主题产物 | `Pokemon/themes/pokemon-*.tmTheme` × 6 | 待办 |
-| 2 | 主题数据建模 + 素材入库 | `src/data/scenes.ts` 单一数据源；24 只 Gen III sprite 下载至 `public/pokemon/`；24 只中文名/图鉴描述摘录入库 | 待办 |
+| 2 | 主题数据建模 + 素材入库 | `src/data/scenes.ts` 单一数据源；40 只（24 常规 + 神兽池）Gen III sprite 下载至 `public/pokemon/`；40 只中文名/图鉴描述摘录入库 | 待办 |
 | 3 | 安装页对接真实产物 | 真实安装命令（复制 .tmTheme + config.toml 片段），一键复制 | 待办 |
 | 4 | 场景图鉴页补全 | 每场景完整档案卡：16 色色板、diff 预览、宝可梦、设计说明 | 待办 |
 | 5 | 终端模拟器配色导出（可选） | 每场景 ANSI 16 色 JSON / itermcolors | 待办 |
