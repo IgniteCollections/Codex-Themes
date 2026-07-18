@@ -1,0 +1,11 @@
+{
+  "name": "CODEX · 岩浆 Magma",
+  "background": "#120B08",
+  "foreground": "#F2E6D8",
+  "selectionBackground": "#3D2318",
+  "cursorColor": "#F5A623",
+  "black": "#1C1512", "red": "#D43D2A", "green": "#8FA33F", "yellow": "#FFD166",
+  "blue": "#4FA3D1", "magenta": "#A85D9E", "cyan": "#5FB8B3", "white": "#EFE3D6",
+  "brightBlack": "#3A2C25", "brightRed": "#FF6B4A", "brightGreen": "#B5C85E", "brightYellow": "#FFE08F",
+  "brightBlue": "#7FC4E8", "brightMagenta": "#C986BE", "brightCyan": "#84D8D2", "brightWhite": "#FFF8EE"
+}

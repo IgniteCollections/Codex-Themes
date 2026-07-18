@@ -1,0 +1,11 @@
+{
+  "name": "CODEX · 宇宙 Space",
+  "background": "#0B0B1E",
+  "foreground": "#E8E8F8",
+  "selectionBackground": "#23234A",
+  "cursorColor": "#FFD700",
+  "black": "#0B0B1E", "red": "#E05A7A", "green": "#00A86B", "yellow": "#FFD700",
+  "blue": "#6C5CE7", "magenta": "#C77DBB", "cyan": "#5FD4D0", "white": "#E8E8F8",
+  "brightBlack": "#26264A", "brightRed": "#F28597", "brightGreen": "#3FD99A", "brightYellow": "#FFE169",
+  "brightBlue": "#8F7DF0", "brightMagenta": "#E2A3D8", "brightCyan": "#8FE8E4", "brightWhite": "#FFFFFF"
+}

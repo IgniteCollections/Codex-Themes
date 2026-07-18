@@ -1,0 +1,32 @@
+# CODEX · 雪原 Snowfield — Alacritty colors（scenes.ts 派生，勿手改）
+[colors.primary]
+background = "#0A1622"
+foreground = "#F2F9FC"
+
+[colors.cursor]
+text = "#0A1622"
+cursor = "#A8D8EA"
+
+[colors.selection]
+text = "#F2F9FC"
+background = "#1C3A57"
+
+[colors.normal]
+black = "#16324A"
+red = "#D95D72"
+green = "#5CC98E"
+yellow = "#F2CE6B"
+blue = "#6BA8D8"
+magenta = "#B8B8E0"
+cyan = "#7FC7DE"
+white = "#F2F9FC"
+
+[colors.bright]
+black = "#2C4E6A"
+red = "#F28597"
+green = "#82E0AC"
+yellow = "#FFE08F"
+blue = "#93C4E8"
+magenta = "#D4D4F2"
+cyan = "#A8D8EA"
+white = "#FFFFFF"

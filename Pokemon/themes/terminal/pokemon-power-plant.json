@@ -1,0 +1,11 @@
+{
+  "name": "CODEX · 无人发电厂 Power Plant",
+  "background": "#14171C",
+  "foreground": "#E8ECF0",
+  "selectionBackground": "#2B313B",
+  "cursorColor": "#F8D030",
+  "black": "#23272E", "red": "#E5483F", "green": "#9EFF00", "yellow": "#F8D030",
+  "blue": "#45B7E8", "magenta": "#B06FD8", "cyan": "#4DD8C8", "white": "#D8DCE2",
+  "brightBlack": "#3B414B", "brightRed": "#FF6E64", "brightGreen": "#BFFF4D", "brightYellow": "#FFE066",
+  "brightBlue": "#7FD4F2", "brightMagenta": "#CD97E8", "brightCyan": "#7FE8DB", "brightWhite": "#F2F5F8"
+}

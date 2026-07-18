@@ -1,0 +1,32 @@
+# CODEX · 草原 Grassland — Alacritty colors（scenes.ts 派生，勿手改）
+[colors.primary]
+background = "#0D1B0A"
+foreground = "#F5FBEA"
+
+[colors.cursor]
+text = "#0D1B0A"
+cursor = "#7AC74C"
+
+[colors.selection]
+text = "#F5FBEA"
+background = "#31511F"
+
+[colors.normal]
+black = "#1E3A13"
+red = "#D95360"
+green = "#7AC74C"
+yellow = "#F7D02C"
+blue = "#5FA8D3"
+magenta = "#C77DBB"
+cyan = "#57C7B0"
+white = "#F5FBEA"
+
+[colors.bright]
+black = "#3D5A2E"
+red = "#F2788A"
+green = "#A3E176"
+yellow = "#FFE169"
+blue = "#8CC8E8"
+magenta = "#E2A3D8"
+cyan = "#87E0CD"
+white = "#FFFFFF"

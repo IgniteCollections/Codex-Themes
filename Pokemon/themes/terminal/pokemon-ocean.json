@@ -1,0 +1,11 @@
+{
+  "name": "CODEX · 海洋 Ocean",
+  "background": "#05141F",
+  "foreground": "#EAF7FD",
+  "selectionBackground": "#12344A",
+  "cursorColor": "#5FD4D0",
+  "black": "#062032", "red": "#F2614C", "green": "#3FA97C", "yellow": "#F2C94C",
+  "blue": "#2E9BD6", "magenta": "#A06CD5", "cyan": "#5FD4D0", "white": "#EAF7FD",
+  "brightBlack": "#1A4258", "brightRed": "#FF8A75", "brightGreen": "#67D3A2", "brightYellow": "#FFE08A",
+  "brightBlue": "#5FBDF0", "brightMagenta": "#C49BEB", "brightCyan": "#8FE8E4", "brightWhite": "#FFFFFF"
+}

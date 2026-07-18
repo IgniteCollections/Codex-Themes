@@ -1,0 +1,72 @@
+{
+  "grassland": {
+    "name": "CODEX · 草原 Grassland",
+    "slug": "pokemon-grassland",
+    "files": {
+      "windows-terminal": "pokemon-grassland.json",
+      "iterm2": "pokemon-grassland.itermcolors",
+      "alacritty": "pokemon-grassland.toml",
+      "kitty": "pokemon-grassland.conf"
+    }
+  },
+  "ocean": {
+    "name": "CODEX · 海洋 Ocean",
+    "slug": "pokemon-ocean",
+    "files": {
+      "windows-terminal": "pokemon-ocean.json",
+      "iterm2": "pokemon-ocean.itermcolors",
+      "alacritty": "pokemon-ocean.toml",
+      "kitty": "pokemon-ocean.conf"
+    }
+  },
+  "cave": {
+    "name": "CODEX · 洞穴 Cave",
+    "slug": "pokemon-cave",
+    "files": {
+      "windows-terminal": "pokemon-cave.json",
+      "iterm2": "pokemon-cave.itermcolors",
+      "alacritty": "pokemon-cave.toml",
+      "kitty": "pokemon-cave.conf"
+    }
+  },
+  "magma": {
+    "name": "CODEX · 岩浆 Magma",
+    "slug": "pokemon-magma",
+    "files": {
+      "windows-terminal": "pokemon-magma.json",
+      "iterm2": "pokemon-magma.itermcolors",
+      "alacritty": "pokemon-magma.toml",
+      "kitty": "pokemon-magma.conf"
+    }
+  },
+  "snowfield": {
+    "name": "CODEX · 雪原 Snowfield",
+    "slug": "pokemon-snowfield",
+    "files": {
+      "windows-terminal": "pokemon-snowfield.json",
+      "iterm2": "pokemon-snowfield.itermcolors",
+      "alacritty": "pokemon-snowfield.toml",
+      "kitty": "pokemon-snowfield.conf"
+    }
+  },
+  "plant": {
+    "name": "CODEX · 无人发电厂 Power Plant",
+    "slug": "pokemon-power-plant",
+    "files": {
+      "windows-terminal": "pokemon-power-plant.json",
+      "iterm2": "pokemon-power-plant.itermcolors",
+      "alacritty": "pokemon-power-plant.toml",
+      "kitty": "pokemon-power-plant.conf"
+    }
+  },
+  "space": {
+    "name": "CODEX · 宇宙 Space",
+    "slug": "pokemon-space",
+    "files": {
+      "windows-terminal": "pokemon-space.json",
+      "iterm2": "pokemon-space.itermcolors",
+      "alacritty": "pokemon-space.toml",
+      "kitty": "pokemon-space.conf"
+    }
+  }
+}

@@ -4,8 +4,8 @@
     {
       "name": "pokemon-theme",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "Pokemon/app", "--", "--port", "5173"],
-      "port": 5173
+      "runtimeArgs": ["run", "dev", "--prefix", "Pokemon/app", "--", "--port", "5175"],
+      "port": 5175
     },
     {
       "name": "pokemon-studio",

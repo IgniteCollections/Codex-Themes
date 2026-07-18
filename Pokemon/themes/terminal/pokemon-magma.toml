@@ -1,0 +1,32 @@
+# CODEX · 岩浆 Magma — Alacritty colors（scenes.ts 派生，勿手改）
+[colors.primary]
+background = "#120B08"
+foreground = "#F2E6D8"
+
+[colors.cursor]
+text = "#120B08"
+cursor = "#F5A623"
+
+[colors.selection]
+text = "#F2E6D8"
+background = "#3D2318"
+
+[colors.normal]
+black = "#1C1512"
+red = "#D43D2A"
+green = "#8FA33F"
+yellow = "#FFD166"
+blue = "#4FA3D1"
+magenta = "#A85D9E"
+cyan = "#5FB8B3"
+white = "#EFE3D6"
+
+[colors.bright]
+black = "#3A2C25"
+red = "#FF6B4A"
+green = "#B5C85E"
+yellow = "#FFE08F"
+blue = "#7FC4E8"
+magenta = "#C986BE"
+cyan = "#84D8D2"
+white = "#FFF8EE"

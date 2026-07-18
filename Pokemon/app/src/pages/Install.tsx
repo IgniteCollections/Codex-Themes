@@ -161,8 +161,10 @@ function SceneTabs() {
             {([
               { code: snip.install, lang: 'bash', filename: '① 收服主题（终端执行）' },
               { code: snip.toml, lang: 'toml', filename: '② ~/.codex/config.toml' },
-              { code: snip.json, lang: 'json', filename: `③ codex-theme-${active}.json（终端模拟器调色板）` },
-              { code: snip.css, lang: 'css', filename: `④ theme-${active}.css（网页变量）` },
+              { code: snip.json, lang: 'json', filename: `③ codex-theme-${active}.json（Windows Terminal 调色板）` },
+              { code: snip.alacritty, lang: 'toml', filename: `④ pokemon-${active}.toml（Alacritty）` },
+              { code: snip.kitty, lang: 'bash', filename: `⑤ pokemon-${active}.conf（kitty）` },
+              { code: snip.css, lang: 'css', filename: `⑥ theme-${active}.css（网页变量）` },
             ] as const).map((b) => (
               <motion.div
                 key={b.filename}
@@ -340,7 +342,7 @@ function InlineCode({ children }: { children: ReactNode }) {
 const FAQS: Array<{ q: string; a: ReactNode }> = [
   {
     q: '支持哪些终端？',
-    a: '任何支持真彩色（24-bit）的终端：Windows Terminal、iTerm2、Alacritty、kitty、WezTerm 以及 VS Code 内置终端。JSON 方案可直接导入 Windows Terminal。',
+    a: '任何支持真彩色（24-bit）的终端：Windows Terminal、iTerm2、Alacritty、kitty、WezTerm 以及 VS Code 内置终端。每场景提供四种导入格式——Windows Terminal JSON（③）、Alacritty TOML（④）、kitty conf（⑤），iTerm2 用户可下载仓库 Pokemon/themes/terminal/ 下的 .itermcolors 双击导入。',
   },
   {
     q: '如何还原默认主题？',
