@@ -4,13 +4,11 @@
 
 三个候选素材仓库的详细调研，用于网站插画/图标与主题装饰。
 
-## ⚠️ 版权总览（先看这个）
+> **2026-07-18 更新**：仓库所有者确认为个人私人用途，不在意素材版权限制。素材使用策略改为：PokeAPI/sprites 的 Gen III sprite 与官方立绘直接下载入库，NightCatSama/pokedex 的中文数据摘录使用。最新的素材使用设计以 [pokemon-theme-design.md](pokemon-theme-design.md#4-宝可梦素材使用设计私人使用官方-sprite-直接入库) 为准；本文件保留三库调研事实。
 
-**三个仓库的素材全部是宝可梦公司（The Pokémon Company）版权资产的衍生品，没有一个有自由许可证。** 这意味着：
+## ⚠️ 版权事实（存档）
 
-- 本仓库的**展示网站**用字符画/像素块自绘宝可梦元素（info.md 原本就这么要求），不嵌入任何抓取图片 —— 保持这个决策最安全
-- 如果将来要在网站里展示官方 sprite，优先选 PokeAPI/sprites（出处最正、社区使用最广），且只用于非商业展示、注明出处；分发给终端用户的主题产物（`.tmTheme`、config）本身不含图片，无此风险
-- NightCatSama/pokedex 和 HybridShivam/Pokemon 的素材**不建议直接拷贝进本仓库**
+三个仓库的素材均为宝可梦公司版权资产的衍生品，无自由许可证。私人使用场景下由仓库所有者自行承担风险；本项目的主题产物（`.tmTheme`、config）本身不含图片，不受此影响。
 
 ## 1. NightCatSama/pokedex
 
@@ -54,12 +52,14 @@
 
 **对本项目的用途**：不使用。立绘风格与像素风冲突，版权风险最高。
 
-## 结论
+## 结论（2026-07-18 修订）
 
-1. 网站宝可梦视觉元素：**自绘字符画/像素块**（现状，保持）
-2. 中文名/图鉴描述文案：参考 NightCatSama/pokedex 的 `pokemon.json` 手工摘录
-3. 像素风美术参考：PokeAPI/sprites 的 Gen III sprite（只作风格参考，不拷贝入库）
-4. HybridShivam/Pokemon：弃用
+1. 网站宝可梦图像：**PokeAPI/sprites Gen III sprite 直接入库**（64×64 像素风，与 GBA 定位契合）；招牌宝可梦可加官方立绘
+2. 中文名/图鉴描述：从 NightCatSama/pokedex 的 `pokemon.json` 摘录入库
+3. 字符画保留用于终端上下文装饰
+4. HybridShivam/Pokemon：不需要（立绘已有 PokeAPI 来源）
+
+具体入库清单与页面使用方式见 [pokemon-theme-design.md §4](pokemon-theme-design.md)。
 
 ## 附录：本项目 24 只宝可梦的图鉴 ID
 
