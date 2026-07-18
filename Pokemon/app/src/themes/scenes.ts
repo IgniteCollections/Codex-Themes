@@ -3,12 +3,12 @@
    数据逐字来自 design.md §7 与 home.md 演示脚本。
    ============================================================ */
 
-export type SceneId = 'grassland' | 'ocean' | 'cave' | 'magma' | 'snowfield' | 'plant';
+export type SceneId = 'grassland' | 'ocean' | 'cave' | 'magma' | 'snowfield' | 'plant' | 'space';
 
 /** SceneId -> tmTheme 文件名后缀（plant 对应 pokemon-power-plant.tmTheme） */
 export const SCENE_THEME_SLUG: Record<SceneId, string> = {
   grassland: 'grassland', ocean: 'ocean', cave: 'cave',
-  magma: 'magma', snowfield: 'snowfield', plant: 'power-plant',
+  magma: 'magma', snowfield: 'snowfield', plant: 'power-plant', space: 'space',
 };
 
 /** 横幅着色角色 -> CSS 变量（见 TerminalWindow.bannerColor） */
@@ -47,7 +47,8 @@ export interface SceneDef {
   flavorShort: string; // 漫游卡一句
   keywords: string[];
   desc: string;        // 设计说明（图鉴口吻）
-  pokemon: Pokemon[];        // 招牌 + 常规遭遇
+  pokemon: Pokemon[];        // 招牌 + 常规遭遇（≥5，进化链单独成位）
+  starterLine?: Pokemon[];   // 御三家/家族进化链（初始→一段→最终，图鉴页成长排列）
   legendaries: Pokemon[];    // 神兽/幻兽池（图鉴页 ??? 槽位）
   legendaryHint: string;     // 神兽池暗示文案
   ansi: string[];      // 16 色：0-7 normal, 8-15 bright
@@ -87,6 +88,13 @@ const grassland: SceneDef = {
     { id: 43, name: '走路草', types: ['草', '毒'], role: 'encounter', flavor: '白天把根扎进土里一动不动，夜里会到处走动散播种子。' },
     { id: 10, name: '绿毛虫', types: ['虫'], role: 'encounter', flavor: '从触角释放出强烈的臭气来赶走敌人，以此保护自己。' },
     { id: 16, name: '波波', types: ['一般', '飞行'], role: 'encounter', flavor: '性格温和，不喜欢战斗，但如果被欺负会扬起沙子反击。' },
+    { id: 133, name: '伊布', types: ['一般'], role: 'encounter', flavor: '拥有不稳定的遗传基因，会根据环境进化成各种形态。' },
+    { id: 192, name: '向日花怪', types: ['草'], role: 'encounter', flavor: '追逐太阳移动，太阳下山后会闭合花瓣一动不动。' },
+  ],
+  starterLine: [
+    { id: 1, name: '妙蛙种子', types: ['草', '毒'], role: 'mascot', flavor: '出生的时候背上就有一颗种子，种子会跟着身体一起长大。' },
+    { id: 2, name: '妙蛙草', types: ['草', '毒'], role: 'encounter', flavor: '背上的花苞越来越大，快要开花时身体会散发出香味。' },
+    { id: 3, name: '妙蛙花', types: ['草', '毒'], role: 'encounter', flavor: '盛开的大花能吸收太阳能量，据说雨天后的花香会安抚人心。' },
   ],
   legendaries: [
     { id: 251, name: '时拉比', types: ['超能力', '草'], role: 'legendary', flavor: '能穿越时间的森林守护神，出现过的森林会草木繁茂。' },
@@ -145,8 +153,15 @@ const ocean: SceneDef = {
   pokemon: [
     { id: 130, name: '暴鲤龙', types: ['水', '飞行'], role: 'mascot', flavor: '一旦现身就会破坏一切，狂暴到把整片海域搅得天翻地覆。' },
     { id: 131, name: '拉普拉斯', types: ['水', '冰'], role: 'encounter', flavor: '智商很高，能听懂人话，喜欢载人渡海。' },
-    { id: 72, name: '玛瑙水母', types: ['水', '毒'], role: 'encounter', flavor: '身体几乎全是水，会随着海流成群漂流到岸边。' },
     { id: 129, name: '鲤鱼王', types: ['水'], role: 'encounter', flavor: '只会跳来跳去的弱小宝可梦，但据说跳过龙门的个体能化龙。' },
+    { id: 72, name: '玛瑙水母', types: ['水', '毒'], role: 'encounter', flavor: '身体几乎全是水，会随着海流成群漂流到岸边。' },
+    { id: 116, name: '墨海马', types: ['水'], role: 'encounter', flavor: '用尾巴缠住珊瑚固定身体，从嘴里喷出墨汁逃跑。' },
+    { id: 370, name: '爱心鱼', types: ['水'], role: 'encounter', flavor: '心形的身体象征着爱情，据说会给恋人带来好运。' },
+  ],
+  starterLine: [
+    { id: 7, name: '杰尼龟', types: ['水'], role: 'encounter', flavor: '把头和四肢缩进壳里时，会从口中喷出强力的水枪。' },
+    { id: 8, name: '卡咪龟', types: ['水'], role: 'encounter', flavor: '毛茸茸的尾巴是长寿的象征，据说能活一万年。' },
+    { id: 9, name: '水箭龟', types: ['水'], role: 'encounter', flavor: '背上的两门水炮能射穿铁板，威力巨大。' },
   ],
   legendaries: [
     { id: 249, name: '洛奇亚', types: ['超能力', '飞行'], role: 'legendary', flavor: '被称为海神的传说宝可梦，轻轻振翅就能摧毁房屋，因此隐居深海。' },
@@ -200,13 +215,20 @@ const cave: SceneDef = {
   pokemon: [
     { id: 95, name: '大岩蛇', types: ['岩石', '地面'], role: 'mascot', flavor: '在地下一边旋转身体一边掘进，时速可达 80 公里。' },
     { id: 41, name: '超音蝠', types: ['毒', '飞行'], role: 'encounter', flavor: '没有眼睛，靠超声波在黑暗中飞行和探路。' },
-    { id: 74, name: '小拳石', types: ['岩石', '地面'], role: 'encounter', flavor: '圆圆的像块石头，登山道上经常被误踢。' },
     { id: 50, name: '地鼠', types: ['地面'], role: 'encounter', flavor: '在地下挖洞前进，被它耕过的土地会变得松软适合耕种。' },
+    { id: 374, name: '铁哑铃', types: ['钢', '超能力'], role: 'encounter', flavor: '靠磁力浮在空中，用脑电波和同伴交流。' },
+    { id: 408, name: '头盖龙', types: ['岩石'], role: 'encounter', flavor: '一亿年前的宝可梦，头盖骨像铁一样坚硬。' },
+  ],
+  starterLine: [
+    { id: 74, name: '小拳石', types: ['岩石', '地面'], role: 'encounter', flavor: '圆圆的像块石头，登山道上经常被误踢。' },
+    { id: 75, name: '隆隆石', types: ['岩石', '地面'], role: 'encounter', flavor: '从山上滚落时一路碾压，身体越滚越圆滑。' },
+    { id: 76, name: '隆隆岩', types: ['岩石', '地面'], role: 'encounter', flavor: '硬邦邦的身体不怕任何攻击，炸开岩石开路。' },
   ],
   legendaries: [
     { id: 377, name: '雷吉洛克', types: ['岩石'], role: 'legendary', flavor: '全身由岩石构成，损坏的部分会用新的岩石修补。' },
     { id: 379, name: '雷吉斯奇鲁', types: ['钢'], role: 'legendary', flavor: '钢铁之躯经过数万年重压，比任何金属都坚硬。' },
     { id: 378, name: '雷吉艾斯', types: ['冰'], role: 'legendary', flavor: '身体由南极的冰构成，零下 200 度，靠近就会结冰。' },
+    { id: 376, name: '巨金怪', types: ['钢', '超能力'], role: 'legendary', flavor: '由两只金属怪合体而成，四台大脑并列运算快过超级计算机。' },
   ],
   legendaryHint: '隧道尽头的石壁上，浮现出奇怪的圆点图案……',
   ansi: ['#26262E', '#C4564A', '#8A9A5B', '#D9B44A', '#4F7FA6', '#6B5B95', '#7BD3C8', '#D8D5C8',
@@ -260,6 +282,13 @@ const magma: SceneDef = {
     { id: 126, name: '鸭嘴火兽', types: ['火'], role: 'encounter', flavor: '体温高达 1200 度，从嘴和指尖喷出火焰。' },
     { id: 218, name: '熔岩虫', types: ['火'], role: 'encounter', flavor: '体内循环着高温熔岩，冷却下来就会变硬无法动弹。' },
     { id: 324, name: '煤炭龟', types: ['火'], role: 'encounter', flavor: '甲壳里烧着煤炭，遇到敌人会喷出黑烟逃走。' },
+    { id: 58, name: '卡蒂狗', types: ['火'], role: 'encounter', flavor: '忠诚勇敢的宝可梦，会对着比它大的敌人吼叫。' },
+    { id: 322, name: '呆火驼', types: ['火', '地面'], role: 'encounter', flavor: '背上的驼峰里储存着熔岩，愤怒时会喷发。' },
+  ],
+  starterLine: [
+    { id: 4, name: '小火龙', types: ['火'], role: 'mascot', flavor: '尾巴上的火焰代表它的心情，火焰旺盛时说明它精神饱满。' },
+    { id: 5, name: '火恐龙', types: ['火'], role: 'encounter', flavor: '性格粗暴，尾巴的火焰越烧越旺时会变得好战。' },
+    { id: 6, name: '喷火龙', types: ['火', '飞行'], role: 'encounter', flavor: '翅膀能飞到 1400 米高空，喷出的火焰能融化岩石。' },
   ],
   legendaries: [
     { id: 146, name: '火焰鸟', types: ['火', '飞行'], role: 'legendary', flavor: '传说中的鸟宝可梦，翅膀上燃烧的火焰能把夜空照得通亮。' },
@@ -314,10 +343,14 @@ const snowfield: SceneDef = {
     { id: 471, name: '冰伊布', types: ['冰'], role: 'mascot', flavor: '伊布的进化形，能让体毛冻结成锐利的冰针射出。' },
     { id: 144, name: '急冻鸟', types: ['冰', '飞行'], role: 'encounter', flavor: '传说中的鸟宝可梦，飞过之处会降下雪花。' },
     { id: 363, name: '海豹球', types: ['冰', '水'], role: 'encounter', flavor: '在冰面上翻滚比走路更快，圆圆的身体怎么撞都不怕。' },
+    { id: 220, name: '小山猪', types: ['冰', '地面'], role: 'encounter', flavor: '用鼻子拱开积雪寻找食物，有时会挖出温泉。' },
+    { id: 459, name: '雪笠怪', types: ['草', '冰'], role: 'encounter', flavor: '站在雪地里一动不动装成树，等猎物靠近。' },
+  ],
+  starterLine: [
     { id: 361, name: '雪童子', types: ['冰'], role: 'encounter', flavor: '只生活在积雪深厚的寒冷地区，据说会带来财富。' },
+    { id: 362, name: '冰鬼护', types: ['冰'], role: 'legendary', flavor: '体内的寒气能瞬间冻结空气中的水分，张开的嘴是冰之牙。' },
   ],
   legendaries: [
-    { id: 362, name: '冰鬼护', types: ['冰'], role: 'legendary', flavor: '体内的寒气能瞬间冻结空气中的水分，张开的嘴是冰之牙。' },
     { id: 646, name: '酋雷姆', types: ['龙', '冰'], role: 'legendary', flavor: '拥有最强冷冻能力的龙宝可梦，等待着重获完整之躯。' },
   ],
   legendaryHint: '暴风雪的另一头，一双蓝色的眼睛正注视着这边……',
@@ -368,6 +401,13 @@ const plant: SceneDef = {
     { id: 81, name: '小磁怪', types: ['电', '钢'], role: 'encounter', flavor: '从身体两侧的磁铁放出磁力，浮在空中前进。' },
     { id: 125, name: '电击兽', types: ['电'], role: 'encounter', flavor: '喜欢电力，常出现在发电厂附近偷吃电能。' },
     { id: 100, name: '雷电球', types: ['电'], role: 'encounter', flavor: '外形酷似精灵球，一受刺激就会爆炸，经常被人误捡。' },
+    { id: 82, name: '三合一磁怪', types: ['电', '钢'], role: 'encounter', flavor: '三只小磁怪连在一起，磁力强大到会吸走周围的铁器。' },
+    { id: 239, name: '电击怪', types: ['电'], role: 'encounter', flavor: '头上插着插头，摇晃身体储存电能。' },
+  ],
+  starterLine: [
+    { id: 172, name: '皮丘', types: ['电'], role: 'encounter', flavor: '脸颊的电气袋还很小，受到惊吓会不小心放电电到自己。' },
+    { id: 25, name: '皮卡丘', types: ['电'], role: 'mascot', flavor: '脸颊上的电气袋储存电力，生气时会一口气放电。' },
+    { id: 26, name: '雷丘', types: ['电'], role: 'encounter', flavor: '电力强到能电倒一头大象，尾巴用来接地释放多余电力。' },
   ],
   legendaries: [
     { id: 145, name: '闪电鸟', types: ['电', '飞行'], role: 'legendary', flavor: '传说中的鸟宝可梦，振翅时会响起雷鸣，栖息在雷云之中。' },
@@ -408,10 +448,73 @@ const plant: SceneDef = {
   ],
 };
 
-export const SCENES: SceneDef[] = [grassland, ocean, cave, magma, snowfield, plant];
+/* ---------------- No.007 宇宙 · 天空 ---------------- */
+const space: SceneDef = {
+  id: 'space',
+  no: 'No.007', name: '宇宙', en: 'SPACE', route: '天空之柱顶点 · SKY PILLAR APEX',
+  symbol: '☄', icon: '/icon-space.svg', image: '/scene-space.svg',
+  encounter: '野生的 烈空坐 降临了！',
+  flavor: '野生的 烈空坐 降临了！臭氧层的风暴在为它让路。',
+  flavorShort: '臭氧层的风暴在为它让路。',
+  keywords: ['#天空之柱', '#臭氧层', '#流星', '#许愿星'],
+  desc: '天空之柱的顶点，云层之上。深空黑压底，臭氧紫是平流层的暮色，流星金负责强调，裂空绿只给最重要的成功——像穿过云层的那个身影。凤王的虹色不出现在色板里，它属于云海之上的传说。',
+  pokemon: [
+    { id: 384, name: '烈空坐', types: ['龙', '飞行'], role: 'mascot', flavor: '栖息在臭氧层的传说宝可梦，以陨石为食，能平息固拉多与盖欧卡的争斗。' },
+    { id: 149, name: '快龙', types: ['龙', '飞行'], role: 'encounter', flavor: '16 小时就能绕地球一圈，会救助海上遇难的船只。' },
+    { id: 887, name: '多龙巴鲁托', types: ['龙', '幽灵'], role: 'encounter', flavor: '角上的洞里住着多龙梅西亚，能以音速发射出去。' },
+    { id: 337, name: '月石', types: ['岩石', '超能力'], role: 'encounter', flavor: '据说来自月球，满月之夜会飘浮在空中吸收月光。' },
+    { id: 338, name: '太阳岩', types: ['岩石', '超能力'], role: 'encounter', flavor: '据说来自太阳，旋转身体时能发出太阳般的光和热。' },
+    { id: 334, name: '七夕青鸟', types: ['龙', '飞行'], role: 'encounter', flavor: '拥有棉花般蓬松的翅膀，歌声优美，会在云层上跳舞。' },
+  ],
+  starterLine: [
+    { id: 371, name: '宝贝龙', types: ['龙'], role: 'encounter', flavor: '梦想着飞上天空，把头撞得又硬又结实。' },
+    { id: 372, name: '甲壳龙', types: ['龙'], role: 'encounter', flavor: '坚硬的甲壳里正在孕育翅膀，破壳前不吃不喝。' },
+    { id: 373, name: '暴飞龙', types: ['龙', '飞行'], role: 'encounter', flavor: '终于长出翅膀的宝可梦，在天空中尽情翱翔。' },
+  ],
+  legendaries: [
+    { id: 250, name: '凤王', types: ['火', '飞行'], role: 'legendary', flavor: '传说中的虹色宝可梦，飞过之处会留下彩虹，见到它的人会获得幸福。' },
+    { id: 380, name: '拉帝亚斯', types: ['龙', '超能力'], role: 'legendary', flavor: '水都的守护神之一，能隐身飞行，温柔地守护心爱之人。' },
+    { id: 381, name: '拉帝欧斯', types: ['龙', '超能力'], role: 'legendary', flavor: '水都的守护神之一，速度超越喷气机，能看透人心。' },
+    { id: 386, name: '代欧奇希斯', types: ['超能力'], role: 'legendary', flavor: '宇宙病毒的 DNA 突变而成的宝可梦，能自由变换四种形态。' },
+    { id: 385, name: '基拉祈', types: ['钢', '超能力'], role: 'legendary', flavor: '千年醒来一次的许愿星，据说能实现任何愿望。' },
+  ],
+  legendaryHint: '彩虹划过云海，两颗流星在水都的上空交错而过……',
+  ansi: ['#0B0B1E', '#E05A7A', '#00A86B', '#FFD700', '#6C5CE7', '#C77DBB', '#5FD4D0', '#E8E8F8',
+         '#26264A', '#F28597', '#3FD99A', '#FFE169', '#8F7DF0', '#E2A3D8', '#8FE8E4', '#FFFFFF'],
+  ui: {
+    bg: '#0B0B1E', panel: '#131331', inset: '#070716', fg: '#E8E8F8', 'fg-dim': '#9A9AC0',
+    prompt: '#FFD700', output: '#D8D8F0', success: '#3FD99A', warning: '#FFD700', error: '#F28597',
+    accent: '#8F7DF0', 'accent-2': '#6C5CE7', border: '#2E2E56', selection: '#23234A',
+    'diff-add-bg': 'rgba(0,168,107,.15)', 'diff-add-fg': '#3FD99A',
+    'diff-del-bg': 'rgba(224,90,122,.18)', 'diff-del-fg': '#F28597',
+    'status-bg': '#1B1B3E', 'status-fg': '#FFD700',
+  },
+  banner: [
+    L('  ✦ 　 ˚ 　　 ✦ 　　˚ 　　　 ✦ 　 ˚ 　 ✦', 'dim'),
+    mix({ t: '     ˚ 　　　', r: 'dim' }, { t: '☄', r: 'prompt' }, { t: ' 　　　 ˚ 　　　 ✦', r: 'dim' }),
+    L('        ▄▄▄▄', 'output'),
+    L('      ▄█▀▀▀▀█▄', 'output'),
+    L('      █ ▄  ▄ █', 'output'),
+    mix({ t: '      █ ▐▌▐▌ █      ', r: 'output' }, { t: '野生的 烈空坐 降临了！', r: 'prompt' }),
+    mix({ t: '      █  ▀▀  █      ', r: 'output' }, { t: '臭氧层的风暴在为它让路。', r: 'prompt' }),
+    L('     ▄█▄▄▄▄▄▄▄█▄', 'output'),
+    L('  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀', 'accent'),
+    L(' ─── 天空之柱顶点 · SKY PILLAR APEX ───'),
+  ],
+  script: [
+    { kind: 'user', text: '给这个接口加上超时和降级' },
+    { kind: 'think', text: '✦ 分析 src/api/client.ts · 网络层薄弱点 2 处…' },
+    { kind: 'plan', text: '  修改 src/api/client.ts（2 处）' },
+    { kind: 'add', text: '+const res = await timeout(fetch(url), 5000)' },
+    { kind: 'add', text: '+  .catch(() => fallbackCache.get(url))' },
+    { kind: 'success', text: '✔ 完成 · 接口韧性 +2 · 烈空坐在云端为你护航' },
+  ],
+};
+
+export const SCENES: SceneDef[] = [grassland, ocean, cave, magma, snowfield, plant, space];
 
 export const SCENE_MAP: Record<SceneId, SceneDef> = {
-  grassland, ocean, cave, magma, snowfield, plant,
+  grassland, ocean, cave, magma, snowfield, plant, space,
 };
 
 export const SCENE_IDS: SceneId[] = SCENES.map((s) => s.id);

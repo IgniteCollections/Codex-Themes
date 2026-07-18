@@ -285,6 +285,51 @@ function UiColorTable({ scene, onCopy }: { scene: SceneDef; onCopy: (hex: string
   );
 }
 
+/* ---------------- S3 左栏：御三家进化链（sprite 24→48→72px 成长排列） ---------------- */
+function StarterLine({ scene }: { scene: SceneDef }) {
+  if (!scene.starterLine || scene.starterLine.length === 0) return null;
+  const sizes = ['h-8 w-8', 'h-12 w-12', 'h-[72px] w-[72px]'];
+  return (
+    <div className="mb-6">
+      <p className="pixel-label mb-3 text-[10px]" style={{ color: 'var(--sc-fg-dim)' }}>
+        进化链
+      </p>
+      <div className="flex items-end gap-3">
+        {scene.starterLine.map((p, i) => (
+          <div key={p.id} className="flex items-end gap-3">
+            <div className="flex flex-col items-center gap-1.5">
+              <div
+                className="pixel-corners flex items-center justify-center border p-1"
+                style={{ background: 'var(--sc-inset)', borderColor: 'var(--sc-border)' }}
+              >
+                <img
+                  src={pokemonSprite(p)}
+                  alt={p.name}
+                  className={cn('object-contain', sizes[Math.min(i, sizes.length - 1)])}
+                  style={{ imageRendering: 'pixelated' }}
+                  loading="lazy"
+                />
+              </div>
+              <span className="font-mono text-[10px] leading-none" style={{ color: 'var(--sc-fg-dim)' }}>
+                {p.name}
+              </span>
+            </div>
+            {i < scene.starterLine!.length - 1 && (
+              <span
+                aria-hidden
+                className="mb-7 font-pixel text-sm"
+                style={{ color: 'var(--sc-prompt)' }}
+              >
+                →
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- S3 档案卡（每张卡根节点带自己的 data-scene，按该场景皮肤渲染） ---------------- */
 function ArchiveCard({ scene, mirror }: { scene: SceneDef; mirror: boolean }) {
   const { notify } = useScene();
@@ -381,6 +426,9 @@ function ArchiveCard({ scene, mirror }: { scene: SceneDef; mirror: boolean }) {
                 </div>
               );
             })()}
+
+            {/* 御三家进化链 */}
+            <StarterLine scene={scene} />
 
             {/* 出没宝可梦 */}
             <div className="mb-6">
@@ -609,7 +657,7 @@ export default function Scenes() {
       <header className="mx-auto flex max-w-[1200px] items-end justify-between gap-8 px-6 pb-12 pt-24 max-sm:px-4">
         <div>
           <p className="pixel-label anim-pixel-flash mb-4" style={{ color: 'var(--sc-accent)' }}>
-            SCENE DEX · 図鑑 No.001–006
+            SCENE DEX · 図鑑 No.001–007
           </p>
           <h1
             className="font-display text-[34px] leading-[1.15] tracking-wide md:text-5xl"
@@ -702,7 +750,7 @@ export default function Scenes() {
             className="cta-el font-display mb-4 text-[32px] tracking-wide"
             style={{ color: 'var(--sc-fg)' }}
           >
-            收服全部 6 个场景
+            收服全部 7 个场景
           </h2>
           <p className="cta-el mb-8 text-base" style={{ color: 'var(--sc-fg-dim)' }}>
             每一套配置都可以直接复制。

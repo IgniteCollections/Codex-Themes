@@ -113,7 +113,7 @@ function buildCss(s: SceneDef): string {
   return lines.join('\n');
 }
 
-/** 6 场景配置片段（模块加载时计算一次） */
+/** 7 场景配置片段（模块加载时计算一次） */
 export const SNIPPETS: Record<SceneId, SceneSnippets> = Object.fromEntries(
   SCENES.map((s) => [s.id, {
     install: buildInstall(s),
