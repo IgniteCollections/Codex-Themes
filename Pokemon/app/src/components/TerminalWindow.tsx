@@ -16,6 +16,19 @@ const ROLE_COLOR: Record<BannerRole, string> = {
 const BLOCK_KINDS: ScriptLineKind[] = ['add', 'del', 'meta', 'ctx'];
 const isBlock = (k: ScriptLineKind) => BLOCK_KINDS.includes(k);
 
+/** 每轮演示随机抽 5 只遭遇宝可梦（cycle 变化即重抽） */
+function pickFive<T>(pool: T[], cycle: number): T[] {
+  const arr = [...pool];
+  // cycle 作盐搅乱顺序（Fisher–Yates 简化版，避免依赖外部随机源保持可复现节奏）
+  let seed = (cycle + 1) * 2654435761;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, 5);
+}
+
 /* 文本中的文件路径用 --sc-accent 高亮（design.md §6.4 着色规则） */
 function AccentPath({ text, base }: { text: string; base: string }) {
   const m = /src\/[^\s（(]+/.exec(text);
@@ -273,11 +286,11 @@ export default function TerminalWindow({
             fading && 'opacity-0',
           )}
         >
-          {/* 招牌 + 遭遇阵容像素画（sprite 原图直出）+ 场景横幅装饰行 */}
+          {/* 招牌（神兽池随机 1 只）+ 遭遇阵容随机 5 只 + 场景横幅装饰行 */}
           <div key={cycle} className="anim-pixel-flash flex flex-none items-end gap-4">
             <img
-              src={POKEMON_ART[String(scene.pokemon[0]?.id)]?.full}
-              alt={scene.pokemon[0]?.name ?? scene.name}
+              src={POKEMON_ART[String((scene.legendaries[cycle % scene.legendaries.length] ?? scene.pokemon[0]).id)]?.full}
+              alt={(scene.legendaries[cycle % scene.legendaries.length] ?? scene.pokemon[0]).name}
               className="h-[104px] w-[104px] flex-none object-contain"
               style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,.5))' }}
             />
@@ -295,9 +308,9 @@ export default function TerminalWindow({
                   ),
                 )}
               </pre>
-              {/* 遭遇阵容（招牌之后的常规出没宝可梦） */}
+              {/* 遭遇阵容（随机抽 5 只，每轮演示重抽） */}
               <div className="flex items-end gap-1.5">
-                {scene.pokemon.slice(1).map((p) => (
+                {pickFive(scene.pokemon.slice(1), cycle).map((p) => (
                   <img
                     key={p.id}
                     src={POKEMON_ART[String(p.id)]?.half}

@@ -13,6 +13,18 @@ const ROLE_COLOR: Record<BannerRole, string> = {
 };
 
 const BLOCK_KINDS: ScriptLineKind[] = ["add", "del", "meta", "ctx"];
+
+/** 每轮演示随机抽 5 只遭遇宝可梦（cycle 变化即重抽） */
+function pickFive<T>(pool: T[], cycle: number): T[] {
+  const arr = [...pool];
+  let seed = (cycle + 1) * 2654435761;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, 5);
+}
 const isBlock = (k: ScriptLineKind) => BLOCK_KINDS.includes(k);
 
 function AccentPath({ text, base }: { text: string; base: string }) {
@@ -171,8 +183,8 @@ export default function TerminalPreview({ scene }: { scene: SceneDef }) {
           <div className="tp-banner-row">
             <img
               className="tp-mascot"
-              src={POKEMON_ART[String(scene.pokemon[0]?.id)]?.full}
-              alt={scene.pokemon[0]?.name ?? scene.name}
+              src={POKEMON_ART[String((scene.legendaries[cycle % scene.legendaries.length] ?? scene.pokemon[0]).id)]?.full}
+              alt={(scene.legendaries[cycle % scene.legendaries.length] ?? scene.pokemon[0]).name}
             />
             <div className="tp-banner-side">
               <pre className="tp-banner">
@@ -189,7 +201,7 @@ export default function TerminalPreview({ scene }: { scene: SceneDef }) {
                 )}
               </pre>
               <div className="tp-roster">
-                {scene.pokemon.slice(1).map((p) => (
+                {pickFive(scene.pokemon.slice(1), cycle).map((p) => (
                   <img
                     key={p.id}
                     src={POKEMON_ART[String(p.id)]?.half}
