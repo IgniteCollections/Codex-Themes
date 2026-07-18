@@ -57,7 +57,6 @@ export interface SceneDef {
   banner: BannerLine[];
   script: ScriptLine[];
 }
-
 /** 把一行按场景符号切分为 dim/prompt 段 */
 function sym(symbol: string, line: string, base: BannerRole = 'dim'): BannerSeg[] {
   const out: BannerSeg[] = [];
@@ -72,7 +71,6 @@ function sym(symbol: string, line: string, base: BannerRole = 'dim'): BannerSeg[
   return out;
 }
 const L = (t: string, r: BannerRole = 'dim'): BannerSeg[] => [{ t, r }];
-const mix = (...segs: BannerSeg[]): BannerSeg[] => segs;
 
 /* ---------------- No.001 草原 ---------------- */
 const grassland: SceneDef = {
@@ -114,16 +112,7 @@ const grassland: SceneDef = {
     'status-bg': '#4A7C2F', 'status-fg': '#F5FBEA',
   },
   banner: [
-    sym('❀', '   ❀    ,     ❀    ,     ❀'),
-    L('  ,   ,\\|/,   ,   ,\\|/,   ,'),
-    L(' ░░░░░░░░░░░░░░░░░░░░░░░░░░░░'),
-    L('        ▄  ▄'),
-    L('       ▄█▄▄█▄        ❀ ❀'),
-    L('      █ ◉   ◉ █'),
-    mix({ t: '      █  ▼▼  █   ', r: 'dim' }, { t: '野生的 时拉比 出现了！', r: 'prompt' }),
-    mix({ t: '       ▀█▄▄█▀    ', r: 'dim' }, { t: '微风带来了青草的香气。', r: 'prompt' }),
-    L('      ▄█▀  ▀█▄'),
-    L('     ▀▀ ▄▄▄▄ ▀▀'),
+    sym('❀', ' ❀   ,    ❀   ,    ❀   ,    ❀'),
     L(' ─── 1号道路 · GRASSLAND ROUTE ───'),
   ],
   script: [
@@ -179,15 +168,7 @@ const ocean: SceneDef = {
     'status-bg': '#0C3B5D', 'status-fg': '#EAF7FD',
   },
   banner: [
-    L('  ～ ≈ ～ ≈ ～ ≈ ～ ≈ ～ ≈ ～', 'dim'),
-    L('           ▄▄███▄▄'),
-    L('        ▄█▀▀▀▀▀▀▀█▄'),
-    L('       █ ▄▄▄▄▄▄▄▄▄ █'),
-    mix({ t: '  ≈≈  █ █▀███████▀ █ █▄▄   ', r: 'dim' }, { t: '起源盖欧卡 从深海苏醒了！', r: 'prompt' }),
-    mix({ t: '      █ █▄███████▄ █ █▀▀   ', r: 'dim' }, { t: '潮汐随它的呼吸涨落。', r: 'prompt' }),
-    L('       █ ▀▀▀▀▀▀▀▀▀ █'),
-    L('        ▀█▄▄▄▄▄▄▄█▀'),
-    L('  ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈', 'accent'),
+    L(' ≈ ～ ≈ ～ ≈ ～ ≈ ～ ≈ ～ ≈ ～', 'dim'),
     L(' ─── 19号水路 · OCEAN ROUTE ───'),
   ],
   script: [
@@ -242,15 +223,7 @@ const cave: SceneDef = {
     'status-bg': '#3B3B42', 'status-fg': '#D8D5C8',
   },
   banner: [
-    L('  ◆ ▲ ◆ ▲ ◆ ▲ ◆ ▲ ◆ ▲ ◆ ▲', 'dim'),
-    L('      ▄▄▄    ▄▄▄    ▄▄▄'),
-    L('    ▄█████▄▄█████▄▄█████▄'),
-    L('   ███████████████████████'),
-    mix({ t: '   ██  ▐█████  X  █████▌  ', r: 'dim' }, { t: 'Mega 巨金怪 挡住了矿道！', r: 'prompt' }),
-    mix({ t: '    ███████████████████   ', r: 'dim' }, { t: '洞顶传来金属的共振。', r: 'prompt' }),
-    L('     ▀███▀ ▀███▀ ▀███▀'),
-    L('    ▄▄██▄ ▄▄██▄ ▄▄██▄'),
-    L('  ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆', 'accent'),
+    L(' ◆ ▲ ◆ ▲ ◆ ▲ ◆ ▲ ◆ ▲ ◆ ▲', 'dim'),
     L(' ─── 月见山矿道 · CAVE TUNNEL ───'),
   ],
   script: [
@@ -306,15 +279,7 @@ const magma: SceneDef = {
     'status-bg': '#B73422', 'status-fg': '#FFE9D6',
   },
   banner: [
-    L('  ▲ (  ) (   ) (  ) ▲', 'dim'),
-    L('        ▄▄▄████▄▄▄'),
-    L('      ▄████████████▄'),
-    L('     ██ ◣██████◢ ██'),
-    mix({ t: '    ██  ████████  ██  ', r: 'dim' }, { t: '原始固拉多 踏出了熔岩！', r: 'prompt' }),
-    mix({ t: '    ██ ◢██████◢ ██    ', r: 'dim' }, { t: '大地在它脚下重新沸腾。', r: 'prompt' }),
-    L('     ██████████████'),
-    L('    ▀▀▀▀▀▀▀▀▀▀▀▀▀'),
-    L('  ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲', 'accent'),
+    L(' ▲ (  ) (   ) (  ) ( ▲', 'dim'),
     L(' ─── 红莲岛火山口 · MAGMA CALDERA ───'),
   ],
   script: [
@@ -364,15 +329,7 @@ const snowfield: SceneDef = {
     'status-bg': '#16324A', 'status-fg': '#D9ECF8',
   },
   banner: [
-    L('  ❄ * ❄   * ❄ *   ❄ * ❄', 'dim'),
-    L('           ▄████▄'),
-    L('          █ █  █ █'),
-    L('         ▄█ ▀██▀ █▄'),
-    mix({ t: '     ▄▄ █  █▄▄█  █    ', r: 'dim' }, { t: '蕾冠王 踏雪而来！', r: 'prompt' }),
-    mix({ t: '    ████▄█▀██▀█▄█    ', r: 'dim' }, { t: '蹄印里开出了冰晶的花。', r: 'prompt' }),
-    L('     █ █ █ ██ █ █ █'),
-    L('      ▀  ▀▀██▀▀  ▀'),
-    L('  ❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄', 'accent'),
+    L(' ❄ * ❄   * ❄ *   ❄ * ❄', 'dim'),
     L(' ─── 217号道路 · SNOWFIELD ROUTE ───'),
   ],
   script: [
@@ -425,15 +382,7 @@ const plant: SceneDef = {
     'status-bg': '#23272E', 'status-fg': '#F8D030',
   },
   banner: [
-    L('  ⚡ WARNING · 高压电流 ⚡', 'error'),
-    'stripe',
-    L('         ▄█████▄'),
-    L('        ███▄▄▄███'),
-    L('       ██ ▀███▀ ██'),
-    mix({ t: '       ████▄█▄████   ', r: 'dim' }, { t: '闪电鸟 在机组间降临！', r: 'prompt' }),
-    mix({ t: '      ▄████████████▄  ', r: 'dim' }, { t: '全厂的电压表同时打到满格。', r: 'prompt' }),
-    L('      ▀███▀▀▀▀████▀'),
-    L('        ▀▀▀▄▄▄▄▀▀'),
+    L(' ⚡ WARNING · 高压电流 ⚡', 'error'),
     'stripe',
     L(' ─── 无人发电厂 · POWER PLANT ───'),
   ],
@@ -489,15 +438,7 @@ const space: SceneDef = {
     'status-bg': '#1B1B3E', 'status-fg': '#FFD700',
   },
   banner: [
-    L('  ✦ 　 ˚ 　　 ✦ 　　˚ 　　　 ✦ 　 ˚ 　 ✦', 'dim'),
-    mix({ t: '     ˚ 　　　', r: 'dim' }, { t: '☄', r: 'prompt' }, { t: ' 　　　 ˚ 　　　 ✦', r: 'dim' }),
-    L('        ▄██▄ ▄ ▄██▄'),
-    L('       █ ██ ██ ██ █'),
-    mix({ t: '      ██ █▄▄▄▄▄▄█ ██   ', r: 'output' }, { t: 'Mega 裂空座 撕裂云层！', r: 'prompt' }),
-    mix({ t: '       ▀█▄██████▄█▀    ', r: 'output' }, { t: '臭氧层的风暴在为它让路。', r: 'prompt' }),
-    L('      ▄█▀ ██▄▄██ ▀█▄'),
-    L('     ▀▀   ▀▀██▀▀   ▀▀'),
-    L('  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀', 'accent'),
+    L(' ✦ 　 ˚ 　　 ✦ 　　˚ 　　　 ✦ 　 ˚', 'dim'),
     L(' ─── 天空之柱顶点 · SKY PILLAR APEX ───'),
   ],
   script: [
@@ -546,15 +487,7 @@ const city: SceneDef = {
     'status-bg': '#2E1652', 'status-fg': '#F8B4D9',
   },
   banner: [
-    L('  ✦ ˚ 　　 ✦ 　　˚ 　 ✦ 　 ˚ 　　✦', 'dim'),
-    L(' ▄ ▄▄ ▄ ▄▄▄ ▄▄ ▄ ▄▄ ▄▄▄ ▄ ▄▄ ▄▄', 'output'),
-    L(' █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █', 'output'),
-    L('           ▄▄████▄▄'),
-    mix({ t: '     ✦  ██  ◉  ◉  ██   ', r: 'dim' }, { t: '野生的 梦幻 在霓虹间闪现！', r: 'prompt' }),
-    mix({ t: '       █   ▄▄▄▄   █    ', r: 'dim' }, { t: '整座城市的灯都为它亮了一拍。', r: 'prompt' }),
-    L('        █ ▀ ▀▀▀ ▀ █'),
-    L('       ▄█   ▀▀▀   █▄'),
-    L(' ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀', 'accent'),
+    L(' ✦ ˚ 　　 ✦ 　　˚ 　 ✦ 　 ˚ 　　✦', 'dim'),
     L(' ─── 金黄市天际线 · SAFFRON SKYLINE ───'),
   ],
   script: [
@@ -602,14 +535,7 @@ const lab: SceneDef = {
     'status-bg': '#1A2C40', 'status-fg': '#9B7BF0',
   },
   banner: [
-    L(' ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄', 'output'),
-    L(' █ ┌────┐ ┌──────┐ ┌────┐ █', 'output'),
-    mix({ t: ' █ │▒▒▒▒│ │▓▓▓▓▓▓│ │▒▒▒▒│ █  ', r: 'output' }, { t: '超梦 在培养舱后睁开了眼睛！', r: 'prompt' }),
-    mix({ t: ' █ │▒▒▒▒│ │▓◉▓▓◉▓│ │▒▒▒▒│ █  ', r: 'output' }, { t: '仪器的读数全部爆表。', r: 'prompt' }),
-    L(' █ │▒▒▒▒│ │▓▓██▓▓│ │▒▒▒▒│ █', 'output'),
-    L(' █ │▒▒▒▒│ │▓█▀▀█▓│ │▒▒▒▒│ █', 'output'),
-    L(' █ └────┘ └──────┘ └────┘ █', 'output'),
-    L(' ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀', 'accent'),
+    L(' ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄', 'output'),
     L(' ─── 红莲岛研究所 · CINNABAR LAB ───'),
   ],
   script: [
