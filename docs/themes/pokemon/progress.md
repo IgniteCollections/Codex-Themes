@@ -13,6 +13,7 @@
 | 4 | 场景图鉴页补全 | sprite 芯片、招牌展示卡、神兽池 ??? 槽位 | ✅ | #8 |
 | 5.5 | 桌面 App 主题包 | `themes/desktop/` 7×(.json + .codex-theme.txt) + 生成脚本 + 安装页「桌面客户端」段 | ✅ | #12/#14 |
 | 5.6 | 阵容 v4 + 宇宙场景 | 御三家进化链 + 宇宙（烈空坐）+ 新 sprite 入库 | ✅ | #10–#12 |
+| 5.10 | **招牌神兽化 + 城市/实验室场景** | 7 场景招牌换神兽/Mega 形态（时拉比/起源盖欧卡/Mega巨金怪/Mega喷火龙Y/蕾冠王骑白马/闪电鸟/Mega裂空座）；新增城市(梦幻)/实验室(超梦)场景 × 全产物线 | ✅ | 本 PR |
 | 5.7 | CSS 皮肤包（轨道 B） | `Pokemon/skins/`：pokemon-skin.css + renderer-inject.js + apply.mjs 注入器 | ✅ | #15 |
 | 5.8 | **皮肤工作室 App** | `Pokemon/studio/`：Tauri 托盘 App + vendor Dream Skin 引擎 + 7 套 preset 生成器 | ✅ | #16 |
 | 5.9 | **皮肤商店化 + macOS 适配** | 商店式 UI（皮肤卡片网格 + 详情大预览 + 打字机终端演示 + ANSI 色板 + 出没宝可梦）；macOS 实测修复 5 个缺陷 | ✅ | 本 PR |
@@ -30,7 +31,7 @@
 
 | 校验 | 对象 | 结果 |
 |---|---|---|
-| `plutil -lint` | 6 个 .tmTheme plist | ✅（PR #7） |
+| `plutil -lint` | 9 个 .tmTheme plist | ✅（PR #7 起，本 PR 扩到 9） |
 | `plutil -lint` | 7 个 .itermcolors plist | ✅（本 PR） |
 | JSON 解析校验 | 7 个 Windows Terminal scheme（生成脚本内置） | ✅（本 PR） |
 | 字符串解码对拍 | 7 个 .codex-theme.txt ↔ 同名 .json | ✅ decode 一致 |

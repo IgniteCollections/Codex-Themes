@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- Pokemon Power Plant 无人发电厂 — generated from src/data/scenes.ts, do not edit by hand -->
+<!-- Pokemon Power Plant 无人发电厂 — generated from src/themes/scenes.ts, do not edit by hand -->
 <plist version="1.0">
   <dict>
     <key>name</key>

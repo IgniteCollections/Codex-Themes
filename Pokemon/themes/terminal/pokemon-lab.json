@@ -1,0 +1,11 @@
+{
+  "name": "CODEX · 实验室 Laboratory",
+  "background": "#0C121C",
+  "foreground": "#E8F4F8",
+  "selectionBackground": "#1A2C40",
+  "cursorColor": "#7BD3F0",
+  "black": "#0D1420", "red": "#F2788A", "green": "#3FD99A", "yellow": "#FFD166",
+  "blue": "#5F8EF0", "magenta": "#9B7BF0", "cyan": "#57D3C7", "white": "#E8F4F8",
+  "brightBlack": "#1E3248", "brightRed": "#F28597", "brightGreen": "#6EE8B0", "brightYellow": "#FFE169",
+  "brightBlue": "#8FA8F8", "brightMagenta": "#B89BF8", "brightCyan": "#8FE8E4", "brightWhite": "#FFFFFF"
+}

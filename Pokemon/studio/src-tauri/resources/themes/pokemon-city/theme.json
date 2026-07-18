@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "pokemon-city",
+  "name": "✦ 城市 · City",
+  "image": "background.png",
+  "appearance": "dark",
+  "art": {
+    "safeArea": "auto",
+    "taskMode": "ambient"
+  },
+  "palette": {
+    "accent": "#F8B4D9"
+  }
+}

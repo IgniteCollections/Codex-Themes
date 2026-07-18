@@ -68,5 +68,25 @@
       "alacritty": "pokemon-space.toml",
       "kitty": "pokemon-space.conf"
     }
+  },
+  "city": {
+    "name": "CODEX · 城市 City",
+    "slug": "pokemon-city",
+    "files": {
+      "windows-terminal": "pokemon-city.json",
+      "iterm2": "pokemon-city.itermcolors",
+      "alacritty": "pokemon-city.toml",
+      "kitty": "pokemon-city.conf"
+    }
+  },
+  "lab": {
+    "name": "CODEX · 实验室 Laboratory",
+    "slug": "pokemon-lab",
+    "files": {
+      "windows-terminal": "pokemon-lab.json",
+      "iterm2": "pokemon-lab.itermcolors",
+      "alacritty": "pokemon-lab.toml",
+      "kitty": "pokemon-lab.conf"
+    }
   }
 }

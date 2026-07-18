@@ -1,0 +1,32 @@
+# CODEX · 城市 City — Alacritty colors（scenes.ts 派生，勿手改）
+[colors.primary]
+background = "#160A26"
+foreground = "#F8E8F8"
+
+[colors.cursor]
+text = "#160A26"
+cursor = "#F8B4D9"
+
+[colors.selection]
+text = "#F8E8F8"
+background = "#2E1652"
+
+[colors.normal]
+black = "#241242"
+red = "#F2788A"
+green = "#3FD99A"
+yellow = "#FFD700"
+blue = "#6C8EF0"
+magenta = "#F8B4D9"
+cyan = "#7BD3F0"
+white = "#F8E8F8"
+
+[colors.bright]
+black = "#3A1E6E"
+red = "#F28597"
+green = "#6EE8B0"
+yellow = "#FFE169"
+blue = "#8FA8F8"
+magenta = "#F8C8E4"
+cyan = "#8FE8F4"
+white = "#FFFFFF"

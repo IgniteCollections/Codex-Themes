@@ -30,6 +30,9 @@ SCENE_SLUG = {
     "magma": "magma",
     "snowfield": "snowfield",
     "plant": "power-plant",
+    "space": "space",
+    "city": "city",
+    "lab": "lab",
 }
 
 DERIVED = {
@@ -69,6 +72,24 @@ DERIVED = {
         "diff_add": "#9EFF00",
         "diff_del": "#E05A2B",
     },
+    "space": {
+        "comment": "#6C6C94",
+        "fn": "#FFD700",
+        "diff_add": "#3FD99A",
+        "diff_del": "#E05A7A",
+    },
+    "city": {
+        "comment": "#8A6EA8",
+        "fn": "#FFD700",
+        "diff_add": "#3FD99A",
+        "diff_del": "#F2788A",
+    },
+    "lab": {
+        "comment": "#5A7A8A",
+        "fn": "#9B7BF0",
+        "diff_add": "#3FD99A",
+        "diff_del": "#F2788A",
+    },
 }
 
 SCENE_TITLE = {
@@ -78,6 +99,9 @@ SCENE_TITLE = {
     "magma": "Magma 岩浆",
     "snowfield": "Snowfield 雪原",
     "power-plant": "Power Plant 无人发电厂",
+    "space": "Space 宇宙",
+    "city": "City 城市",
+    "lab": "Laboratory 实验室",
 }
 
 SCOPES = [

@@ -22,10 +22,11 @@ REPO = Path(__file__).resolve().parents[2]
 SCENES_TS = REPO / "Pokemon/app/src/themes/scenes.ts"
 OUT_DIR = REPO / "Pokemon/themes" / "terminal"
 
-SCENE_VARS = ["grassland", "ocean", "cave", "magma", "snowfield", "plant", "space"]
+SCENE_VARS = ["grassland", "ocean", "cave", "magma", "snowfield", "plant", "space", "city", "lab"]
 SCENE_SLUG = {
     "grassland": "grassland", "ocean": "ocean", "cave": "cave", "magma": "magma",
     "snowfield": "snowfield", "plant": "power-plant", "space": "space",
+    "city": "city", "lab": "lab",
 }
 
 ANSI_NAMES = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"]
