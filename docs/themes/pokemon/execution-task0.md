@@ -5,15 +5,15 @@
 
 ## 本任务范围
 
-产出 `docs/pokemon/` 文档组：
+产出 `docs/themes/pokemon/` 文档组（初始位于 docs/pokemon/，后随文档重组迁入）：
 
 | 文档 | 内容 |
 |---|---|
 | [requirements.md](requirements.md) | 需求（整理自 Pokemon/info.md + plan.md），新增"真实 .tmTheme 产物"范围 |
-| [theme-development-guide.md](theme-development-guide.md) | **Codex 主题开发指南**（怎么开发主题：.tmTheme 结构、scope 清单、开发流程、验证命令） |
-| [pokemon-theme-design.md](pokemon-theme-design.md) | **宝可梦主题设计总纲**（场景×宝可梦选角逻辑、配色推导、素材使用设计） |
-| [codex-official-theming.md](codex-official-theming.md) | 官方主题机制调研存档：.tmTheme、/theme、tui.* 配置键、能力边界 |
-| [pokemon-assets.md](pokemon-assets.md) | 三个素材库调研存档（策略已修订：私人用途，sprite 直接入库） |
+| [codex-cli-theme-development.md](../../guides/codex-cli-theme-development.md) | **Codex 主题开发指南**（怎么开发主题：.tmTheme 结构、scope 清单、开发流程、验证命令） |
+| [pokemon-theme-design.md](design.md) | **宝可梦主题设计总纲**（场景×宝可梦选角逻辑、配色推导、素材使用设计） |
+| [codex-official-theming.md](../../guides/references/codex-official-theming.md) | 官方主题机制调研存档：.tmTheme、/theme、tui.* 配置键、能力边界 |
+| [pokemon-assets.md](assets.md) | 三个素材库调研存档（策略已修订：私人用途，sprite 直接入库） |
 | [roadmap.md](roadmap.md) | 全部待做任务清单与执行顺序 |
 
 ## 重要决策

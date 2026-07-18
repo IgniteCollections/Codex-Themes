@@ -1,0 +1,53 @@
+# 宝可梦主题 — 开发与测试进度
+
+日期： 2026-07-18
+
+## 开发进度
+
+| # | 任务 | 产出 | 状态 | PR |
+|---|---|---|---|---|
+| 0 | 资料沉淀到 docs/ | docs 文档组 | ✅ | #3/#4/#5/#6 |
+| 1 | 6 场景 .tmTheme | `Pokemon/themes/pokemon-*.tmTheme` | ✅ plutil 通过 | #7 |
+| 2 | 数据建模 + 素材入库 | scenes.ts 单一数据源；40 只 sprite 入 `app/public/pokemon/` | ✅ | #7/#8 |
+| 3 | 安装页对接真实产物 | tmTheme 安装命令 + config.toml 片段 + /theme 流程 | ✅ | #8 |
+| 4 | 场景图鉴页补全 | sprite 芯片、招牌展示卡、神兽池 ??? 槽位 | ✅ | #8 |
+| 5.5 | 桌面 App 主题包 | `themes/desktop/` 7×(.json + .codex-theme.txt) + 生成脚本 + 安装页「桌面客户端」段 | ✅ | #12/#14 |
+| 5.6 | 阵容 v4 + 宇宙场景 | 御三家进化链 + 宇宙（烈空坐）+ 新 sprite 入库 | ✅ | #10–#12 |
+| 5.7 | CSS 皮肤包（轨道 B） | `Pokemon/skins/`：pokemon-skin.css + renderer-inject.js + apply.mjs 注入器 | ✅ | #15 |
+| 5.8 | **皮肤工作室 App** | `Pokemon/studio/`：Tauri 托盘 App + vendor Dream Skin 引擎 + 7 套 preset 生成器 | ✅ | #16 |
+| 5 | 终端模拟器配色导出 | 每场景 ANSI 16 色 JSON / itermcolors | 待办 | — |
+| 6 | lint 债务清理 | 12 个既有 lint error，CI 恢复 lint 硬失败 | 待办 | — |
+| 7 | 视觉与交互动效打磨 | 切换动效、响应式、CRT 细节 | 待办 | — |
+
+任务详情与执行顺序见 [roadmap.md](roadmap.md)。
+
+## 测试进度
+
+### 自动化/离线校验（全通过）
+
+| 校验 | 对象 | 结果 |
+|---|---|---|
+| `plutil -lint` | 6 个 .tmTheme plist | ✅（PR #7） |
+| 字符串解码对拍 | 7 个 .codex-theme.txt ↔ 同名 .json | ✅ decode 一致 |
+| 官方 injector `--check-payload` | 7 套 Dream Skin preset | ✅ 全部 pass（payload 62–110 KB） |
+| 引擎 `--self-test` | vendor injector CDP 校验逻辑 | ✅ |
+| `npm run build` | 展示网站 + studio 前端 | ✅ |
+| `cargo build` | studio Rust 后端 | ✅ |
+| CI（lint + build per `<Theme>/app/`） | 全部 PR | ✅ |
+
+### 实机测试
+
+| 场景 | 环境 | 结果 |
+|---|---|---|
+| codex-theme-v1 官方导入 | 桌面 App | ⚠️ 用户反馈效果不佳（官方机制只改颜色/字体，无壁纸）——已由 Dream Skin 路线替代为主线 |
+| CSS 皮肤包（轨道 B，apply.mjs） | Windows + Codex 桌面 App | ⚠️ 未实机验证（机制与 Dream Skin 相同，已被 studio App 取代为主交付） |
+| **皮肤工作室全流程** | **Windows 11 + Codex 26.715.4045.0 + Node 22.23.1** | ✅ 2026-07-18 实测：安装引擎 → 草原应用（像素壁纸+绿色 UI，官方 `--verify` pass）→ 热切换 草原→岩浆→草原（秒级）→ 恢复官方（state 清理、CDP 关闭） |
+| 皮肤工作室 macOS 路径 | macOS | ❌ 未实测（代码按官方脚本逐行对齐） |
+| `tauri build` 安装包 | NSIS/DMG | ❌ 未验证 |
+| App 内命令联调（非手动复现） | Windows | ⚠️ 实测用的是 App 同款逻辑的手动执行；App 进程内 invoke 未逐一联调 |
+
+### 实测注意事项（已固化进 studio App 代码）
+
+- start 脚本结尾的 verify 会等 Codex shell 渲染，前台调用可能挂起数分钟 → App 全部 `spawn_blocking` 异步执行
+- restore 会重开一个无 CDP 端口的 Codex → App 的 start 始终带 `-RestartExisting`
+- Windows 引擎要求 Node ≥ 22（官方安装脚本硬校验）

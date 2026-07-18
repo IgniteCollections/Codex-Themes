@@ -19,7 +19,7 @@ SCENES_TS = REPO / "Pokemon/app/src/themes/scenes.ts"
 OUT_DIR = REPO / "Pokemon/themes"
 
 # Per-scene TextMate scope mapping, derived from the 5-color palette by the
-# rules in docs/pokemon/pokemon-theme-design.md §3.2:
+# rules in docs/themes/pokemon/design.md §3.2:
 #   keyword=主色, string=第二强调, number=点缀, comment=低亮 ink, fn=暖色,
 #   diff add/del = 语义绿/红（场景内保持可读的替换色）
 # SceneId in themes/scenes.ts -> theme slug (file name suffix)

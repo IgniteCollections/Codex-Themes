@@ -2,7 +2,7 @@
 
 日期： 2026-07-18
 状态： 设计定稿（待实现）
-前置调研： [dream-skin-research.md](dream-skin-research.md)（概念层）；本文含引擎源码级结论（基于 Codex-Dream-Skin @ main, 2026-07-17, skin version 1.2.0）
+前置调研： [dream-skin-research.md](../../guides/references/dream-skin-research.md)（概念层）；本文含引擎源码级结论（基于 Codex-Dream-Skin @ main, 2026-07-17, skin version 1.2.0）
 
 ## 1. 一句话
 

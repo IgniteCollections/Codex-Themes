@@ -1,6 +1,6 @@
 # 宝可梦 Codex 主题 — 需求文档
 
-来源：整理自 [Pokemon/info.md](../../Pokemon/info.md)（需求约束，不可更改项以此为准）与 [Pokemon/plan.md](../../Pokemon/plan.md)（原始阶段计划）。
+来源：整理自 [original-info.md](original-info.md)（需求约束，不可更改项以此为准）与 [original-plan.md](original-plan.md)（原始阶段计划）。
 
 日期： 2026-07-18
 
@@ -39,10 +39,10 @@
 
 在展示网站之外，交付**真实可用的 Codex 主题产物**：
 
-- 每个场景一个 `.tmTheme` 文件（Codex TUI 官方支持的自定义主题格式，见 [codex-official-theming.md](codex-official-theming.md)），放入仓库 `Pokemon/themes/`，用户复制到 `~/.codex/themes/` 即可用 `/theme` 选择
+- 每个场景一个 `.tmTheme` 文件（Codex TUI 官方支持的自定义主题格式，见 [codex-official-theming.md](../../guides/references/codex-official-theming.md)），放入仓库 `Pokemon/themes/`，用户复制到 `~/.codex/themes/` 即可用 `/theme` 选择
 - 安装页提供真实可用的安装命令与 config.toml 片段（`tui.theme = "pokemon-<scene>"`）
-- 素材调研结论与使用设计见 [pokemon-assets.md](pokemon-assets.md) 与 [pokemon-theme-design.md](pokemon-theme-design.md)（2026-07-18 起：私人用途，官方 sprite 直接入库使用）
-- 开发方法遵循 [theme-development-guide.md](theme-development-guide.md)
+- 素材调研结论与使用设计见 [pokemon-assets.md](assets.md) 与 [pokemon-theme-design.md](design.md)（2026-07-18 起：私人用途，官方 sprite 直接入库使用）
+- 开发方法遵循 [codex-cli-theme-development.md](../../guides/codex-cli-theme-development.md)
 
 ## 验收标准
 

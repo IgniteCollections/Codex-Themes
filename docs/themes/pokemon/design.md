@@ -2,7 +2,7 @@
 
 日期： 2026-07-18（素材策略更新：私人使用，官方 sprite 直接入库）
 
-本文是宝可梦 Codex 主题的设计总纲：场景体系、宝可梦选角逻辑、配色推导、素材使用方式。开发机制见 [theme-development-guide.md](theme-development-guide.md)，需求基线见 [requirements.md](requirements.md)。
+本文是宝可梦 Codex 主题的设计总纲：场景体系、宝可梦选角逻辑、配色推导、素材使用方式。开发机制见 [codex-cli-theme-development.md](../../guides/codex-cli-theme-development.md)，需求基线见 [requirements.md](requirements.md)。
 
 ## 1. 设计概念
 
@@ -61,7 +61,7 @@
 - 岩浆：「野生的 小火龙 出现了！尾巴的火焰把四周照得通亮。」
 - 发电厂：「野生的 皮卡丘 出现了！废弃的机器间闪过一道电光。」
 
-完整 24 只 + 神兽隐藏遭遇的图鉴 ID 对照表见 [pokemon-assets.md](pokemon-assets.md#附录本项目宝可梦图鉴-id)。
+完整 24 只 + 神兽隐藏遭遇的图鉴 ID 对照表见 [pokemon-assets.md](assets.md#附录本项目宝可梦图鉴-id)。
 
 ## 3. 场景配色体系
 
@@ -88,7 +88,7 @@
 
 **语义映射（所有场景统一）**：红=错误，绿=成功，黄=警告，蓝=信息——语义不随场景改变，只替换色相，保证任何场景下终端输出可预期。
 
-**tmTheme 语法色**：keyword=主色、string=第二色、comment=bright black、number=点缀色、diff 增/删=语义绿/红。具体映射表按 [theme-development-guide.md](theme-development-guide.md#必备-scope-清单codex-场景) 执行。
+**tmTheme 语法色**：keyword=主色、string=第二色、comment=bright black、number=点缀色、diff 增/删=语义绿/红。具体映射表按 [codex-cli-theme-development.md](../../guides/codex-cli-theme-development.md#必备-scope-清单codex-场景) 执行。
 
 ## 4. 宝可梦素材使用设计（私人使用，官方 sprite 直接入库）
 

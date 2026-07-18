@@ -7,7 +7,7 @@ For each scene, emits two artifacts to Pokemon/themes/desktop/:
   pokemon-<slug>.codex-theme.txt  paste-ready import string
 
 Import: Codex desktop app -> Settings -> Appearance -> Import (dark slot).
-Spec: docs/pokemon/desktop-theme-development-guide.md
+Spec: docs/guides/codex-desktop-theme-development.md
 """
 
 import json
@@ -40,7 +40,7 @@ SCENE_TITLE = {
     "space": "宇宙",
 }
 
-# contrast per scene (docs/pokemon/pokemon-desktop-theme-design.md §3)
+# contrast per scene (docs/themes/pokemon/desktop-design.md §3)
 CONTRAST = {
     "grassland": 52,
     "ocean": 56,

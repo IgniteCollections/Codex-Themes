@@ -2,7 +2,7 @@
 
 日期： 2026-07-18（阵容 v4：宇宙扩容为天空宇宙 + 普通位 ≥5 不含进化链）
 
-本文是宝可梦主题在 **Codex 桌面 App** 上的设计定稿：场景阵容、桌面字段映射、视觉规则。开发标准见 [desktop-theme-development-guide.md](desktop-theme-development-guide.md)；人气数据见 [pokemon-theme-design.md](pokemon-theme-design.md) §2。
+本文是宝可梦主题在 **Codex 桌面 App** 上的设计定稿：场景阵容、桌面字段映射、视觉规则。开发标准见 [codex-desktop-theme-development.md](../../guides/codex-desktop-theme-development.md)；人气数据见 [design.md](design.md) §2。
 
 ## 1. 选角规则（v4）
 

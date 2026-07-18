@@ -4,7 +4,7 @@
 
 三个候选素材仓库的详细调研，用于网站插画/图标与主题装饰。
 
-> **2026-07-18 更新**：仓库所有者确认为个人私人用途，不在意素材版权限制。素材使用策略改为：PokeAPI/sprites 的 Gen III sprite 与官方立绘直接下载入库，NightCatSama/pokedex 的中文数据摘录使用。最新的素材使用设计以 [pokemon-theme-design.md](pokemon-theme-design.md#4-宝可梦素材使用设计私人使用官方-sprite-直接入库) 为准；本文件保留三库调研事实。
+> **2026-07-18 更新**：仓库所有者确认为个人私人用途，不在意素材版权限制。素材使用策略改为：PokeAPI/sprites 的 Gen III sprite 与官方立绘直接下载入库，NightCatSama/pokedex 的中文数据摘录使用。最新的素材使用设计以 [pokemon-theme-design.md](design.md#4-宝可梦素材使用设计私人使用官方-sprite-直接入库) 为准；本文件保留三库调研事实。
 
 ## ⚠️ 版权事实（存档）
 
@@ -59,7 +59,7 @@
 3. 字符画保留用于终端上下文装饰
 4. HybridShivam/Pokemon：不需要（立绘已有 PokeAPI 来源）
 
-具体入库清单与页面使用方式见 [pokemon-theme-design.md §4](pokemon-theme-design.md)。
+具体入库清单与页面使用方式见 [pokemon-theme-design.md §4](design.md)。
 
 ## 附录：本项目宝可梦图鉴 ID
 

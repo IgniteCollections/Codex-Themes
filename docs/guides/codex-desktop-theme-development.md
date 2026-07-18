@@ -1,6 +1,6 @@
 # Codex 桌面 App 主题开发标准
 
-如何为 **Codex 桌面 App**（ChatGPT/Codex 桌面客户端）开发自定义主题。这是本项目的主线交付目标；CLI/TUI 的 .tmTheme 主题开发见 [theme-development-guide.md](theme-development-guide.md)（已完成的附属产物）。
+如何为 **Codex 桌面 App**（ChatGPT/Codex 桌面客户端）开发自定义主题。这是本项目的主线交付目标；CLI/TUI 的 .tmTheme 主题开发见 [codex-cli-theme-development.md](codex-cli-theme-development.md)（已完成的附属产物）。
 
 日期： 2026-07-18
 
