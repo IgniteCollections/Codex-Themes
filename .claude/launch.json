@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--prefix", "Pokemon/app", "--", "--port", "5173"],
       "port": 5173
+    },
+    {
+      "name": "pokemon-studio",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "Pokemon/studio"],
+      "port": 5174
     }
   ]
 }

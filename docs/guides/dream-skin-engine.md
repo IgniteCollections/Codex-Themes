@@ -22,15 +22,17 @@
 | Windows | `%LOCALAPPDATA%\CodexDreamSkin\` | `<状态根>\engine\` |
 | macOS | `~/Library/Application Support/CodexDreamSkinStudio/` | `~/.codex/codex-dream-skin-studio/` |
 
-状态根关键文件：
+状态根关键文件（**活跃主题目录平台不同**：Windows 为 `active-theme/`，macOS 1.2.0 为 `theme/`——2026-07-18 macOS 实测确认，官方 `switch-theme-macos.sh` 写的也是 `theme/`）：
 
 ```
 <状态根>/
-├── state.json        # injectorPid / port / browserId / codexExe（schemaVersion 3）
-├── active-theme/     # 当前主题（theme.json + 壁纸）——watch 监听的就是它
+├── state.json        # injectorPid / port / browserId / codexExe（macOS 为 schemaVersion 4）
+├── active-theme/     # [Windows] 当前主题（theme.json + 壁纸）——watch 监听的就是它
+├── theme/            # [macOS] 当前主题（同上；watch 监听此目录）
 ├── themes/           # 已保存主题库（preset-*/custom-*/我们的 pokemon-*）
 ├── paused            # 存在即暂停注入
 └── engine/           # 引擎本体（assets/dream-skin.css、scripts/injector.mjs 等）
+                      # （macOS 引擎本体在 ~/.codex/codex-dream-skin-studio/）
 ```
 
 前置条件：Windows 需官方商店包 `OpenAI.Codex` + **Node.js ≥ 22**；macOS 需 bundle id `com.openai.codex`，自动使用 ChatGPT 内置的签名 Node（`Contents/Resources/cua_node/bin/node`）。
@@ -47,9 +49,9 @@
 | `injector.mjs --check-payload --theme-dir <dir>` | 离线校验主题包合法性 |
 | `injector.mjs --self-test` | 引擎 CDP 校验逻辑自测 |
 
-## 4. 切换主题 = 原子替换 active-theme
+## 4. 切换主题 = 原子替换活跃主题目录
 
-不需要重启任何东西：staging 目录准备好新主题 → 先替换图片 → 最后替换 `theme.json`（commit marker）→ watch 在秒级内热应用。状态目录有 reparse-point/symlink 安全检查，写入必须走普通文件。
+不需要重启任何东西：staging 目录准备好新主题 → 先替换图片 → 最后替换 `theme.json`（commit marker）→ watch 在秒级内热应用。状态目录有 reparse-point/symlink 安全检查，写入必须走普通文件。目标目录：Windows `active-theme/`，macOS `theme/`。
 
 ## 5. theme.json 实际生效字段（源码确认）
 
@@ -58,7 +60,7 @@
 | `id` / `name` | ✅ | ≤80/120 字符单行 |
 | `image` | ✅ | 相对文件名，png/jpg/jpeg/webp，≤16MB，≤16384px/50MP |
 | `appearance` | ✅ | `auto`/`light`/`dark`（auto = 探测 shell class） |
-| `art.focusX/focusY` | ✅ | 0–1 壁纸焦点；null = 图片显著性分析自动定 |
+| `art.focusX/focusY` | ✅ | 0–1 壁纸焦点；**省略字段** = 图片显著性分析自动定（⚠️ 写 `null` 会被 injector `unit()` 校验直接拒绝——2026-07-18 macOS 实测） |
 | `art.safeArea` | ✅ | `auto`/`left`/`right`/`center`/`none`——内容少的一侧留给主区 |
 | `art.taskMode` | ✅ | `auto`/`ambient`/`banner`/`off`——任务页壁纸模式 |
 | `palette.accent` | ✅ | **唯一生效的颜色字段**；缺省时从壁纸自动提取强调色 |

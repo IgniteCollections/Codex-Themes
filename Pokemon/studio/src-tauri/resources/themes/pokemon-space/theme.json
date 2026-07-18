@@ -5,8 +5,6 @@
   "image": "background.png",
   "appearance": "dark",
   "art": {
-    "focusX": null,
-    "focusY": null,
     "safeArea": "auto",
     "taskMode": "ambient"
   },

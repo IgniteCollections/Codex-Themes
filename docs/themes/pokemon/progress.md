@@ -15,6 +15,7 @@
 | 5.6 | 阵容 v4 + 宇宙场景 | 御三家进化链 + 宇宙（烈空坐）+ 新 sprite 入库 | ✅ | #10–#12 |
 | 5.7 | CSS 皮肤包（轨道 B） | `Pokemon/skins/`：pokemon-skin.css + renderer-inject.js + apply.mjs 注入器 | ✅ | #15 |
 | 5.8 | **皮肤工作室 App** | `Pokemon/studio/`：Tauri 托盘 App + vendor Dream Skin 引擎 + 7 套 preset 生成器 | ✅ | #16 |
+| 5.9 | **皮肤商店化 + macOS 适配** | 商店式 UI（皮肤卡片网格 + 详情大预览 + 打字机终端演示 + ANSI 色板 + 出没宝可梦）；macOS 实测修复 5 个缺陷 | ✅ | 本 PR |
 | 5 | 终端模拟器配色导出 | 每场景 ANSI 16 色 JSON / itermcolors | 待办 | — |
 | 6 | lint 债务清理 | 12 个既有 lint error，CI 恢复 lint 硬失败 | 待办 | — |
 | 7 | 视觉与交互动效打磨 | 切换动效、响应式、CRT 细节 | 待办 | — |
@@ -42,9 +43,17 @@
 | codex-theme-v1 官方导入 | 桌面 App | ⚠️ 用户反馈效果不佳（官方机制只改颜色/字体，无壁纸）——已由 Dream Skin 路线替代为主线 |
 | CSS 皮肤包（轨道 B，apply.mjs） | Windows + Codex 桌面 App | ⚠️ 未实机验证（机制与 Dream Skin 相同，已被 studio App 取代为主交付） |
 | **皮肤工作室全流程** | **Windows 11 + Codex 26.715.4045.0 + Node 22.23.1** | ✅ 2026-07-18 实测：安装引擎 → 草原应用（像素壁纸+绿色 UI，官方 `--verify` pass）→ 热切换 草原→岩浆→草原（秒级）→ 恢复官方（state 清理、CDP 关闭） |
-| 皮肤工作室 macOS 路径 | macOS | ❌ 未实测（代码按官方脚本逐行对齐） |
+| 皮肤工作室 macOS 路径 | macOS 14 (Apple Silicon) + Codex 26.715.31925 + ChatGPT 内置 Node 24.14.0 | ✅ 2026-07-18 实测：引擎安装成功（修复 3 个真实缺陷后，见下）；皮肤商店 UI 预览迭代完成；切换链路 macOS 适配已按实测结论固化进 Rust |
 | `tauri build` 安装包 | NSIS/DMG | ❌ 未验证 |
 | App 内命令联调（非手动复现） | Windows | ⚠️ 实测用的是 App 同款逻辑的手动执行；App 进程内 invoke 未逐一联调 |
+
+### macOS 实测发现并修复的缺陷（2026-07-18）
+
+1. **vendor 缺 presets/**：macOS install 脚本 seed 默认主题 `preset-gothic-void-crusade`，vendor 时漏拷上游 `macos/presets/` → 安装直接失败。已补 vendor（2 套官方 preset，1.4MB）。
+2. **活跃主题目录写错**：macOS 引擎 1.2.0 的 watch injector 监听的是 `<状态根>/theme/`（官方 `switch-theme-macos.sh` 的目标），不是文档里写的 `active-theme/`。Rust `active_theme_dir()` 已按平台分支。
+3. **theme.json `focusX: null` 被 injector 拒绝**：`unit()` 校验只接受 0–1 数字或缺省，`null` 直接抛错。生成脚本改为省略字段（引擎显著性分析自动定焦点）。
+4. **install 默认副作用**：官方脚本默认在桌面写 4 个 `.command` 启动器并立即启动 Codex——App 安装现传 `--no-launchers --no-launch`。
+5. **Codex 主进程检测**：安装前 UI 需要知道 Codex 是否在跑；新增 `codex_main_running()`（与官方 `codex_is_running()` 逐一对齐，只匹配主可执行文件，Electron 子进程不算），运行中禁止点「安装引擎」。
 
 ### 实测注意事项（已固化进 studio App 代码）
 

@@ -59,7 +59,16 @@ fn engine_css_path(state: &Path) -> PathBuf {
 }
 
 fn active_theme_dir(state: &Path) -> PathBuf {
-    state.join("active-theme")
+    // watch injector 监听的主题目录：Windows 为 active-theme/，
+    // macOS（engine 1.2.0+）为 theme/（见官方 switch-theme-macos.sh）
+    #[cfg(windows)]
+    {
+        state.join("active-theme")
+    }
+    #[cfg(target_os = "macos")]
+    {
+        state.join("theme")
+    }
 }
 
 fn themes_dir(state: &Path) -> PathBuf {
@@ -129,6 +138,7 @@ struct StudioStatus {
     active_theme_name: Option<String>,
     paused: bool,
     codex_version: Option<String>,
+    codex_running: bool,
 }
 
 fn read_engine_state(state: &Path) -> Option<EngineState> {
@@ -214,6 +224,44 @@ fn active_theme(state: &Path) -> (Option<String>, Option<String>) {
     )
 }
 
+#[cfg(target_os = "macos")]
+fn codex_main_running() -> bool {
+    // 与官方 install 脚本的 codex_is_running() 逐一对齐：
+    // 只匹配主可执行文件（$CODEX_EXE 开头），Electron 的 Renderer/Service 子进程不算。
+    let bundle = std::env::var("CODEX_APP_BUNDLE").unwrap_or_else(|_| "/Applications/ChatGPT.app".into());
+    let exe = Command::new("plutil")
+        .args([
+            "-extract",
+            "CFBundleExecutable",
+            "raw",
+            "-o",
+            "-",
+            &format!("{bundle}/Contents/Info.plist"),
+        ])
+        .output()
+        .ok()
+        .filter(|o| o.status.success())
+        .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string());
+    let Some(exe) = exe.filter(|e| !e.is_empty()) else {
+        return false;
+    };
+    let main_exe = format!("{bundle}/Contents/MacOS/{exe}");
+    Command::new("ps")
+        .args(["-axo", "command="])
+        .output()
+        .map(|o| {
+            String::from_utf8_lossy(&o.stdout)
+                .lines()
+                .any(|line| line.trim_start().starts_with(&main_exe))
+        })
+        .unwrap_or(false)
+}
+
+#[cfg(not(target_os = "macos"))]
+fn codex_main_running() -> bool {
+    false
+}
+
 #[tauri::command]
 fn get_status() -> Result<StudioStatus, String> {
     let state = state_root()?;
@@ -237,6 +285,7 @@ fn get_status() -> Result<StudioStatus, String> {
         active_theme_name,
         paused: state.join("paused").is_file(),
         codex_version: engine_state.and_then(|s| s.codex_version),
+        codex_running: codex_main_running(),
     })
 }
 
@@ -390,7 +439,11 @@ async fn install_engine(app: tauri::AppHandle) -> Result<String, String> {
         #[cfg(windows)]
         let result = run_engine_script(&state, install, &["-NoShortcuts"]);
         #[cfg(target_os = "macos")]
-        let result = run_engine_script(&state, install, &[]);
+        let result = run_engine_script(
+            &state,
+            install,
+            &["--no-launchers", "--no-launch"],
+        );
         let _ = fs::remove_dir_all(&staging);
         result
     })
@@ -457,7 +510,7 @@ fn switch_scene(app: tauri::AppHandle, scene_id: String) -> Result<String, Strin
     let saved = themes_dir(&state).join(&scene_id);
     copy_dir_recursive(&pack, &saved)?;
 
-    // 2) 原子替换 active-theme（staging → 逐文件 rename，先图后 json）
+    // 2) 原子替换活跃主题目录（staging → 逐文件 rename，先图后 json）
     let active = active_theme_dir(&state);
     let staging = state.join(".pokemon-studio-staging");
     if staging.exists() {
@@ -465,18 +518,24 @@ fn switch_scene(app: tauri::AppHandle, scene_id: String) -> Result<String, Strin
     }
     copy_dir_recursive(&saved, &staging)?;
     fs::create_dir_all(&active).map_err(|e| e.to_string())?;
-    // 先替换图片，再替换 theme.json（官方约定：json 是 commit marker）
-    let bg = staging.join("background.png");
+    // 先替换图片，再替换 theme.json（官方约定：json 是 commit marker）。
+    // 壁纸文件名以 theme.json 的 image 字段为准（官方 preset 用 .jpg，我们用 .png）。
+    let theme_text = fs::read_to_string(staging.join("theme.json"))
+        .map_err(|e| format!("read theme.json: {e}"))?;
+    let theme_v: serde_json::Value =
+        serde_json::from_str(&theme_text).map_err(|e| format!("parse theme.json: {e}"))?;
+    let image_name = theme_v["image"].as_str().unwrap_or("background.png").to_string();
+    let bg = staging.join(&image_name);
     if bg.is_file() {
-        fs::rename(&bg, active.join("background.png"))
+        fs::rename(&bg, active.join(&image_name))
             .map_err(|e| format!("activate background: {e}"))?;
     }
     fs::rename(staging.join("theme.json"), active.join("theme.json"))
         .map_err(|e| format!("activate theme.json: {e}"))?;
-    // 清理 active 里不属于本主题的文件
+    // 清理活跃目录里不属于本主题的文件（含上一主题的壁纸）
     for entry in fs::read_dir(&active).map_err(|e| e.to_string())?.flatten() {
         let name = entry.file_name();
-        if name != "theme.json" && name != "background.png" {
+        if name != "theme.json" && name != image_name.as_str() {
             let _ = fs::remove_file(entry.path());
         }
     }
@@ -587,7 +646,7 @@ pub fn run() {
             let menu = Menu::with_items(app, &[&show, &pause, &quit])?;
 
             let _tray = TrayIconBuilder::with_id("main")
-                .tooltip("宝可梦皮肤工作室")
+                .tooltip("Codex 皮肤商店")
                 .icon(app.default_window_icon().unwrap().clone())
                 .menu(&menu)
                 .on_menu_event(|app, event| match event.id().as_ref() {
