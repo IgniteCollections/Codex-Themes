@@ -1,0 +1,32 @@
+# CODEX · 海洋 Ocean — Alacritty colors（scenes.ts 派生，勿手改）
+[colors.primary]
+background = "#05141F"
+foreground = "#EAF7FD"
+
+[colors.cursor]
+text = "#05141F"
+cursor = "#5FD4D0"
+
+[colors.selection]
+text = "#EAF7FD"
+background = "#12344A"
+
+[colors.normal]
+black = "#062032"
+red = "#F2614C"
+green = "#3FA97C"
+yellow = "#F2C94C"
+blue = "#2E9BD6"
+magenta = "#A06CD5"
+cyan = "#5FD4D0"
+white = "#EAF7FD"
+
+[colors.bright]
+black = "#1A4258"
+red = "#FF8A75"
+green = "#67D3A2"
+yellow = "#FFE08A"
+blue = "#5FBDF0"
+magenta = "#C49BEB"
+cyan = "#8FE8E4"
+white = "#FFFFFF"

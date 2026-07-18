@@ -1,0 +1,32 @@
+# CODEX · 宇宙 Space — Alacritty colors（scenes.ts 派生，勿手改）
+[colors.primary]
+background = "#0B0B1E"
+foreground = "#E8E8F8"
+
+[colors.cursor]
+text = "#0B0B1E"
+cursor = "#FFD700"
+
+[colors.selection]
+text = "#E8E8F8"
+background = "#23234A"
+
+[colors.normal]
+black = "#0B0B1E"
+red = "#E05A7A"
+green = "#00A86B"
+yellow = "#FFD700"
+blue = "#6C5CE7"
+magenta = "#C77DBB"
+cyan = "#5FD4D0"
+white = "#E8E8F8"
+
+[colors.bright]
+black = "#26264A"
+red = "#F28597"
+green = "#3FD99A"
+yellow = "#FFE169"
+blue = "#8F7DF0"
+magenta = "#E2A3D8"
+cyan = "#8FE8E4"
+white = "#FFFFFF"

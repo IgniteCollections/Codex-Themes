@@ -16,7 +16,7 @@
 | 5.7 | CSS 皮肤包（轨道 B） | `Pokemon/skins/`：pokemon-skin.css + renderer-inject.js + apply.mjs 注入器 | ✅ | #15 |
 | 5.8 | **皮肤工作室 App** | `Pokemon/studio/`：Tauri 托盘 App + vendor Dream Skin 引擎 + 7 套 preset 生成器 | ✅ | #16 |
 | 5.9 | **皮肤商店化 + macOS 适配** | 商店式 UI（皮肤卡片网格 + 详情大预览 + 打字机终端演示 + ANSI 色板 + 出没宝可梦）；macOS 实测修复 5 个缺陷 | ✅ | 本 PR |
-| 5 | 终端模拟器配色导出 | 每场景 ANSI 16 色 JSON / itermcolors | 待办 | — |
+| 5 | 终端模拟器配色导出 | `themes/terminal/` 7 场景 × 4 格式（Windows Terminal JSON / iTerm2 .itermcolors / Alacritty TOML / kitty conf）+ 生成脚本 + 安装页 ③④⑤ 片段 | ✅ | 本 PR |
 | 6 | lint 债务清理 | 12 个既有 lint error，CI 恢复 lint 硬失败 | 待办 | — |
 | 7 | 视觉与交互动效打磨 | 切换动效、响应式、CRT 细节 | 待办 | — |
 
@@ -29,6 +29,8 @@
 | 校验 | 对象 | 结果 |
 |---|---|---|
 | `plutil -lint` | 6 个 .tmTheme plist | ✅（PR #7） |
+| `plutil -lint` | 7 个 .itermcolors plist | ✅（本 PR） |
+| JSON 解析校验 | 7 个 Windows Terminal scheme（生成脚本内置） | ✅（本 PR） |
 | 字符串解码对拍 | 7 个 .codex-theme.txt ↔ 同名 .json | ✅ decode 一致 |
 | 官方 injector `--check-payload` | 7 套 Dream Skin preset | ✅ 全部 pass（payload 62–110 KB） |
 | 引擎 `--self-test` | vendor injector CDP 校验逻辑 | ✅ |

@@ -1,0 +1,11 @@
+{
+  "name": "CODEX · 雪原 Snowfield",
+  "background": "#0A1622",
+  "foreground": "#F2F9FC",
+  "selectionBackground": "#1C3A57",
+  "cursorColor": "#A8D8EA",
+  "black": "#16324A", "red": "#D95D72", "green": "#5CC98E", "yellow": "#F2CE6B",
+  "blue": "#6BA8D8", "magenta": "#B8B8E0", "cyan": "#7FC7DE", "white": "#F2F9FC",
+  "brightBlack": "#2C4E6A", "brightRed": "#F28597", "brightGreen": "#82E0AC", "brightYellow": "#FFE08F",
+  "brightBlue": "#93C4E8", "brightMagenta": "#D4D4F2", "brightCyan": "#A8D8EA", "brightWhite": "#FFFFFF"
+}

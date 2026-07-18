@@ -1,0 +1,11 @@
+{
+  "name": "CODEX · 草原 Grassland",
+  "background": "#0D1B0A",
+  "foreground": "#F5FBEA",
+  "selectionBackground": "#31511F",
+  "cursorColor": "#7AC74C",
+  "black": "#1E3A13", "red": "#D95360", "green": "#7AC74C", "yellow": "#F7D02C",
+  "blue": "#5FA8D3", "magenta": "#C77DBB", "cyan": "#57C7B0", "white": "#F5FBEA",
+  "brightBlack": "#3D5A2E", "brightRed": "#F2788A", "brightGreen": "#A3E176", "brightYellow": "#FFE169",
+  "brightBlue": "#8CC8E8", "brightMagenta": "#E2A3D8", "brightCyan": "#87E0CD", "brightWhite": "#FFFFFF"
+}

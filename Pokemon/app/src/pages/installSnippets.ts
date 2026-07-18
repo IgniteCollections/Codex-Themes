@@ -14,6 +14,8 @@ export interface SceneSnippets {
   toml: string;    // ~/.codex/config.toml 片段
   json: string;    // codex-theme-*.json（Windows Terminal / iTerm 通用）
   css: string;     // theme-*.css（网页实现用变量）
+  alacritty: string; // pokemon-*.toml（Alacritty [colors]）
+  kitty: string;     // pokemon-*.conf（kitty 指令）
 }
 
 /* ---------------- 桌面 App：codex-theme-v1 导入字符串 ----------------
@@ -149,6 +151,54 @@ function buildCss(s: SceneDef): string {
   return lines.join('\n');
 }
 
+/* ---------------- ⑤ Alacritty TOML / ⑥ kitty conf ----------------
+   与 Pokemon/scripts/generate-terminal-schemes.py 同一套映射（现算保证一致；
+   仓库 Pokemon/themes/terminal/ 下同内容文件可直接下载导入） */
+function buildAlacritty(s: SceneDef): string {
+  const ui = s.ui;
+  const slug = SCENE_THEME_SLUG[s.id];
+  const lines: string[] = [
+    `# CODEX · ${s.name} ${titleCase(s.en)} — Alacritty colors`,
+    `# 文件：Pokemon/themes/terminal/pokemon-${slug}.toml（import 到 alacritty.toml）`,
+    '[colors.primary]',
+    `background = "${ui.bg}"`,
+    `foreground = "${ui.fg}"`,
+    '',
+    '[colors.cursor]',
+    `text = "${ui.bg}"`,
+    `cursor = "${ui.prompt}"`,
+    '',
+    '[colors.selection]',
+    `text = "${ui.fg}"`,
+    `background = "${ui.selection}"`,
+    '',
+    '[colors.normal]',
+    ...ANSI_KEYS.map((k, i) => `${k} = "${s.ansi[i]}"`),
+    '',
+    '[colors.bright]',
+    ...ANSI_KEYS.map((k, i) => `${k} = "${s.ansi[i + 8]}"`),
+  ];
+  return lines.join('\n');
+}
+
+function buildKitty(s: SceneDef): string {
+  const ui = s.ui;
+  const slug = SCENE_THEME_SLUG[s.id];
+  const lines: string[] = [
+    `# CODEX · ${s.name} ${titleCase(s.en)} — kitty colors`,
+    `# 文件：Pokemon/themes/terminal/pokemon-${slug}.conf（include 到 kitty.conf）`,
+    `background ${ui.bg}`,
+    `foreground ${ui.fg}`,
+    `cursor ${ui.prompt}`,
+    `cursor_text_color ${ui.bg}`,
+    `selection_background ${ui.selection}`,
+    `selection_foreground ${ui.fg}`,
+    '',
+    ...s.ansi.map((c, i) => `color${i} ${c}`),
+  ];
+  return lines.join('\n');
+}
+
 /** 7 场景配置片段（模块加载时计算一次） */
 export const SNIPPETS: Record<SceneId, SceneSnippets> = Object.fromEntries(
   SCENES.map((s) => [s.id, {
@@ -156,5 +206,7 @@ export const SNIPPETS: Record<SceneId, SceneSnippets> = Object.fromEntries(
     toml: buildToml(s),
     json: buildJson(s),
     css: buildCss(s),
+    alacritty: buildAlacritty(s),
+    kitty: buildKitty(s),
   }]),
 ) as Record<SceneId, SceneSnippets>;

@@ -1,0 +1,11 @@
+{
+  "name": "CODEX · 洞穴 Cave",
+  "background": "#15151B",
+  "foreground": "#D8D5C8",
+  "selectionBackground": "#2C2C38",
+  "cursorColor": "#7BD3C8",
+  "black": "#26262E", "red": "#C4564A", "green": "#8A9A5B", "yellow": "#D9B44A",
+  "blue": "#4F7FA6", "magenta": "#6B5B95", "cyan": "#7BD3C8", "white": "#D8D5C8",
+  "brightBlack": "#44444F", "brightRed": "#E07A6C", "brightGreen": "#ADBE7C", "brightYellow": "#F2D078",
+  "brightBlue": "#7AA8CC", "brightMagenta": "#8F7DBB", "brightCyan": "#A3E6DC", "brightWhite": "#F2F0E6"
+}

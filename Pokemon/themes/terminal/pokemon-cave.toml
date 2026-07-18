@@ -1,0 +1,32 @@
+# CODEX · 洞穴 Cave — Alacritty colors（scenes.ts 派生，勿手改）
+[colors.primary]
+background = "#15151B"
+foreground = "#D8D5C8"
+
+[colors.cursor]
+text = "#15151B"
+cursor = "#7BD3C8"
+
+[colors.selection]
+text = "#D8D5C8"
+background = "#2C2C38"
+
+[colors.normal]
+black = "#26262E"
+red = "#C4564A"
+green = "#8A9A5B"
+yellow = "#D9B44A"
+blue = "#4F7FA6"
+magenta = "#6B5B95"
+cyan = "#7BD3C8"
+white = "#D8D5C8"
+
+[colors.bright]
+black = "#44444F"
+red = "#E07A6C"
+green = "#ADBE7C"
+yellow = "#F2D078"
+blue = "#7AA8CC"
+magenta = "#8F7DBB"
+cyan = "#A3E6DC"
+white = "#F2F0E6"
