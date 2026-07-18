@@ -4,12 +4,12 @@
 
 依赖资料：
 - [requirements.md](requirements.md) — 需求与验收标准（6 场景 × 宝可梦 × 配色为不可更改项）
-- **[desktop-theme-development-guide.md](desktop-theme-development-guide.md) — Codex 桌面 App 主题开发标准（主线，codex-theme-v1 格式规范）**
-- **[pokemon-desktop-theme-design.md](pokemon-desktop-theme-design.md) — 宝可梦桌面主题设计定稿（3 神兽 + 3 人气阵容、字段映射）**
-- [theme-development-guide.md](theme-development-guide.md) — TUI .tmTheme 开发指南（附属产物）
-- [pokemon-theme-design.md](pokemon-theme-design.md) — 宝可梦主题设计总纲（场景选角逻辑、人气数据、配色推导）
-- [codex-official-theming.md](codex-official-theming.md) — 官方机制调研存档
-- [pokemon-assets.md](pokemon-assets.md) — 素材库调研存档（策略已修订为直接入库）
+- **[codex-desktop-theme-development.md](../../guides/codex-desktop-theme-development.md) — Codex 桌面 App 主题开发标准（主线，codex-theme-v1 格式规范）**
+- **[pokemon-desktop-theme-design.md](desktop-design.md) — 宝可梦桌面主题设计定稿（3 神兽 + 3 人气阵容、字段映射）**
+- [codex-cli-theme-development.md](../../guides/codex-cli-theme-development.md) — TUI .tmTheme 开发指南（附属产物）
+- [pokemon-theme-design.md](design.md) — 宝可梦主题设计总纲（场景选角逻辑、人气数据、配色推导）
+- [codex-official-theming.md](../../guides/references/codex-official-theming.md) — 官方机制调研存档
+- [pokemon-assets.md](assets.md) — 素材库调研存档（策略已修订为直接入库）
 
 **主线已切换为 Codex 桌面 App 主题**（2026-07-18）：TUI .tmTheme 与展示站为附属产物，共享 scenes.ts 数据源。
 
@@ -19,7 +19,7 @@
 
 | # | 任务 | 产出 | 状态 |
 |---|------|------|------|
-| 0 | 资料沉淀到 docs/ | docs/pokemon/ 文档组 | ✅ PR #3/#4/#5/#6 |
+| 0 | 资料沉淀到 docs/ | docs/themes/pokemon/ 文档组 | ✅ PR #3/#4/#5/#6 |
 | 1 | 6 场景 .tmTheme 主题产物 | `Pokemon/themes/pokemon-*.tmTheme` × 6（plutil 通过） | ✅ PR #7 |
 | 2 | 主题数据建模 + 素材入库 | 40 只 sprite 入库 `public/pokemon/`；数据源最终落在 `src/themes/scenes.ts`（与既有 UI 数据融合，含神兽池） | ✅ PR #7 + 本 PR |
 | 3 | 安装页对接真实产物 | tmTheme 安装命令 + tui.theme 片段 + /theme 流程；移除虚构的 codex theme 命令 | ✅ 本 PR |

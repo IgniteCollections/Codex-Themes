@@ -87,7 +87,7 @@ function buildToml(s: SceneDef): string {
     `# 官方主题机制：语法高亮主题（代码块 / diff），对应 ~/.codex/themes/pokemon-${slug}.tmTheme`,
     `tui.theme = "pokemon-${slug}"`,
     '',
-    '# 可选体验配置（docs/pokemon/codex-official-theming.md）',
+    '# 可选体验配置（docs/guides/references/codex-official-theming.md）',
     'tui.animations = true',
     `tui.terminal_title = ["spinner", "project"]`,
     '',

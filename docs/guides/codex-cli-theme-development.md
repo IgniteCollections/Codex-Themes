@@ -2,7 +2,7 @@
 
 如何为 Codex CLI（TUI）开发一套自定义主题。本指南是仓库所有主题（宝可梦及未来主题）的通用开发手册。
 
-来源：官方文档调研见 [codex-official-theming.md](codex-official-theming.md)；本文是面向开发者的操作指南。
+来源：官方文档调研见 [codex-official-theming.md](references/codex-official-theming.md)；本文是面向开发者的操作指南。
 
 ## 1. 官方机制速览
 
