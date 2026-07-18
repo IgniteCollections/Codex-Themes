@@ -46,7 +46,7 @@ import spr145 from "./sprites/145.png";
 import spr150 from "./sprites/150.png";
 import spr151 from "./sprites/151.png";
 import spr251 from "./sprites/251.png";
-import spr10037 from "./sprites/10037.png";
+import spr10078 from "./sprites/10078.png";
 import spr10076 from "./sprites/10076.png";
 import spr10077 from "./sprites/10077.png";
 import spr10079 from "./sprites/10079.png";
@@ -59,7 +59,7 @@ const SPRITES: Record<number, string> = {
   133: spr133, 144: spr144, 192: spr192, 218: spr218, 239: spr239, 324: spr324,
   363: spr363, 371: spr371, 384: spr384, 386: spr386, 471: spr471,
   145: spr145, 150: spr150, 151: spr151, 251: spr251,
-  10037: spr10037, 10076: spr10076, 10077: spr10077, 10079: spr10079, 10193: spr10193,
+  10078: spr10078, 10076: spr10076, 10077: spr10077, 10079: spr10079, 10193: spr10193,
 };
 
 export const spriteOf = (id: number): string | undefined => SPRITES[id];
