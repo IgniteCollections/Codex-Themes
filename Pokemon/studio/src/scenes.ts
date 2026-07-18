@@ -9,9 +9,9 @@ import wallCave from "./wallpapers/scene-cave.png";
 import wallMagma from "./wallpapers/scene-magma.png";
 import wallSnowfield from "./wallpapers/scene-snowfield.png";
 import wallPlant from "./wallpapers/scene-plant.png";
-import wallSpace from "./wallpapers/scene-space.svg";
-import wallCity from "./wallpapers/scene-city.svg";
-import wallLab from "./wallpapers/scene-lab.svg";
+import wallSpace from "./wallpapers/scene-space.png";
+import wallCity from "./wallpapers/scene-city.png";
+import wallLab from "./wallpapers/scene-lab.png";
 
 import spr001 from "./sprites/001.png";
 import spr004 from "./sprites/004.png";
