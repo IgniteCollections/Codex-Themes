@@ -8,12 +8,13 @@ import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
-import { SCENES, isSceneId } from '@/themes/scenes';
-import type { SceneId } from '@/themes/scenes';
+import { SCENES, isSceneId, pokemonSprite, SCENE_THEME_SLUG } from '@/themes/scenes';
+import type { SceneDef, SceneId } from '@/themes/scenes';
 import CodeBlock from '@/components/CodeBlock';
+import CopyButton from '@/components/CopyButton';
 import PokeballDivider from '@/components/PokeballDivider';
 import SectionHeading from '@/components/SectionHeading';
-import { SNIPPETS } from '@/pages/installSnippets';
+import { DESKTOP_THEMES, SNIPPETS } from '@/pages/installSnippets';
 
 const EASE = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -177,6 +178,101 @@ function SceneTabs() {
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+/* ---------------- S1.5 桌面客户端（codex-theme-v1 导入字符串 × 7） ---------------- */
+function DesktopSceneCard({ scene, index }: { scene: SceneDef; index: number }) {
+  const themeString = DESKTOP_THEMES[scene.id];
+  const mascot = scene.pokemon.find((p) => p.role === 'mascot') ?? scene.pokemon[0];
+  return (
+    <motion.div
+      initial={{ y: 32, opacity: 0 }}
+      whileInView={{ y: 0, opacity: 1 }}
+      viewport={{ once: true, margin: '-5% 0px' }}
+      transition={{ delay: index * 0.05, duration: 0.45, ease: EASE }}
+      data-scene={scene.id}
+      className="pixel-corners shadow-pixel flex flex-col border p-5"
+      style={{ background: 'var(--sc-panel)', borderColor: 'var(--sc-border)' }}
+    >
+      <div className="mb-3 flex items-center gap-3">
+        <div
+          className="pixel-corners flex h-14 w-14 flex-none items-center justify-center border"
+          style={{ background: 'var(--sc-inset)', borderColor: 'var(--sc-border)' }}
+        >
+          <img
+            src={pokemonSprite(mascot)}
+            alt={mascot.name}
+            className="h-12 w-12 object-contain"
+            style={{ imageRendering: 'pixelated' }}
+            loading="lazy"
+          />
+        </div>
+        <div>
+          <p className="font-display text-lg leading-tight tracking-wide" style={{ color: 'var(--sc-fg)' }}>
+            {scene.name}
+            <span className="ml-2 font-pixel text-[10px]" style={{ color: 'var(--sc-prompt)' }}>
+              {scene.symbol}
+            </span>
+          </p>
+          <p className="font-mono text-[11px]" style={{ color: 'var(--sc-fg-dim)' }}>
+            {scene.en} · pokemon-{SCENE_THEME_SLUG[scene.id]}
+          </p>
+        </div>
+      </div>
+
+      {/* 色板速览：accent / surface / ink / diff+ / diff- */}
+      <div className="mb-4 flex gap-1.5">
+        {[scene.ui.prompt, scene.ui.bg, scene.ui.fg, scene.ui['diff-add-fg'], scene.ui['diff-del-fg']].map((hex) => (
+          <span
+            key={hex}
+            className="h-4 flex-1 border"
+            title={hex}
+            style={{ background: hex, borderColor: 'color-mix(in srgb, var(--sc-fg) 14%, transparent)' }}
+          />
+        ))}
+      </div>
+
+      <div
+        className="mb-3 truncate border px-2.5 py-2 font-mono text-[10px]"
+        style={{ background: 'var(--sc-inset)', borderColor: 'var(--sc-border)', color: 'var(--sc-fg-dim)' }}
+        title={themeString}
+      >
+        {themeString}
+      </div>
+      <div className="mt-auto">
+        <CopyButton text={themeString} />
+      </div>
+    </motion.div>
+  );
+}
+
+function DesktopSection() {
+  return (
+    <section className="py-16 md:py-20">
+      <div className="mx-auto max-w-[960px] px-6 max-sm:px-4">
+        <SectionHeading label="DESKTOP APP" title="桌面客户端主题" />
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="mb-8 max-w-[640px] text-sm leading-[1.8]"
+          style={{ color: 'var(--sc-fg-dim)' }}
+        >
+          ChatGPT / Codex 桌面 App 专用。复制场景的导入字符串，打开{' '}
+          <code className="px-1 font-mono text-[12px]" style={{ background: 'var(--sc-inset)', color: 'var(--sc-accent)' }}>
+            Settings（Cmd+,）→ Appearance → Import
+          </code>
+          ，选择 <strong style={{ color: 'var(--sc-fg)' }}>dark</strong> 槽位粘贴即可。整套界面配色随场景换肤。
+        </motion.p>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {SCENES.map((s, i) => (
+            <DesktopSceneCard key={s.id} scene={s} index={i} />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -426,6 +522,11 @@ export default function Install() {
           <QuickStart />
         </div>
       </section>
+
+      <PokeballDivider />
+
+      {/* ============ S1.5 桌面客户端主题 ============ */}
+      <DesktopSection />
 
       <PokeballDivider />
 

@@ -16,6 +16,42 @@ export interface SceneSnippets {
   css: string;     // theme-*.css（网页实现用变量）
 }
 
+/* ---------------- 桌面 App：codex-theme-v1 导入字符串 ----------------
+   与 Pokemon/scripts/generate-desktop-themes.py 同一套字段映射，
+   由 scenes.ts ui 色板现算，保证网站与仓库产物一致。 */
+
+const DESKTOP_CONTRAST: Record<SceneId, number> = {
+  grassland: 52, ocean: 56, cave: 50, magma: 56,
+  snowfield: 60, plant: 60, space: 62,
+};
+
+function buildDesktopThemeString(s: SceneDef): string {
+  const ui = s.ui;
+  const payload = {
+    codeThemeId: 'codex',
+    variant: 'dark',
+    theme: {
+      accent: ui.prompt,
+      surface: ui.bg,
+      ink: ui.fg,
+      contrast: DESKTOP_CONTRAST[s.id],
+      opaqueWindows: true,
+      fonts: { code: null, ui: null },
+      semanticColors: {
+        diffAdded: ui['diff-add-fg'],
+        diffRemoved: ui['diff-del-fg'],
+        skill: ui['accent-2'],
+      },
+    },
+  };
+  return `codex-theme-v1:${encodeURIComponent(JSON.stringify(payload))}`;
+}
+
+/** 每场景的桌面 App 导入字符串（模块加载时计算一次） */
+export const DESKTOP_THEMES: Record<SceneId, string> = Object.fromEntries(
+  SCENES.map((s) => [s.id, buildDesktopThemeString(s)]),
+) as Record<SceneId, string>;
+
 const ANSI_KEYS = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'] as const;
 const BRIGHT_KEYS = ANSI_KEYS.map((k) => `bright${k[0].toUpperCase()}${k.slice(1)}`);
 
