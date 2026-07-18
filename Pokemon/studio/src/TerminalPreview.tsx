@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BannerRole, SceneDef, ScriptLine, ScriptLineKind } from "./scene-data";
-import { MASCOT_ART } from "./mascotArt";
+import { POKEMON_ART } from "./mascotArt";
 
 /* 横幅着色角色 → 场景变量（与展示站 TerminalWindow 一致） */
 const ROLE_COLOR: Record<BannerRole, string> = {
@@ -171,22 +171,34 @@ export default function TerminalPreview({ scene }: { scene: SceneDef }) {
           <div className="tp-banner-row">
             <img
               className="tp-mascot"
-              src={MASCOT_ART[scene.id]?.full}
+              src={POKEMON_ART[String(scene.pokemon[0]?.id)]?.full}
               alt={scene.pokemon[0]?.name ?? scene.name}
             />
-            <pre className="tp-banner">
-              {scene.banner.map((line, i) =>
-                line === "stripe" ? (
-                  <div key={i} className="tp-stripe" />
-                ) : (
-                  <div key={i}>
-                    {line.map((seg, j) => (
-                      <span key={j} style={{ color: ROLE_COLOR[seg.r] }}>{seg.t}</span>
-                    ))}
-                  </div>
-                ),
-              )}
-            </pre>
+            <div className="tp-banner-side">
+              <pre className="tp-banner">
+                {scene.banner.map((line, i) =>
+                  line === "stripe" ? (
+                    <div key={i} className="tp-stripe" />
+                  ) : (
+                    <div key={i}>
+                      {line.map((seg, j) => (
+                        <span key={j} style={{ color: ROLE_COLOR[seg.r] }}>{seg.t}</span>
+                      ))}
+                    </div>
+                  ),
+                )}
+              </pre>
+              <div className="tp-roster">
+                {scene.pokemon.slice(1).map((p) => (
+                  <img
+                    key={p.id}
+                    src={POKEMON_ART[String(p.id)]?.half}
+                    alt={p.name}
+                    title={p.name}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
           <div className="tp-script">
             {done.map((l, i) => (

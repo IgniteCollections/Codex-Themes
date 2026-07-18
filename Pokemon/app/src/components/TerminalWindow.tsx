@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { BannerRole, SceneDef, ScriptLine, ScriptLineKind } from '@/themes/scenes';
-import { MASCOT_ART } from '@/themes/mascotArt';
+import { POKEMON_ART } from '@/themes/mascotArt';
 import { cn } from '@/lib/utils';
 
 /* 横幅着色角色 → 场景变量（design.md §7 各场景横幅注释） */
@@ -273,28 +273,42 @@ export default function TerminalWindow({
             fading && 'opacity-0',
           )}
         >
-          {/* 招牌宝可梦像素画（sprite 原图直出，双分辨率）+ 场景横幅装饰行 */}
+          {/* 招牌 + 遭遇阵容像素画（sprite 原图直出）+ 场景横幅装饰行 */}
           <div key={cycle} className="anim-pixel-flash flex flex-none items-end gap-4">
             <img
-              src={MASCOT_ART[scene.id]?.full}
-              srcSet={MASCOT_ART[scene.id] ? `${MASCOT_ART[scene.id].half} 48w, ${MASCOT_ART[scene.id].full} 96w` : undefined}
+              src={POKEMON_ART[String(scene.pokemon[0]?.id)]?.full}
               alt={scene.pokemon[0]?.name ?? scene.name}
               className="h-[104px] w-[104px] flex-none object-contain"
               style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,.5))' }}
             />
-            <pre className="ascii-art min-w-0">
-              {scene.banner.map((line, i) =>
-                line === 'stripe' ? (
-                  <div key={i} className="warning-stripe my-0.5 h-[8px] w-[30ch]" />
-                ) : (
-                  <div key={i}>
-                    {line.map((seg, j) => (
-                      <span key={j} style={{ color: ROLE_COLOR[seg.r] }}>{seg.t}</span>
-                    ))}
-                  </div>
-                ),
-              )}
-            </pre>
+            <div className="flex min-w-0 flex-col gap-1">
+              <pre className="ascii-art">
+                {scene.banner.map((line, i) =>
+                  line === 'stripe' ? (
+                    <div key={i} className="warning-stripe my-0.5 h-[8px] w-[30ch]" />
+                  ) : (
+                    <div key={i}>
+                      {line.map((seg, j) => (
+                        <span key={j} style={{ color: ROLE_COLOR[seg.r] }}>{seg.t}</span>
+                      ))}
+                    </div>
+                  ),
+                )}
+              </pre>
+              {/* 遭遇阵容（招牌之后的常规出没宝可梦） */}
+              <div className="flex items-end gap-1.5">
+                {scene.pokemon.slice(1).map((p) => (
+                  <img
+                    key={p.id}
+                    src={POKEMON_ART[String(p.id)]?.half}
+                    alt={p.name}
+                    title={p.name}
+                    className="h-9 w-9 object-contain"
+                    style={{ imageRendering: 'pixelated' }}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
           <div className="min-h-0 flex-1 overflow-y-hidden overflow-x-auto" style={{ lineHeight: 1.6 }}>
             {done.map((l, i) => (
