@@ -17,8 +17,10 @@
 | 5.8 | **皮肤工作室 App** | `Pokemon/studio/`：Tauri 托盘 App + vendor Dream Skin 引擎 + 7 套 preset 生成器 | ✅ | #16 |
 | 5.9 | **皮肤商店化 + macOS 适配** | 商店式 UI（皮肤卡片网格 + 详情大预览 + 打字机终端演示 + ANSI 色板 + 出没宝可梦）；macOS 实测修复 5 个缺陷 | ✅ | 本 PR |
 | 5 | 终端模拟器配色导出 | `themes/terminal/` 7 场景 × 4 格式（Windows Terminal JSON / iTerm2 .itermcolors / Alacritty TOML / kitty conf）+ 生成脚本 + 安装页 ③④⑤ 片段 | ✅ | 本 PR |
-| 6 | lint 债务清理 | 12 个既有 lint error，CI 恢复 lint 硬失败 | 待办 | — |
+| 6 | lint 债务清理 | 12 error 归零（8 个非组件导出拆文件 + 4 个 hooks 规则）；CI 恢复 lint 硬失败 | ✅ | #20 |
 | 7 | 视觉与交互动效打磨 | 切换动效、响应式、CRT 细节 | 待办 | — |
+
+> 任务 5（#19）、任务 6（#20）已于 2026-07-18 完成；剩余任务 7 为打磨项。
 
 任务详情与执行顺序见 [roadmap.md](roadmap.md)。
 
