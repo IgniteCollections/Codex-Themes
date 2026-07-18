@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "pokemon-lab",
+  "name": "⚗ 实验室 · Laboratory",
+  "image": "background.png",
+  "appearance": "dark",
+  "art": {
+    "safeArea": "auto",
+    "taskMode": "ambient"
+  },
+  "palette": {
+    "accent": "#7BD3F0"
+  }
+}

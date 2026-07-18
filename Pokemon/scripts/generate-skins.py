@@ -17,7 +17,7 @@ SCENES_TS = REPO / "Pokemon/app/src/themes/scenes.ts"
 PUBLIC = REPO / "Pokemon/app/public"
 OUT = REPO / "Pokemon/app/src/themes/skins.ts"
 
-SCENE_VARS = ["grassland", "ocean", "cave", "magma", "snowfield", "plant", "space"]
+SCENE_VARS = ["grassland", "ocean", "cave", "magma", "snowfield", "plant", "space", "city", "lab"]
 MIME = {".png": "image/png", ".svg": "image/svg+xml"}
 
 
@@ -43,13 +43,15 @@ def parse_scenes(ts: str) -> dict[str, dict]:
 
 
 SCENE_META = {
-    "grassland": ("草原", "❀", 1),
-    "ocean": ("海洋", "≈", 130),
-    "cave": ("洞穴", "◆", 95),
-    "magma": ("岩浆", "▲", 4),
-    "snowfield": ("雪原", "❄", 471),
-    "plant": ("无人发电厂", "⚡", 25),
-    "space": ("宇宙", "☄", 384),
+    "grassland": ("草原", "❀", 251),
+    "ocean": ("海洋", "≈", 10077),
+    "cave": ("洞穴", "◆", 10076),
+    "magma": ("岩浆", "▲", 10037),
+    "snowfield": ("雪原", "❄", 10193),
+    "plant": ("无人发电厂", "⚡", 145),
+    "space": ("宇宙", "☄", 10079),
+    "city": ("城市", "✦", 151),
+    "lab": ("实验室", "⚗", 150),
 }
 
 

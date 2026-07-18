@@ -24,7 +24,7 @@ export interface SceneSnippets {
 
 const DESKTOP_CONTRAST: Record<SceneId, number> = {
   grassland: 52, ocean: 56, cave: 50, magma: 56,
-  snowfield: 60, plant: 60, space: 62,
+  snowfield: 60, plant: 60, space: 62, city: 58, lab: 55,
 };
 
 function buildDesktopThemeString(s: SceneDef): string {

@@ -1,0 +1,32 @@
+# CODEX · 实验室 Laboratory — Alacritty colors（scenes.ts 派生，勿手改）
+[colors.primary]
+background = "#0C121C"
+foreground = "#E8F4F8"
+
+[colors.cursor]
+text = "#0C121C"
+cursor = "#7BD3F0"
+
+[colors.selection]
+text = "#E8F4F8"
+background = "#1A2C40"
+
+[colors.normal]
+black = "#0D1420"
+red = "#F2788A"
+green = "#3FD99A"
+yellow = "#FFD166"
+blue = "#5F8EF0"
+magenta = "#9B7BF0"
+cyan = "#57D3C7"
+white = "#E8F4F8"
+
+[colors.bright]
+black = "#1E3248"
+red = "#F28597"
+green = "#6EE8B0"
+yellow = "#FFE169"
+blue = "#8FA8F8"
+magenta = "#B89BF8"
+cyan = "#8FE8E4"
+white = "#FFFFFF"

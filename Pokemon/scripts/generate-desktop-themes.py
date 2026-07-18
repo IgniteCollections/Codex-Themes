@@ -28,6 +28,8 @@ SCENE_SLUG = {
     "snowfield": "snowfield",
     "plant": "power-plant",
     "space": "space",
+    "city": "city",
+    "lab": "lab",
 }
 
 SCENE_TITLE = {
@@ -38,6 +40,8 @@ SCENE_TITLE = {
     "snowfield": "雪原",
     "plant": "无人发电厂",
     "space": "宇宙",
+    "city": "城市",
+    "lab": "实验室",
 }
 
 # contrast per scene (docs/themes/pokemon/desktop-design.md §3)
@@ -49,6 +53,8 @@ CONTRAST = {
     "snowfield": 60,
     "power-plant": 60,
     "space": 62,
+    "city": 58,
+    "lab": 55,
 }
 
 

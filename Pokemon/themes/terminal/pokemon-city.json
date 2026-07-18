@@ -1,0 +1,11 @@
+{
+  "name": "CODEX · 城市 City",
+  "background": "#160A26",
+  "foreground": "#F8E8F8",
+  "selectionBackground": "#2E1652",
+  "cursorColor": "#F8B4D9",
+  "black": "#241242", "red": "#F2788A", "green": "#3FD99A", "yellow": "#FFD700",
+  "blue": "#6C8EF0", "magenta": "#F8B4D9", "cyan": "#7BD3F0", "white": "#F8E8F8",
+  "brightBlack": "#3A1E6E", "brightRed": "#F28597", "brightGreen": "#6EE8B0", "brightYellow": "#FFE169",
+  "brightBlue": "#8FA8F8", "brightMagenta": "#F8C8E4", "brightCyan": "#8FE8F4", "brightWhite": "#FFFFFF"
+}

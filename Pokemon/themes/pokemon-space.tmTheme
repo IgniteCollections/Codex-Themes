@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- Pokemon Magma 岩浆 — generated from src/themes/scenes.ts, do not edit by hand -->
+<!-- Pokemon Space 宇宙 — generated from src/themes/scenes.ts, do not edit by hand -->
 <plist version="1.0">
   <dict>
     <key>name</key>
-    <string>Pokemon Magma 岩浆</string>
+    <string>Pokemon Space 宇宙</string>
     <key>settings</key>
     <array>
       <dict>
         <key>settings</key>
       <dict>
         <key>foreground</key>
-        <string>#F2E6D8</string>
+        <string>#E8E8F8</string>
         <key>background</key>
-        <string>#120B08</string>
+        <string>#0B0B1E</string>
         <key>selection</key>
-        <string>#3D2318</string>
+        <string>#23234A</string>
         <key>lineHighlight</key>
-        <string>#1E1410</string>
+        <string>#131331</string>
         <key>caret</key>
-        <string>#FFD166</string>
+        <string>#8F7DF0</string>
       </dict>
       </dict>
       <dict>
@@ -30,7 +30,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#6E6259</string>
+          <string>#6C6C94</string>
         </dict>
       </dict>
       <dict>
@@ -41,7 +41,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#F5A623</string>
+          <string>#FFD700</string>
           <key>fontStyle</key>
           <string>bold</string>
         </dict>
@@ -54,7 +54,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#FFD166</string>
+          <string>#8F7DF0</string>
         </dict>
       </dict>
       <dict>
@@ -65,7 +65,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#FFD166</string>
+          <string>#FFD700</string>
         </dict>
       </dict>
       <dict>
@@ -76,7 +76,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#F5A623</string>
+          <string>#FFD700</string>
         </dict>
       </dict>
       <dict>
@@ -87,7 +87,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#FFD166</string>
+          <string>#FFD700</string>
         </dict>
       </dict>
       <dict>
@@ -98,7 +98,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#F2E6D8</string>
+          <string>#E8E8F8</string>
         </dict>
       </dict>
       <dict>
@@ -109,7 +109,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#F2E6D8</string>
+          <string>#E8E8F8</string>
         </dict>
       </dict>
       <dict>
@@ -120,7 +120,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#F5A623</string>
+          <string>#FFD700</string>
           <key>fontStyle</key>
           <string>bold</string>
         </dict>
@@ -133,7 +133,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#F2E6D8</string>
+          <string>#E8E8F8</string>
           <key>fontStyle</key>
           <string>bold</string>
         </dict>
@@ -146,7 +146,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#F2E6D8</string>
+          <string>#E8E8F8</string>
           <key>fontStyle</key>
           <string>italic</string>
         </dict>
@@ -159,7 +159,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#FFD166</string>
+          <string>#8F7DF0</string>
         </dict>
       </dict>
       <dict>
@@ -170,7 +170,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#B8C93A</string>
+          <string>#3FD99A</string>
         </dict>
       </dict>
       <dict>
@@ -181,7 +181,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#D43D2A</string>
+          <string>#E05A7A</string>
         </dict>
       </dict>
       <dict>
@@ -192,7 +192,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#FFD166</string>
+          <string>#FFD700</string>
         </dict>
       </dict>
     </array>

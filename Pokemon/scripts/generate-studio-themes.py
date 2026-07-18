@@ -27,7 +27,7 @@ PUBLIC = REPO / "Pokemon/app/public"
 SKIN_CSS = REPO / "Pokemon/skins/pokemon-skin.css"
 OUT_ROOT = REPO / "Pokemon/studio/src-tauri/resources/themes"
 
-SCENE_VARS = ["grassland", "ocean", "cave", "magma", "snowfield", "plant", "space"]
+SCENE_VARS = ["grassland", "ocean", "cave", "magma", "snowfield", "plant", "space", "city", "lab"]
 MIME = {".png": "image/png", ".svg": "image/svg+xml"}
 
 # Wallpaper render size: 16:9, crisp nearest-neighbour upscale of the pixel art.

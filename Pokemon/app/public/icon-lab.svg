@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <rect width="16" height="16" fill="#0D1420"/>
+  <!-- 培养舱 -->
+  <rect x="2" y="2" width="4" height="11" fill="#12283A"/>
+  <rect x="3" y="3" width="2" height="9" fill="#1A4A5A"/>
+  <rect x="3" y="3" width="2" height="1" fill="#2E7A8A"/>
+  <!-- 超梦舱（紫） -->
+  <rect x="9" y="1" width="5" height="12" fill="#12283A"/>
+  <rect x="10" y="2" width="3" height="10" fill="#2A2A5A"/>
+  <rect x="10" y="2" width="3" height="1" fill="#4A4A8A"/>
+  <rect x="11" y="5" width="1" height="1" fill="#9B7BF0"/>
+  <rect x="11" y="8" width="1" height="1" fill="#B89BF8"/>
+  <!-- 灯点 -->
+  <rect x="4" y="6" width="1" height="1" fill="#7BD3F0"/>
+  <rect x="7" y="12" width="1" height="1" fill="#F2788A" opacity="0.7"/>
+  <!-- 地板 -->
+  <rect x="0" y="13" width="16" height="3" fill="#060A12"/>
+</svg>
