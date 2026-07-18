@@ -1,0 +1,6 @@
+{
+  "identifier": "main-capability",
+  "description": "default window capabilities",
+  "windows": ["main"],
+  "permissions": ["core:default", "core:window:allow-show", "core:window:allow-hide", "core:window:allow-set-focus"]
+}

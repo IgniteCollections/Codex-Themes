@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "宝可梦皮肤工作室",
+  "version": "0.1.0",
+  "identifier": "com.codex-themes.pokemon-studio",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5174",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "宝可梦皮肤工作室",
+        "width": 880,
+        "height": 640,
+        "minWidth": 720,
+        "minHeight": 520,
+        "resizable": true,
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: asset: https://raw.githubusercontent.com; style-src 'self' 'unsafe-inline'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "dmg"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico",
+      "icons/icon.icns"
+    ],
+    "resources": [
+      "resources/engine-windows",
+      "resources/engine-macos",
+      "resources/themes"
+    ]
+  }
+}
