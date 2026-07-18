@@ -7,9 +7,7 @@ import { inspectAttr } from 'plugin-inspect-react-code'
 export default defineConfig({
   base: './',
   plugins: [inspectAttr(), react()],
-  server: {
-    port: 3000,
-  },
+  server: process.env.PORT ? { port: Number(process.env.PORT), strictPort: true } : undefined,
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
