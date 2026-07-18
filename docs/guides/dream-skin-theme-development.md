@@ -22,7 +22,7 @@ pokemon-grassland/
   "name": "❀ 草原 · Grassland",
   "image": "background.png",
   "appearance": "dark",
-  "art": { "focusX": null, "focusY": null, "safeArea": "auto", "taskMode": "ambient" },
+  "art": { "safeArea": "auto", "taskMode": "ambient" },
   "palette": { "accent": "#7AC74C" }
 }
 ```
@@ -31,7 +31,7 @@ pokemon-grassland/
 |---|---|---|
 | `id` | 目录名同款 slug | 用专属前缀避开官方命名空间（官方 `preset-*` 种子、用户 `custom-*`；我们用 `pokemon-*`） |
 | `appearance` | `auto`/`light`/`dark` | 深色系主题直接 `dark` |
-| `art.focusX/focusY` | 0–1 或 null | null = 引擎按图片显著性自动找焦点；构图特殊的壁纸再手写 |
+| `art.focusX/focusY` | 0–1，或**省略字段** | 省略 = 引擎按图片显著性自动找焦点；构图特殊的壁纸再手写。⚠️ **不要写 `null`**——injector 的 `unit()` 校验只接受数字或缺省，`null` 直接抛错（2026-07-18 macOS 实测） |
 | `art.safeArea` | `auto`/`left`/`right`/`center`/`none` | `auto`：引擎自动把内容少的一侧留给主界面 |
 | `art.taskMode` | `auto`/`ambient`/`banner`/`off` | 任务页壁纸模式；`ambient` = 弱化显示 |
 | `palette.accent` | CSS 颜色 | **唯一生效的颜色**，驱动原生控件强调色；不写则从壁纸自动提取 |

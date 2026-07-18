@@ -235,7 +235,9 @@ def main() -> None:
             "name": f"{s['symbol']} {s['name']} · {s['en'].title()}",
             "image": "background.png",
             "appearance": "dark",
-            "art": {"focusX": None, "focusY": None, "safeArea": "auto", "taskMode": "ambient"},
+            # focusX/focusY 省略（而非 null）= 引擎显著性分析自动定焦点；
+            # injector 的 unit() 校验拒绝 null，只接受 0–1 数字或缺省
+            "art": {"safeArea": "auto", "taskMode": "ambient"},
             "palette": {"accent": s["ui"]["prompt"]},
         }
         (out_dir / "theme.json").write_text(
