@@ -66,7 +66,8 @@ export default function App() {
 
   const switchTo = (sceneId: string) =>
     run(`正在切换场景…`, async () => {
-      if (!status?.injectorRunning) {
+      const needRestart = !status?.injectorRunning;
+      if (needRestart) {
         const yes = await confirm(
           "Codex 需要以调试模式重启一次才能注入皮肤（未保存的输入可能丢失）。继续？",
           { title: "启动皮肤引擎", kind: "warning" }
@@ -74,7 +75,8 @@ export default function App() {
         if (!yes) return "已取消";
       }
       const out = await invoke<string>("switch_scene", { sceneId });
-      if (!status?.injectorRunning) {
+      if (needRestart) {
+        // start 引擎（含 verify，等待 Codex shell 就绪，可能需要 1-2 分钟）
         await invoke<string>("start_engine");
       }
       return out;

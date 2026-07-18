@@ -369,29 +369,33 @@ fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn install_engine(app: tauri::AppHandle) -> Result<String, String> {
-    let state = state_root()?;
-    let vendor = engine_resource_dir(&app)?;
-    if !vendor.is_dir() {
-        return Err(format!("引擎资源缺失: {}", vendor.display()));
-    }
-    // 官方 install 脚本以自身位置为 SkillRoot（Split-Path -Parent $PSScriptRoot），
-    // 因此把 vendor 树复制到状态根旁边的暂存目录，从那里运行。
-    let staging = state.join(".pokemon-studio-vendor");
-    if staging.exists() {
-        fs::remove_dir_all(&staging).map_err(|e| e.to_string())?;
-    }
-    copy_dir_recursive(&vendor, &staging)?;
-    #[cfg(windows)]
-    let install = staging.join("scripts").join("install-dream-skin.ps1");
-    #[cfg(target_os = "macos")]
-    let install = staging.join("scripts").join("install-dream-skin-macos.sh");
-    #[cfg(windows)]
-    let result = run_engine_script(&state, install, &["-NoShortcuts"]);
-    #[cfg(target_os = "macos")]
-    let result = run_engine_script(&state, install, &[]);
-    let _ = fs::remove_dir_all(&staging);
-    result
+async fn install_engine(app: tauri::AppHandle) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let state = state_root()?;
+        let vendor = engine_resource_dir(&app)?;
+        if !vendor.is_dir() {
+            return Err(format!("引擎资源缺失: {}", vendor.display()));
+        }
+        // 官方 install 脚本以自身位置为 SkillRoot（Split-Path -Parent $PSScriptRoot），
+        // 因此把 vendor 树复制到状态根旁边的暂存目录，从那里运行。
+        let staging = state.join(".pokemon-studio-vendor");
+        if staging.exists() {
+            fs::remove_dir_all(&staging).map_err(|e| e.to_string())?;
+        }
+        copy_dir_recursive(&vendor, &staging)?;
+        #[cfg(windows)]
+        let install = staging.join("scripts").join("install-dream-skin.ps1");
+        #[cfg(target_os = "macos")]
+        let install = staging.join("scripts").join("install-dream-skin-macos.sh");
+        #[cfg(windows)]
+        let result = run_engine_script(&state, install, &["-NoShortcuts"]);
+        #[cfg(target_os = "macos")]
+        let result = run_engine_script(&state, install, &[]);
+        let _ = fs::remove_dir_all(&staging);
+        result
+    })
+    .await
+    .map_err(|e| format!("install task join: {e}"))?
 }
 
 /* ------------------------------------------------------------------ */
@@ -494,20 +498,39 @@ fn switch_scene(app: tauri::AppHandle, scene_id: String) -> Result<String, Strin
 /* ------------------------------------------------------------------ */
 
 #[tauri::command]
-fn start_engine() -> Result<String, String> {
-    let state = state_root()?;
-    let script = engine_script(&state, "start-dream-skin.ps1", "start-dream-skin-macos.sh");
-    run_engine_script(&state, script, &[])
+async fn start_engine() -> Result<String, String> {
+    // 实测注意：start 脚本结尾的 verify 会等 Codex shell 渲染完成，
+    // 前台调用可能挂起数分钟；必须异步执行。restore 后重开的 Codex
+    // 无 CDP 端口，-RestartExisting 允许脚本自行重启它（已有 CDP 时无副作用）。
+    tauri::async_runtime::spawn_blocking(|| {
+        let state = state_root()?;
+        let script = engine_script(&state, "start-dream-skin.ps1", "start-dream-skin-macos.sh");
+        #[cfg(windows)]
+        let args: &[&str] = &["-RestartExisting"];
+        #[cfg(target_os = "macos")]
+        let args: &[&str] = &["--restart-existing"];
+        run_engine_script(&state, script, args)
+    })
+    .await
+    .map_err(|e| format!("start task join: {e}"))?
 }
 
 #[tauri::command]
-fn stop_engine() -> Result<String, String> {
+async fn stop_engine() -> Result<String, String> {
     // 恢复官方外观（关 injector + 移除注入），但保留引擎安装与主题库。
-    let state = state_root()?;
-    let script = engine_script(&state, "restore-dream-skin.ps1", "restore-dream-skin-macos.sh");
-    let out = run_engine_script(&state, script, &[])?;
-    rebuild_engine_css(&state, None)?;
-    Ok(out)
+    tauri::async_runtime::spawn_blocking(|| {
+        let state = state_root()?;
+        let script = engine_script(&state, "restore-dream-skin.ps1", "restore-dream-skin-macos.sh");
+        #[cfg(windows)]
+        let args: &[&str] = &["-ForceRestart"];
+        #[cfg(target_os = "macos")]
+        let args: &[&str] = &["--force-restart"];
+        let out = run_engine_script(&state, script, args)?;
+        rebuild_engine_css(&state, None)?;
+        Ok(out)
+    })
+    .await
+    .map_err(|e| format!("stop task join: {e}"))?
 }
 
 #[tauri::command]
@@ -524,10 +547,14 @@ fn set_paused(paused: bool) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn verify_engine() -> Result<String, String> {
-    let state = state_root()?;
-    let script = engine_script(&state, "verify-dream-skin.ps1", "verify-dream-skin-macos.sh");
-    run_engine_script(&state, script, &[])
+async fn verify_engine() -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(|| {
+        let state = state_root()?;
+        let script = engine_script(&state, "verify-dream-skin.ps1", "verify-dream-skin-macos.sh");
+        run_engine_script(&state, script, &[])
+    })
+    .await
+    .map_err(|e| format!("verify task join: {e}"))?
 }
 
 /* ------------------------------------------------------------------ */

@@ -149,8 +149,29 @@ Pokemon/studio/                     # Tauri 2 App（新目录）
 
 ## 8. 实现顺序
 
-1. `scripts/generate-studio-themes.mjs` — 从 skins.ts/scenes.ts 生成 7 套主题包（含 scene.css 派生）
-2. `Pokemon/studio/` Tauri 脚手架 + Rust 引擎管理（安装/切换/状态/恢复）
-3. React 场景网格 UI（复用展示站组件与样式）
-4. Windows 端到端实测（Codex App 实机）
+1. `scripts/generate-studio-themes.py` — 从 skins.ts/scenes.ts 生成 7 套主题包（含 scene.css 派生）✅
+2. `Pokemon/studio/` Tauri 脚手架 + Rust 引擎管理（安装/切换/状态/恢复）✅
+3. React 场景网格 UI（复用展示站组件与样式）✅
+4. Windows 端到端实测（Codex App 实机）✅（2026-07-18，见 §9）
 5. 文档 + PR（任务分支 → pre-release）
+
+## 9. Windows 端到端实测记录（2026-07-18）
+
+环境：Windows 11，Codex 商店包 26.715.4045.0，Node 22.23.1（引擎要求 ≥22，Node 20 会被官方安装脚本拒绝）。
+
+| 步骤 | 结果 |
+|---|---|
+| 官方 install 脚本（vendor 副本，-NoShortcuts） | ✅ engine 安装到 `%LOCALAPPDATA%\CodexDreamSkin\engine\` |
+| 7 套主题包入 `themes/` + grassland 激活 | ✅ |
+| start 脚本（Codex 带 CDP 端口 9335 启动 + watch injector） | ✅ verify pass（installed/style/chrome 均为 true） |
+| 实机截图 | ✅ 草原像素壁纸 + 绿色系 UI（pokemon-grassland-live.png） |
+| 热切换 grassland → magma（只换 active-theme + CSS 块） | ✅ 秒级热应用，无需重启（pokemon-magma-live.png） |
+| 热切换 magma → grassland | ✅ |
+| restore 脚本（恢复官方外观） | ✅ state.json 清理、CDP 端口关闭 |
+
+实测注意事项：
+
+- **App 侧 start 必须带 `-RestartExisting`**：restore 会重开一个无调试端口的 Codex，若用户随后直接点场景切换，官方 start 脚本会因「Codex 已开但无 CDP」报错。App 的 switch/start 流程应始终以 `-RestartExisting` 调用（该 flag 在已有 CDP 会话时无副作用）。
+- **前台运行 start 脚本会挂起**：脚本结尾的 verify 步骤等待 Codex shell 渲染（用户登录/加载完成前一直阻塞）。App 必须**后台异步**调用脚本，不能阻塞 UI 线程等结果；状态以轮询 `state.json` + `injector.log` 为准。
+- macOS 路径未实测（开发机为 Windows），macOS 实现按官方脚本逐行对齐，标注待验证。
+
