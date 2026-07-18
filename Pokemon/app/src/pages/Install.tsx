@@ -46,31 +46,29 @@ function StepCard({ step, title, delay, children }: {
 function QuickStart() {
   return (
     <div className="grid gap-6 md:grid-cols-3">
-      <StepCard step="STEP 1" title="安装" delay={0.26}>
+      <StepCard step="STEP 1" title="安装 CODEX" delay={0.26}>
         <CodeBlock code="npm i -g @openai/codex" lang="bash" filename="terminal" />
         <p className="text-[13px] leading-[1.7]" style={{ color: 'var(--sc-fg-dim)' }}>
           全局安装 CODEX 命令行（需要 Node.js 20+）。
         </p>
       </StepCard>
-      <StepCard step="STEP 2" title="写入配置" delay={0.38}>
-        <p className="text-sm leading-[1.8]" style={{ color: 'var(--sc-fg-dim)' }}>
-          打开{' '}
-          <code className="px-1 font-mono text-[13px]" style={{ background: 'var(--sc-inset)', color: 'var(--sc-accent)' }}>
-            ~/.codex/config.toml
-          </code>
-          ，粘贴下方任意场景片段。
-        </p>
-        <div
-          className="pixel-corners mt-auto border px-3 py-2 font-mono text-xs"
-          style={{ background: 'var(--sc-inset)', borderColor: 'var(--sc-border)', color: 'var(--sc-accent)' }}
-        >
-          ~/.codex/config.toml
-        </div>
-      </StepCard>
-      <StepCard step="STEP 3" title="启动" delay={0.5}>
-        <CodeBlock code="codex --theme grassland" lang="bash" filename="terminal" />
+      <StepCard step="STEP 2" title="收服主题" delay={0.38}>
+        <CodeBlock
+          code={'mkdir -p ~/.codex/themes\n# 把 pokemon-grassland.tmTheme 复制进去\ncp pokemon-grassland.tmTheme ~/.codex/themes/'}
+          lang="bash"
+          filename="terminal"
+        />
         <p className="text-[13px] leading-[1.7]" style={{ color: 'var(--sc-fg-dim)' }}>
-          启动终端，野生的 CODEX 就会换上新皮肤。
+          主题文件在仓库的 <code className="px-1 font-mono text-[12px]" style={{ background: 'var(--sc-inset)', color: 'var(--sc-accent)' }}>Pokemon/themes/</code> 目录，挑一个场景复制进{' '}
+          <code className="px-1 font-mono text-[12px]" style={{ background: 'var(--sc-inset)', color: 'var(--sc-accent)' }}>~/.codex/themes/</code>。
+        </p>
+      </StepCard>
+      <StepCard step="STEP 3" title="换上皮肤" delay={0.5}>
+        <CodeBlock code={'# 启动 codex，输入：\n/theme'} lang="bash" filename="codex TUI" />
+        <p className="text-[13px] leading-[1.7]" style={{ color: 'var(--sc-fg-dim)' }}>
+          在主题选择器里滚动实时预览，回车收服。也可以直接写{' '}
+          <code className="px-1 font-mono text-[12px]" style={{ background: 'var(--sc-inset)', color: 'var(--sc-accent)' }}>tui.theme</code>{' '}
+          到 config.toml（下方片段）。
         </p>
       </StepCard>
     </div>
@@ -160,9 +158,10 @@ function SceneTabs() {
             className="flex flex-col gap-6"
           >
             {([
-              { code: snip.toml, lang: 'toml', filename: '~/.codex/config.toml' },
-              { code: snip.json, lang: 'json', filename: `codex-theme-${active}.json` },
-              { code: snip.css, lang: 'css', filename: `theme-${active}.css` },
+              { code: snip.install, lang: 'bash', filename: '① 收服主题（终端执行）' },
+              { code: snip.toml, lang: 'toml', filename: '② ~/.codex/config.toml' },
+              { code: snip.json, lang: 'json', filename: `③ codex-theme-${active}.json（终端模拟器调色板）` },
+              { code: snip.css, lang: 'css', filename: `④ theme-${active}.css（网页变量）` },
             ] as const).map((b) => (
               <motion.div
                 key={b.filename}
@@ -183,10 +182,10 @@ function SceneTabs() {
 
 /* ---------------- S3 验证与常用命令 ---------------- */
 const VERIFY_LINES = [
-  { cmd: 'codex theme list', note: '列出全部 6 个场景皮肤' },
-  { cmd: 'codex theme apply ocean', note: '切换到海洋' },
-  { cmd: 'codex theme current', note: '查看当前皮肤 → ocean' },
-  { cmd: 'codex theme reset', note: '还原默认主题' },
+  { cmd: 'ls ~/.codex/themes/', note: '确认 pokemon-*.tmTheme 已就位' },
+  { cmd: 'codex', note: '启动 TUI，输入 /theme 打开选择器' },
+  { cmd: '/theme', note: '滚动实时预览，回车选定（自动写入 tui.theme）' },
+  { cmd: 'grep tui.theme ~/.codex/config.toml', note: '确认配置已写入' },
 ];
 
 function VerifyBlock() {
@@ -251,8 +250,20 @@ const FAQS: Array<{ q: string; a: ReactNode }> = [
     q: '如何还原默认主题？',
     a: (
       <>
-        运行 <InlineCode>codex theme reset</InlineCode>，或删除{' '}
-        <InlineCode>~/.codex/config.toml</InlineCode> 中的 <InlineCode>[theme]</InlineCode> 段落。
+        在 CODEX TUI 里输入 <InlineCode>/theme</InlineCode> 选回任意内置主题即可；
+        或者删除 <InlineCode>~/.codex/config.toml</InlineCode> 中的{' '}
+        <InlineCode>tui.theme</InlineCode> 这一行。放入{' '}
+        <InlineCode>~/.codex/themes/</InlineCode> 的 .tmTheme 文件留着也无妨。
+      </>
+    ),
+  },
+  {
+    q: '为什么终端里只有代码块变色了？',
+    a: (
+      <>
+        .tmTheme 管的是 CODEX 输出的<strong>语法高亮</strong>（代码块与 diff）——这是官方开放的定制范围。
+        终端整体的背景与 16 色属于你终端模拟器的配色，本站每个场景同时提供 ANSI
+        JSON（Windows Terminal 可直接导入）与 CSS 变量，三者搭配才是完整皮肤。
       </>
     ),
   },
@@ -410,7 +421,7 @@ export default function Install() {
             className="mb-12 max-w-[560px] text-base leading-[1.75]"
             style={{ color: 'var(--sc-fg-dim)' }}
           >
-            三种格式，任选其一。贴上配置，启动终端，野生的 CODEX 就会换上新皮肤。
+            一个 .tmTheme 语法主题 + 一套终端调色板 + 一段 config.toml，30 秒收服你的 CODEX。
           </motion.p>
           <QuickStart />
         </div>

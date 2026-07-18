@@ -13,13 +13,13 @@
         <key>foreground</key>
         <string>#EAF7FD</string>
         <key>background</key>
-        <string>#062032</string>
+        <string>#05141F</string>
         <key>selection</key>
-        <string>#0C3B5D</string>
+        <string>#12344A</string>
         <key>lineHighlight</key>
-        <string>#0F4A73</string>
+        <string>#0A2233</string>
         <key>caret</key>
-        <string>#FF7F50</string>
+        <string>#5FBDF0</string>
       </dict>
       </dict>
       <dict>
@@ -41,7 +41,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#2E9BD6</string>
+          <string>#5FD4D0</string>
           <key>fontStyle</key>
           <string>bold</string>
         </dict>
@@ -54,7 +54,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#0C3B5D</string>
+          <string>#5FBDF0</string>
         </dict>
       </dict>
       <dict>
@@ -65,7 +65,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#FF7F50</string>
+          <string>#F2C94C</string>
         </dict>
       </dict>
       <dict>
@@ -87,7 +87,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#FF7F50</string>
+          <string>#F2C94C</string>
         </dict>
       </dict>
       <dict>
@@ -120,7 +120,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#2E9BD6</string>
+          <string>#5FD4D0</string>
           <key>fontStyle</key>
           <string>bold</string>
         </dict>
@@ -159,7 +159,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#0C3B5D</string>
+          <string>#5FBDF0</string>
         </dict>
       </dict>
       <dict>
@@ -192,7 +192,7 @@
         <key>settings</key>
         <dict>
           <key>foreground</key>
-          <string>#FF7F50</string>
+          <string>#F2C94C</string>
         </dict>
       </dict>
     </array>

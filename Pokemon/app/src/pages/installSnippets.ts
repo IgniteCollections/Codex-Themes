@@ -1,15 +1,19 @@
 /* ============================================================
    安装配置页 · 可复制配置片段生成器
-   由 @/themes/scenes（唯一样式真源）派生，输出与 install.md
-   逐字一致的三种格式：config.toml / ANSI JSON / CSS 变量。
+   由 @/themes/scenes（唯一样式真源）派生，输出：
+   ① tmTheme 安装命令（.tmTheme -> ~/.codex/themes/）
+   ② config.toml 片段（tui.theme）
+   ③ codex-theme-*.json（终端模拟器 ANSI 调色板）
+   ④ theme-*.css（网页实现用变量）
    ============================================================ */
-import { SCENES } from '@/themes/scenes';
+import { SCENES, SCENE_THEME_SLUG } from '@/themes/scenes';
 import type { SceneDef, SceneId } from '@/themes/scenes';
 
 export interface SceneSnippets {
-  toml: string;   // ~/.codex/config.toml
-  json: string;   // codex-theme-*.json（Windows Terminal / iTerm 通用）
-  css: string;    // theme-*.css（网页实现用变量）
+  install: string; // 安装 .tmTheme 的 bash 命令
+  toml: string;    // ~/.codex/config.toml 片段
+  json: string;    // codex-theme-*.json（Windows Terminal / iTerm 通用）
+  css: string;     // theme-*.css（网页实现用变量）
 }
 
 const ANSI_KEYS = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'] as const;
@@ -20,35 +24,44 @@ function titleCase(en: string): string {
   return en.toLowerCase().replace(/(^|\s)\w/g, (c) => c.toUpperCase());
 }
 
-/* ---------------- ① config.toml ---------------- */
-function buildToml(s: SceneDef): string {
-  const ui = s.ui;
-  const uiRows: Array<[string, string]> = [
-    ['background', ui.bg], ['foreground', ui.fg], ['dim', ui['fg-dim']],
-    ['prompt', ui.prompt], ['output', ui.output], ['success', ui.success],
-    ['warning', ui.warning], ['error', ui.error], ['accent', ui.accent],
-    ['border', ui.border], ['status_bg', ui['status-bg']], ['status_fg', ui['status-fg']],
-  ];
-  const lines: string[] = [
-    `# ~/.codex/config.toml — CODEX · ${s.name} ${s.en}`,
-    '[theme]',
-    `name = "${s.id}"`,
-    `prompt_symbol = "${s.symbol}"`,
-    `flavor = "${s.encounter}"`,
+/* ---------------- ① .tmTheme 安装命令 ---------------- */
+function buildInstall(s: SceneDef): string {
+  const slug = SCENE_THEME_SLUG[s.id];
+  const file = `pokemon-${slug}.tmTheme`;
+  return [
+    `# 收服 ${s.name} ${s.en} 主题（${file}）`,
+    'mkdir -p ~/.codex/themes',
     '',
-    '[theme.ui]',
-    ...uiRows.map(([k, v]) => `${k.padEnd(12)}= "${v}"`),
+    '# 已 clone 本仓库：',
+    `cp Pokemon/themes/${file} ~/.codex/themes/`,
     '',
-    '[theme.ansi]',
-    ...ANSI_KEYS.map((k, i) => `${k.padEnd(8)}= "${s.ansi[i]}"`),
+    '# 或直接从 GitHub 下载：',
+    `curl -fsSL -o ~/.codex/themes/${file} \\`,
+    `  https://raw.githubusercontent.com/IgniteCollections/Codex-Themes/main/Pokemon/themes/${file}`,
     '',
-    '[theme.ansi.bright]',
-    ...ANSI_KEYS.map((k, i) => `${k.padEnd(8)}= "${s.ansi[i + 8]}"`),
-  ];
-  return lines.join('\n');
+    '# 然后启动 codex，输入 /theme 选择本主题',
+  ].join('\n');
 }
 
-/* ---------------- ② codex-theme-*.json ---------------- */
+/* ---------------- ② config.toml ---------------- */
+function buildToml(s: SceneDef): string {
+  const slug = SCENE_THEME_SLUG[s.id];
+  return [
+    `# ~/.codex/config.toml — CODEX · ${s.name} ${s.en}`,
+    `# 官方主题机制：语法高亮主题（代码块 / diff），对应 ~/.codex/themes/pokemon-${slug}.tmTheme`,
+    `tui.theme = "pokemon-${slug}"`,
+    '',
+    '# 可选体验配置（docs/pokemon/codex-official-theming.md）',
+    'tui.animations = true',
+    `tui.terminal_title = ["spinner", "project"]`,
+    '',
+    '# 按 profile 覆盖示例：',
+    `# [profiles.work.tui]`,
+    `# theme = "pokemon-${slug}"`,
+  ].join('\n');
+}
+
+/* ---------------- ③ codex-theme-*.json ---------------- */
 function buildJson(s: SceneDef): string {
   const ui = s.ui;
   const colors: Array<[string, string]> = [
@@ -102,5 +115,10 @@ function buildCss(s: SceneDef): string {
 
 /** 6 场景配置片段（模块加载时计算一次） */
 export const SNIPPETS: Record<SceneId, SceneSnippets> = Object.fromEntries(
-  SCENES.map((s) => [s.id, { toml: buildToml(s), json: buildJson(s), css: buildCss(s) }]),
+  SCENES.map((s) => [s.id, {
+    install: buildInstall(s),
+    toml: buildToml(s),
+    json: buildJson(s),
+    css: buildCss(s),
+  }]),
 ) as Record<SceneId, SceneSnippets>;

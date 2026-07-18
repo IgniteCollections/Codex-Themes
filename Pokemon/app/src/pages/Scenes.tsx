@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SCENES } from '@/themes/scenes';
+import { SCENES, pokemonSprite } from '@/themes/scenes';
 import type { BannerRole, SceneDef } from '@/themes/scenes';
 import { useScene } from '@/themes/SceneProvider';
 import PokeChip from '@/components/PokeChip';
@@ -347,6 +347,41 @@ function ArchiveCard({ scene, mirror }: { scene: SceneDef; mirror: boolean }) {
               「{scene.flavor}」
             </blockquote>
 
+            {/* 招牌宝可梦 sprite */}
+            {(() => {
+              const mascot = scene.pokemon.find((p) => p.role === 'mascot');
+              if (!mascot) return null;
+              return (
+                <div className="mb-6 flex items-center gap-4">
+                  <div
+                    className="pixel-corners flex h-[104px] w-[104px] flex-none items-center justify-center border"
+                    style={{ background: 'var(--sc-inset)', borderColor: 'var(--sc-border)' }}
+                  >
+                    <img
+                      src={pokemonSprite(mascot)}
+                      alt={mascot.name}
+                      className="h-24 w-24 object-contain"
+                      style={{ imageRendering: 'pixelated' }}
+                    />
+                  </div>
+                  <div>
+                    <p className="font-display text-lg tracking-wide" style={{ color: 'var(--sc-fg)' }}>
+                      {mascot.name}
+                      <span className="ml-2 font-mono text-[10px]" style={{ color: 'var(--sc-fg-dim)' }}>
+                        No.{String(mascot.id).padStart(3, '0')}
+                      </span>
+                    </p>
+                    <p className="mt-1 font-mono text-[11px]" style={{ color: 'var(--sc-prompt)' }}>
+                      {mascot.types.join(' / ')}
+                    </p>
+                    <p className="mt-2 max-w-[300px] text-xs leading-[1.7]" style={{ color: 'var(--sc-fg-dim)' }}>
+                      {mascot.flavor}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* 出没宝可梦 */}
             <div className="mb-6">
               <p className="pixel-label mb-3 text-[10px]" style={{ color: 'var(--sc-fg-dim)' }}>
@@ -354,10 +389,45 @@ function ArchiveCard({ scene, mirror }: { scene: SceneDef; mirror: boolean }) {
               </p>
               <div className="flex flex-wrap gap-2">
                 {scene.pokemon.map((p) => (
-                  <PokeChip key={p.name} pokemon={p} />
+                  <PokeChip key={p.id} pokemon={p} />
                 ))}
               </div>
             </div>
+
+            {/* 神兽池（??? 稀有槽位） */}
+            {scene.legendaries.length > 0 && (
+              <div className="mb-6">
+                <p className="pixel-label mb-3 text-[10px]" style={{ color: 'var(--sc-accent)' }}>
+                  ??? 稀有遭遇
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {scene.legendaries.map((p) => (
+                    <span
+                      key={p.id}
+                      className="glass inline-flex items-center gap-1.5 rounded-[2px] border border-dashed px-2 py-1"
+                      style={{ borderColor: 'var(--sc-accent)' }}
+                    >
+                      <img
+                        src={pokemonSprite(p)}
+                        alt={p.name}
+                        className="h-6 w-6 object-contain"
+                        style={{ imageRendering: 'pixelated' }}
+                        loading="lazy"
+                      />
+                      <span className="text-sm leading-none" style={{ color: 'var(--sc-accent)' }}>
+                        {p.name}
+                      </span>
+                      <span className="font-mono text-[10px] leading-none" style={{ color: 'var(--sc-fg-dim)' }}>
+                        {p.types.join('/')}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs italic leading-[1.7]" style={{ color: 'var(--sc-fg-dim)' }}>
+                  {scene.legendaryHint}
+                </p>
+              </div>
+            )}
 
             {/* 设计说明 */}
             <p className="mb-6 text-sm leading-[1.75]" style={{ color: 'var(--sc-fg-dim)' }}>
