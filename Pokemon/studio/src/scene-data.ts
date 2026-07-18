@@ -273,13 +273,13 @@ const magma: SceneDef = {
   id: 'magma',
   no: 'No.004', name: '岩浆', en: 'MAGMA', route: '红莲岛火山 · CINNABAR VOLCANO',
   symbol: '▲', icon: '/icon-magma.svg', image: '/scene-magma.png',
-  encounter: 'Mega 喷火龙 Y 在火口盘旋！',
-  flavor: 'Mega 喷火龙 Y 在火口盘旋！热浪把视野烧得扭曲。',
+  encounter: '原始固拉多 踏出了熔岩！',
+  flavor: '原始固拉多 踏出了熔岩！大地在它脚下重新沸腾。',
   flavorShort: '火焰把四周照得通亮。',
   keywords: ['#红莲岛', '#熔岩流', '#余烬', '#火山口'],
   desc: '红莲岛火山口。熔岩红与炽橙是主光源，余烬黄负责警告与高亮，炭黑底让热色更烫。成功色不用常规绿，改用硫化黄绿，保持火山化学质感；蓝焰青只出现在次强调，像火焰最热的内芯。',
   pokemon: [
-    { id: 10037, name: 'Mega 喷火龙 Y', types: ['火', '飞行'], role: 'mascot', flavor: '超级进化后火焰温度超越岩浆，振翅间就能让荒野化为焦土。' },
+    { id: 10078, name: '原始固拉多', types: ['地面', '火'], role: 'mascot', flavor: '回归起源姿态的大地之神，炽热的躯体能让江河蒸干、熔岩覆盖大地。' },
     { id: 126, name: '鸭嘴火兽', types: ['火'], role: 'encounter', flavor: '体温高达 1200 度，从嘴和指尖喷出火焰。' },
     { id: 218, name: '熔岩虫', types: ['火'], role: 'encounter', flavor: '体内循环着高温熔岩，冷却下来就会变硬无法动弹。' },
     { id: 324, name: '煤炭龟', types: ['火'], role: 'encounter', flavor: '甲壳里烧着煤炭，遇到敌人会喷出黑烟逃走。' },
@@ -326,7 +326,7 @@ const magma: SceneDef = {
     { kind: 'del', text: '-const hit = list.filter(x => ids.includes(x.id))' },
     { kind: 'add', text: '+const set = new Set(ids)' },
     { kind: 'add', text: '+const hit = list.filter(x => set.has(x.id))' },
-    { kind: 'success', text: '✔ 完成 · 100k 条 = 41ms · 提速 82× · Mega 喷火龙 Y 火力全开' },
+    { kind: 'success', text: '✔ 完成 · 100k 条 = 41ms · 提速 82× · 原始固拉多让大地沸腾' },
   ],
 };
 
