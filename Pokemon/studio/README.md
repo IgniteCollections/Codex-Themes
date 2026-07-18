@@ -31,3 +31,15 @@ cd Pokemon/studio && npm install && npm run tauri dev
 
 - 官方 Codex 桌面 App（Windows: 商店包 `OpenAI.Codex`；macOS: `com.openai.codex`）
 - Node.js ≥ 22（Windows）；macOS 自动使用 ChatGPT 内置签名 Node
+
+## 当前状态
+
+- **Windows**：端到端实测通过（2026-07-18，Codex 26.715.4045.0）——安装引擎、草原/岩浆热切换（秒级）、恢复官方外观全链路可用。
+- **macOS**：实现按官方脚本逐行对齐，未实测。
+
+## 发布构建
+
+```bash
+cd Pokemon/studio && npm run tauri build   # 产出 NSIS 安装包（Windows）/ DMG（macOS）
+```
+
