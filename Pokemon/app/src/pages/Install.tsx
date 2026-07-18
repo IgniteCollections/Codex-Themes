@@ -80,18 +80,33 @@ function QuickStart() {
 function SceneTabs() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [active, setActive] = useState<SceneId>('grassland');
+  // 锚点 #grassland 等直接定位到对应 Tab（初始值惰性读取，见下 effect 同步后续跳转）
+  const [active, setActive] = useState<SceneId>(() => {
+    if (typeof window === 'undefined') return 'grassland';
+    const raw = window.location.hash.replace(/^#/, '');
+    return isSceneId(raw) ? raw : 'grassland';
+  });
   const fromClick = useRef(false);
 
-  /* 锚点 #grassland 等直接定位到对应 Tab（install.md S2） */
+  /* 后续 hash 变化（如从其他页跳来）同步 Tab；点击自身 Tab 不滚动。
+     首屏 hash 已由 useState 惰性初始化消费，effect 只在 hash 变化时跑。 */
+  const isFirstHash = useRef(true);
+  const activeRef = useRef(active);
+  useEffect(() => {
+    activeRef.current = active;
+  }, [active]);
   useEffect(() => {
     const raw = location.hash.replace(/^#/, '');
     if (!isSceneId(raw)) return;
-    setActive(raw);
+    if (isFirstHash.current) {
+      isFirstHash.current = false;
+      if (raw === activeRef.current) return; // 惰性初始化已处理
+    }
     if (fromClick.current) {
       fromClick.current = false;
       return;
     }
+    if (raw !== activeRef.current) setActive(raw); // eslint-disable-line react-hooks/set-state-in-effect -- 外部导航（hash 变化）同步 Tab，规则的合法例外
     document.getElementById('config-lab')?.scrollIntoView();
   }, [location.hash]);
 

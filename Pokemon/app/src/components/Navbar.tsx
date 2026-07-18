@@ -3,7 +3,7 @@ import { Link, NavLink } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Github, Menu, X } from 'lucide-react';
 import { SCENES } from '@/themes/scenes';
-import { useScene } from '@/themes/SceneProvider';
+import { useScene } from '@/themes/use-scene';
 import { cn } from '@/lib/utils';
 
 const LINKS = [

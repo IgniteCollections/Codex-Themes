@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Copy, Grid2X2, Hash, Zap } from 'lucide-react';
 import { SCENES, SCENE_MAP } from '@/themes/scenes';
 import type { SceneDef } from '@/themes/scenes';
-import { useScene } from '@/themes/SceneProvider';
+import { useScene } from '@/themes/use-scene';
 import TerminalWindow from '@/components/TerminalWindow';
 import SceneSwitcher from '@/components/SceneSwitcher';
 import PixelButton from '@/components/PixelButton';

@@ -7,14 +7,19 @@ import { useEffect, useRef, useState } from 'react';
  */
 export default function CustomCursor() {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [enabled, setEnabled] = useState(false);
+  // 初始值惰性计算（matchMedia/localStorage 仅在客户端读取一次），
+  // 避免在 effect 里同步 setState 触发级联渲染
+  const [enabled, setEnabled] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const fine = window.matchMedia('(pointer: fine)').matches;
+    let pref: string | null = null;
+    try { pref = localStorage.getItem('codex-cursor'); } catch { /* ignore */ }
+    return fine && pref !== 'native';
+  });
   const [mode, setMode] = useState<'default' | 'pointer' | 'text'>('default');
 
   useEffect(() => {
     const fine = window.matchMedia('(pointer: fine)').matches;
-    let pref: string | null = null;
-    try { pref = localStorage.getItem('codex-cursor'); } catch { /* ignore */ }
-    setEnabled(fine && pref !== 'native');
     const handler = (e: Event) => {
       const v = (e as CustomEvent<string>).detail;
       setEnabled(fine && v !== 'native');

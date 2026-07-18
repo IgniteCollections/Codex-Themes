@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { useScene } from '@/themes/SceneProvider';
+import { useScene } from '@/themes/use-scene';
 import { cn } from '@/lib/utils';
 
 /**
