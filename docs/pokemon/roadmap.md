@@ -15,11 +15,11 @@
 
 | # | 任务 | 产出 | 状态 |
 |---|------|------|------|
-| 0 | 资料沉淀到 docs/（本任务） | docs/pokemon/ 四份文档 | 进行中 |
-| 1 | 6 场景 .tmTheme 主题产物 | `Pokemon/themes/pokemon-*.tmTheme` × 6 | 待办 |
-| 2 | 主题数据建模 + 素材入库 | `src/data/scenes.ts` 单一数据源；40 只（24 常规 + 神兽池）Gen III sprite 下载至 `public/pokemon/`；40 只中文名/图鉴描述摘录入库 | 待办 |
-| 3 | 安装页对接真实产物 | 真实安装命令（复制 .tmTheme + config.toml 片段），一键复制 | 待办 |
-| 4 | 场景图鉴页补全 | 每场景完整档案卡：16 色色板、diff 预览、宝可梦、设计说明 | 待办 |
+| 0 | 资料沉淀到 docs/ | docs/pokemon/ 文档组 | ✅ PR #3/#4/#5/#6 |
+| 1 | 6 场景 .tmTheme 主题产物 | `Pokemon/themes/pokemon-*.tmTheme` × 6（plutil 通过） | ✅ PR #7 |
+| 2 | 主题数据建模 + 素材入库 | 40 只 sprite 入库 `public/pokemon/`；数据源最终落在 `src/themes/scenes.ts`（与既有 UI 数据融合，含神兽池） | ✅ PR #7 + 本 PR |
+| 3 | 安装页对接真实产物 | tmTheme 安装命令 + tui.theme 片段 + /theme 流程；移除虚构的 codex theme 命令 | ✅ 本 PR |
+| 4 | 场景图鉴页补全 | sprite 芯片、招牌展示卡、神兽池 ??? 槽位已接入；16 色色板/迷你终端此前已有 | ✅ 本 PR |
 | 5 | 终端模拟器配色导出（可选） | 每场景 ANSI 16 色 JSON / itermcolors | 待办 |
 | 6 | lint 债务清理 | 修复 12 个既有 lint error，CI 恢复 lint 硬失败 | 待办 |
 | 7 | 视觉与交互动效打磨 | 切换动效、响应式、CRT 细节 | 待办 |

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate pokemon-*.tmTheme files from Pokemon/app/src/data/scenes.ts.
+"""Generate pokemon-*.tmTheme files from Pokemon/app/src/themes/scenes.ts.
 
 Parses the scene palette/name/prompt info out of scenes.ts (single source of
 truth) and emits TextMate themes to Pokemon/themes/. Regenerate after any
@@ -15,55 +15,59 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-SCENES_TS = REPO / "Pokemon/app/src/data/scenes.ts"
+SCENES_TS = REPO / "Pokemon/app/src/themes/scenes.ts"
 OUT_DIR = REPO / "Pokemon/themes"
 
 # Per-scene TextMate scope mapping, derived from the 5-color palette by the
 # rules in docs/pokemon/pokemon-theme-design.md §3.2:
 #   keyword=主色, string=第二强调, number=点缀, comment=低亮 ink, fn=暖色,
 #   diff add/del = 语义绿/红（场景内保持可读的替换色）
+# SceneId in themes/scenes.ts -> theme slug (file name suffix)
+SCENE_SLUG = {
+    "grassland": "grassland",
+    "ocean": "ocean",
+    "cave": "cave",
+    "magma": "magma",
+    "snowfield": "snowfield",
+    "plant": "power-plant",
+}
+
 DERIVED = {
     "grassland": {
         "comment": "#6E8F5A",
         "fn": "#E8A93C",
         "diff_add": "#7AC74C",
         "diff_del": "#D4543A",
-        "line_highlight": "#274A1A",
     },
     "ocean": {
         "comment": "#4E7391",
         "fn": "#F2B84B",
         "diff_add": "#3FD0A7",
         "diff_del": "#FF7F50",
-        "line_highlight": "#0F4A73",
     },
     "cave": {
         "comment": "#6E6E78",
         "fn": "#8A9A5B",
         "diff_add": "#8A9A5B",
         "diff_del": "#B0526B",
-        "line_highlight": "#2E2E36",
     },
     "magma": {
         "comment": "#6E6259",
         "fn": "#F5A623",
         "diff_add": "#B8C93A",
         "diff_del": "#D43D2A",
-        "line_highlight": "#2E1F18",
     },
     "snowfield": {
         "comment": "#5B7A94",
         "fn": "#4B7FB8",
         "diff_add": "#4FBF9A",
         "diff_del": "#D4647C",
-        "line_highlight": "#DDEAF4",
     },
     "power-plant": {
         "comment": "#5A616B",
         "fn": "#9EFF00",
         "diff_add": "#9EFF00",
         "diff_del": "#E05A2B",
-        "line_highlight": "#2E343D",
     },
 }
 
@@ -96,20 +100,39 @@ SCOPES = [
 
 
 def parse_scenes(ts: str) -> dict[str, dict[str, str]]:
+    """Parse each `const <var>: SceneDef = { ... }` block from themes/scenes.ts.
+
+    Colors come from the `ui: { ... }` block:
+      background <- ui.bg, foreground <- ui.fg, selection <- ui.selection,
+      caret <- ui.accent, lineHighlight <- ui.panel
+    plus the tmTheme slot colors keyword/string/number:
+      primary <- ui.prompt, secondary <- ui.accent, accent <- ui.warning
+    """
     scenes: dict[str, dict[str, str]] = {}
-    for block in re.finditer(r'\{\s*\n\s*id:\s*"([\w-]+)",(.*?)\n\s*\},', ts, re.S):
-        sid, body = block.group(1), block.group(2)
-        entry: dict[str, str] = {"id": sid}
-        for key in ("name", "nameEn", "location", "promptSymbol"):
-            m = re.search(rf'{key}:\s*"((?:[^"\\]|\\.)*)"', body)
-            if m:
-                entry[key] = m.group(1)
-        for key in ("primary", "secondary", "accent", "surface", "ink"):
-            m = re.search(rf'{key}:\s*"(#[0-9A-Fa-f]{{6}})"', body)
-            if not m:
-                sys.exit(f"missing color {key} for scene {sid}")
-            entry[key] = m.group(1).upper()
-        scenes[sid] = entry
+    for block in re.finditer(r"const\s+(\w+):\s*SceneDef\s*=\s*\{(.*?)\n\};", ts, re.S):
+        var, body = block.group(1), block.group(2)
+        if var not in SCENE_SLUG:
+            continue
+        sid = SCENE_SLUG[var]
+        ui_m = re.search(r"ui:\s*\{(.*?)\n\s*\},", body, re.S)
+        if not ui_m:
+            sys.exit(f"missing ui block for scene {var}")
+        ui = dict(
+            re.findall(r"'?([\w-]+)'?:\s*'(#[0-9A-Fa-f]{6})'", ui_m.group(1))
+        )
+        for key in ("bg", "fg", "selection", "accent", "panel", "prompt", "warning"):
+            if key not in ui:
+                sys.exit(f"missing ui.{key} for scene {var}")
+        scenes[sid] = {
+            "id": sid,
+            "primary": ui["prompt"].upper(),
+            "secondary": ui["accent"].upper(),
+            "accent": ui["warning"].upper(),
+            "surface": ui["fg"].upper(),
+            "ink": ui["bg"].upper(),
+            "selection": ui["selection"].upper(),
+            "panel": ui["panel"].upper(),
+        }
     return scenes
 
 
@@ -132,9 +155,9 @@ def render(sid: str, s: dict[str, str]) -> str:
         [
             ("foreground", s["surface"]),
             ("background", s["ink"]),
-            ("selection", s["secondary"]),
-            ("lineHighlight", d["line_highlight"]),
-            ("caret", s["accent"]),
+            ("selection", s["selection"]),
+            ("lineHighlight", s["panel"]),
+            ("caret", s["secondary"]),
         ],
         3,
     )
@@ -158,7 +181,7 @@ def render(sid: str, s: dict[str, str]) -> str:
     body = "\n".join(entries)
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- Pokemon {SCENE_TITLE[sid]} — generated from src/data/scenes.ts, do not edit by hand -->
+<!-- Pokemon {SCENE_TITLE[sid]} — generated from src/themes/scenes.ts, do not edit by hand -->
 <plist version="1.0">
   <dict>
     <key>name</key>

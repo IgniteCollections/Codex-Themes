@@ -5,6 +5,12 @@
 
 export type SceneId = 'grassland' | 'ocean' | 'cave' | 'magma' | 'snowfield' | 'plant';
 
+/** SceneId -> tmTheme 文件名后缀（plant 对应 pokemon-power-plant.tmTheme） */
+export const SCENE_THEME_SLUG: Record<SceneId, string> = {
+  grassland: 'grassland', ocean: 'ocean', cave: 'cave',
+  magma: 'magma', snowfield: 'snowfield', plant: 'power-plant',
+};
+
 /** 横幅着色角色 -> CSS 变量（见 TerminalWindow.bannerColor） */
 export type BannerRole = 'prompt' | 'dim' | 'accent' | 'error' | 'output' | 'del';
 export interface BannerSeg { t: string; r: BannerRole }
@@ -14,7 +20,18 @@ export type BannerLine = BannerSeg[] | 'stripe';
 export type ScriptLineKind = 'user' | 'think' | 'plan' | 'meta' | 'ctx' | 'add' | 'del' | 'success';
 export interface ScriptLine { kind: ScriptLineKind; text: string }
 
-export interface Pokemon { name: string; types: string[] }
+export type PokemonRole = 'mascot' | 'encounter' | 'legendary';
+
+export interface Pokemon {
+  id: number;        // 图鉴编号（sprite 文件名来源）
+  name: string;
+  types: string[];
+  flavor: string;    // 图鉴描述（摘录，私人用途）
+  role: PokemonRole;
+}
+
+export const pokemonSprite = (p: Pokemon): string =>
+  `pokemon/${String(p.id).padStart(3, '0')}.png`;
 
 export interface SceneDef {
   id: SceneId;
@@ -30,7 +47,9 @@ export interface SceneDef {
   flavorShort: string; // 漫游卡一句
   keywords: string[];
   desc: string;        // 设计说明（图鉴口吻）
-  pokemon: Pokemon[];
+  pokemon: Pokemon[];        // 招牌 + 常规遭遇
+  legendaries: Pokemon[];    // 神兽/幻兽池（图鉴页 ??? 槽位）
+  legendaryHint: string;     // 神兽池暗示文案
   ansi: string[];      // 16 色：0-7 normal, 8-15 bright
   ui: Record<string, string>; // --sc-* 值（供色板/内联样式使用）
   banner: BannerLine[];
@@ -64,9 +83,17 @@ const grassland: SceneDef = {
   keywords: ['#新绿', '#晨光', '#微风', '#1号道路'],
   desc: '1 号道路的清晨。嫩绿与阳光黄为主调，终端像一块被树荫覆盖的草地——柔和、护眼、适合白天长时间编码。强调色取妙蛙种子鳞茎的嫩绿，警告色用向阳花的明黄。',
   pokemon: [
-    { name: '妙蛙种子', types: ['草', '毒'] }, { name: '走路草', types: ['草', '毒'] },
-    { name: '绿毛虫', types: ['虫'] }, { name: '波波', types: ['一般', '飞行'] },
+    { id: 1, name: '妙蛙种子', types: ['草', '毒'], role: 'mascot', flavor: '出生的时候背上就有一颗种子，种子会跟着身体一起长大。' },
+    { id: 43, name: '走路草', types: ['草', '毒'], role: 'encounter', flavor: '白天把根扎进土里一动不动，夜里会到处走动散播种子。' },
+    { id: 10, name: '绿毛虫', types: ['虫'], role: 'encounter', flavor: '从触角释放出强烈的臭气来赶走敌人，以此保护自己。' },
+    { id: 16, name: '波波', types: ['一般', '飞行'], role: 'encounter', flavor: '性格温和，不喜欢战斗，但如果被欺负会扬起沙子反击。' },
   ],
+  legendaries: [
+    { id: 251, name: '时拉比', types: ['超能力', '草'], role: 'legendary', flavor: '能穿越时间的森林守护神，出现过的森林会草木繁茂。' },
+    { id: 492, name: '谢米', types: ['草'], role: 'legendary', flavor: '拥有分解毒素让大地瞬间开满鲜花的力量，心怀感谢时会现身。' },
+    { id: 640, name: '毕力吉翁', types: ['草', '格斗'], role: 'legendary', flavor: '圣剑士之一，能用头上的角斩断一切，守护同伴。' },
+  ],
+  legendaryHint: '草丛深处的时间缝隙里，隐约有粉色的影子掠过……',
   ansi: ['#1E3A13', '#D95360', '#7AC74C', '#F7D02C', '#5FA8D3', '#C77DBB', '#57C7B0', '#F5FBEA',
          '#3D5A2E', '#F2788A', '#A3E176', '#FFE169', '#8CC8E8', '#E2A3D8', '#87E0CD', '#FFFFFF'],
   ui: {
@@ -116,9 +143,17 @@ const ocean: SceneDef = {
   keywords: ['#深海', '#浪花', '#潮汐', '#蓝色寂静'],
   desc: '深海蓝铺底，浪青作强调，珊瑚橙仅出现在错误与次强调上——像海面落日的一瞬。整体冷静、专注，适合深夜长会话，暴鲤龙的怒红被刻意压暗以保持海面的安静。',
   pokemon: [
-    { name: '暴鲤龙', types: ['水', '飞行'] }, { name: '拉普拉斯', types: ['水', '冰'] },
-    { name: '玛瑙水母', types: ['水', '毒'] }, { name: '鲤鱼王', types: ['水'] },
+    { id: 130, name: '暴鲤龙', types: ['水', '飞行'], role: 'mascot', flavor: '一旦现身就会破坏一切，狂暴到把整片海域搅得天翻地覆。' },
+    { id: 131, name: '拉普拉斯', types: ['水', '冰'], role: 'encounter', flavor: '智商很高，能听懂人话，喜欢载人渡海。' },
+    { id: 72, name: '玛瑙水母', types: ['水', '毒'], role: 'encounter', flavor: '身体几乎全是水，会随着海流成群漂流到岸边。' },
+    { id: 129, name: '鲤鱼王', types: ['水'], role: 'encounter', flavor: '只会跳来跳去的弱小宝可梦，但据说跳过龙门的个体能化龙。' },
   ],
+  legendaries: [
+    { id: 249, name: '洛奇亚', types: ['超能力', '飞行'], role: 'legendary', flavor: '被称为海神的传说宝可梦，轻轻振翅就能摧毁房屋，因此隐居深海。' },
+    { id: 382, name: '盖欧卡', types: ['水'], role: 'legendary', flavor: '传说中用暴雨扩大海洋的宝可梦，与固拉多势不两立。' },
+    { id: 245, name: '水君', types: ['水'], role: 'legendary', flavor: '北风的化身，四处奔走净化被污染的水源。' },
+  ],
+  legendaryHint: '漩涡深处沉睡着巨大的身影，海浪忽然安静了下来……',
   ansi: ['#062032', '#F2614C', '#3FA97C', '#F2C94C', '#2E9BD6', '#A06CD5', '#5FD4D0', '#EAF7FD',
          '#1A4258', '#FF8A75', '#67D3A2', '#FFE08A', '#5FBDF0', '#C49BEB', '#8FE8E4', '#FFFFFF'],
   ui: {
@@ -163,9 +198,17 @@ const cave: SceneDef = {
   keywords: ['#月见山', '#矿晶', '#回声', '#头灯微光'],
   desc: '月见山深处。岩灰与暗紫构成洞壁，矿晶青是岩缝里发光的矿石，苔绿点缀像石缝里的微光。对比度刻意压低一档，营造「头灯照亮的一小圈」的洞穴感，矿晶青提示符是黑暗里的路标。',
   pokemon: [
-    { name: '超音蝠', types: ['毒', '飞行'] }, { name: '小拳石', types: ['岩石', '地面'] },
-    { name: '大岩蛇', types: ['岩石', '地面'] }, { name: '地鼠', types: ['地面'] },
+    { id: 95, name: '大岩蛇', types: ['岩石', '地面'], role: 'mascot', flavor: '在地下一边旋转身体一边掘进，时速可达 80 公里。' },
+    { id: 41, name: '超音蝠', types: ['毒', '飞行'], role: 'encounter', flavor: '没有眼睛，靠超声波在黑暗中飞行和探路。' },
+    { id: 74, name: '小拳石', types: ['岩石', '地面'], role: 'encounter', flavor: '圆圆的像块石头，登山道上经常被误踢。' },
+    { id: 50, name: '地鼠', types: ['地面'], role: 'encounter', flavor: '在地下挖洞前进，被它耕过的土地会变得松软适合耕种。' },
   ],
+  legendaries: [
+    { id: 377, name: '雷吉洛克', types: ['岩石'], role: 'legendary', flavor: '全身由岩石构成，损坏的部分会用新的岩石修补。' },
+    { id: 379, name: '雷吉斯奇鲁', types: ['钢'], role: 'legendary', flavor: '钢铁之躯经过数万年重压，比任何金属都坚硬。' },
+    { id: 378, name: '雷吉艾斯', types: ['冰'], role: 'legendary', flavor: '身体由南极的冰构成，零下 200 度，靠近就会结冰。' },
+  ],
+  legendaryHint: '隧道尽头的石壁上，浮现出奇怪的圆点图案……',
   ansi: ['#26262E', '#C4564A', '#8A9A5B', '#D9B44A', '#4F7FA6', '#6B5B95', '#7BD3C8', '#D8D5C8',
          '#44444F', '#E07A6C', '#ADBE7C', '#F2D078', '#7AA8CC', '#8F7DBB', '#A3E6DC', '#F2F0E6'],
   ui: {
@@ -213,9 +256,17 @@ const magma: SceneDef = {
   keywords: ['#红莲岛', '#熔岩流', '#余烬', '#火山口'],
   desc: '红莲岛火山口。熔岩红与炽橙是主光源，余烬黄负责警告与高亮，炭黑底让热色更烫。成功色不用常规绿，改用硫化黄绿，保持火山化学质感；蓝焰青只出现在次强调，像火焰最热的内芯。',
   pokemon: [
-    { name: '小火龙', types: ['火'] }, { name: '鸭嘴火兽', types: ['火'] },
-    { name: '熔岩虫', types: ['火', '岩石'] }, { name: '煤炭龟', types: ['火'] },
+    { id: 4, name: '小火龙', types: ['火'], role: 'mascot', flavor: '尾巴上的火焰代表它的心情，火焰旺盛时说明它精神饱满。' },
+    { id: 126, name: '鸭嘴火兽', types: ['火'], role: 'encounter', flavor: '体温高达 1200 度，从嘴和指尖喷出火焰。' },
+    { id: 218, name: '熔岩虫', types: ['火'], role: 'encounter', flavor: '体内循环着高温熔岩，冷却下来就会变硬无法动弹。' },
+    { id: 324, name: '煤炭龟', types: ['火'], role: 'encounter', flavor: '甲壳里烧着煤炭，遇到敌人会喷出黑烟逃走。' },
   ],
+  legendaries: [
+    { id: 146, name: '火焰鸟', types: ['火', '飞行'], role: 'legendary', flavor: '传说中的鸟宝可梦，翅膀上燃烧的火焰能把夜空照得通亮。' },
+    { id: 383, name: '固拉多', types: ['地面'], role: 'legendary', flavor: '传说中创造大地、让海水蒸发的宝可梦，沉睡在岩浆深处。' },
+    { id: 485, name: '席多蓝恩', types: ['火', '钢'], role: 'legendary', flavor: '栖息在火山口，熔岩般的血液在体内流动。' },
+  ],
+  legendaryHint: '岩浆湖的中心翻涌起来，大地深处传来低沉的咆哮……',
   ansi: ['#1C1512', '#D43D2A', '#8FA33F', '#FFD166', '#4FA3D1', '#A85D9E', '#5FB8B3', '#EFE3D6',
          '#3A2C25', '#FF6B4A', '#B5C85E', '#FFE08F', '#7FC4E8', '#C986BE', '#84D8D2', '#FFF8EE'],
   ui: {
@@ -260,9 +311,16 @@ const snowfield: SceneDef = {
   keywords: ['#切锋市', '#极光', '#初雪', '#零下静谧'],
   desc: '切锋市以北的雪原。冰白前景浮在深夜蓝上，浅青与极光蓝像雪地上反射的天光，冰晶紫只做温柔的高光。全场景对比最高、最「干净」，长时间阅读最舒适——像雪后无风的清晨。',
   pokemon: [
-    { name: '冰伊布', types: ['冰'] }, { name: '急冻鸟', types: ['冰', '飞行'] },
-    { name: '海豹球', types: ['冰', '水'] }, { name: '雪童子', types: ['冰'] },
+    { id: 471, name: '冰伊布', types: ['冰'], role: 'mascot', flavor: '伊布的进化形，能让体毛冻结成锐利的冰针射出。' },
+    { id: 144, name: '急冻鸟', types: ['冰', '飞行'], role: 'encounter', flavor: '传说中的鸟宝可梦，飞过之处会降下雪花。' },
+    { id: 363, name: '海豹球', types: ['冰', '水'], role: 'encounter', flavor: '在冰面上翻滚比走路更快，圆圆的身体怎么撞都不怕。' },
+    { id: 361, name: '雪童子', types: ['冰'], role: 'encounter', flavor: '只生活在积雪深厚的寒冷地区，据说会带来财富。' },
   ],
+  legendaries: [
+    { id: 362, name: '冰鬼护', types: ['冰'], role: 'legendary', flavor: '体内的寒气能瞬间冻结空气中的水分，张开的嘴是冰之牙。' },
+    { id: 646, name: '酋雷姆', types: ['龙', '冰'], role: 'legendary', flavor: '拥有最强冷冻能力的龙宝可梦，等待着重获完整之躯。' },
+  ],
+  legendaryHint: '暴风雪的另一头，一双蓝色的眼睛正注视着这边……',
   ansi: ['#16324A', '#D95D72', '#5CC98E', '#F2CE6B', '#6BA8D8', '#B8B8E0', '#7FC7DE', '#F2F9FC',
          '#2C4E6A', '#F28597', '#82E0AC', '#FFE08F', '#93C4E8', '#D4D4F2', '#A8D8EA', '#FFFFFF'],
   ui: {
@@ -306,9 +364,17 @@ const plant: SceneDef = {
   keywords: ['#无人发电厂', '#残余电流', '#警示条纹', '#十萬伏特'],
   desc: '废弃十年的无人发电厂。工业暗灰是生锈的机身，电光黄是残余电流，荧光绿只给「成功」——像黑暗中重新接通的一格电。锈橙标记废弃感，黄黑警示条纹是本场景独有的装饰纹样。',
   pokemon: [
-    { name: '皮卡丘', types: ['电'] }, { name: '小磁怪', types: ['电', '钢'] },
-    { name: '电击兽', types: ['电'] }, { name: '雷电球', types: ['电'] },
+    { id: 25, name: '皮卡丘', types: ['电'], role: 'mascot', flavor: '脸颊上的电气袋储存电力，生气时会一口气放电。' },
+    { id: 81, name: '小磁怪', types: ['电', '钢'], role: 'encounter', flavor: '从身体两侧的磁铁放出磁力，浮在空中前进。' },
+    { id: 125, name: '电击兽', types: ['电'], role: 'encounter', flavor: '喜欢电力，常出现在发电厂附近偷吃电能。' },
+    { id: 100, name: '雷电球', types: ['电'], role: 'encounter', flavor: '外形酷似精灵球，一受刺激就会爆炸，经常被人误捡。' },
   ],
+  legendaries: [
+    { id: 145, name: '闪电鸟', types: ['电', '飞行'], role: 'legendary', flavor: '传说中的鸟宝可梦，振翅时会响起雷鸣，栖息在雷云之中。' },
+    { id: 243, name: '雷公', types: ['电'], role: 'legendary', flavor: '背负着雷云奔驰的传说宝可梦，吼声如同落雷。' },
+    { id: 807, name: '捷拉奥拉', types: ['电'], role: 'legendary', flavor: '以雷电般的速度奔驰的幻之宝可梦，从掌心的肉垫放出高压电。' },
+  ],
+  legendaryHint: '深处传来了巨大的翅膀声，整栋厂房的灯同时闪了一下……',
   ansi: ['#23272E', '#E5483F', '#9EFF00', '#F8D030', '#45B7E8', '#B06FD8', '#4DD8C8', '#D8DCE2',
          '#3B414B', '#FF6E64', '#BFFF4D', '#FFE066', '#7FD4F2', '#CD97E8', '#7FE8DB', '#F2F5F8'],
   ui: {
