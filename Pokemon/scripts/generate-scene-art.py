@@ -25,8 +25,8 @@ except ImportError:
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "Pokemon/app/public"
 
-W, H = 240, 135          # 像素画布（×4 = 960×540）
-SCALE = 4
+W, H = 480, 270          # 渲染缓冲 = 逻辑画布 240×135 的 ×2（supersample，细节翻倍）
+SCALE = 8                 # ×8 = 1920×1080 网站壁纸；工作室由 generate-studio-themes 放大到 4K
 
 
 def hx(h: str) -> tuple[int, int, int]:
@@ -37,39 +37,68 @@ def mix(a: tuple, b: tuple, t: float) -> tuple:
     return tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
 
-def canvas() -> tuple[Image.Image, ImageDraw.ImageDraw]:
+class _ScaledDraw:
+    """240×135 逻辑坐标 ×S=2 到 480×270 缓冲（supersample）。
+    点 → S×S 小块保持像素颗粒；线/矩形/多边形/圆统一放大。"""
+    S = 2
+    def __init__(self, draw): self._d = draw
+    def _pts(self, seq): return [(x * self.S, y * self.S) for x, y in seq]
+    def point(self, xy, fill=None):
+        x, y = xy
+        self._d.rectangle([x*self.S, y*self.S, x*self.S+self.S-1, y*self.S+self.S-1], fill=fill)
+    def line(self, xy, fill=None, width=1):
+        self._d.line(self._pts(xy), fill=fill, width=max(1, width*self.S-1))
+    def rectangle(self, xy, fill=None, outline=None):
+        x0, y0, x1, y1 = xy
+        self._d.rectangle([x0*self.S, y0*self.S, (x1+1)*self.S-1, (y1+1)*self.S-1], fill=fill, outline=outline)
+    def polygon(self, xy, fill=None):
+        self._d.polygon(self._pts(xy), fill=fill)
+    def ellipse(self, xy, fill=None):
+        x0, y0, x1, y1 = xy
+        self._d.ellipse([x0*self.S, y0*self.S, (x1+1)*self.S-1, (y1+1)*self.S-1], fill=fill)
+    def pieslice(self, xy, a0, a1, fill=None):
+        x0, y0, x1, y1 = xy
+        self._d.pieslice([x0*self.S, y0*self.S, (x1+1)*self.S-1, (y1+1)*self.S-1], a0, a1, fill=fill)
+
+
+def canvas() -> tuple[Image.Image, "_ScaledDraw"]:
     img = Image.new("RGB", (W, H))
-    return img, ImageDraw.Draw(img)
+    return img, _ScaledDraw(ImageDraw.Draw(img))
 
 
 def save(img: Image.Image, name: str) -> None:
-    img.resize((W * SCALE, H * SCALE), Image.NEAREST).save(OUT / f"scene-{name}.png")
-    print(f"scene-{name}.png ({W*SCALE}x{H*SCALE})")
+    # 480×270 缓冲 ×4 = 1920×1080 网站壁纸（nearest 保持像素颗粒）
+    img.resize((W * 4, H * 4), Image.NEAREST).save(OUT / f"scene-{name}.png")
+    print(f"scene-{name}.png ({W*4}x{H*4})")
 
 
-def vgrad(d: ImageDraw.ImageDraw, top: tuple, bottom: tuple, y0: int, y1: int) -> None:
+LW = W // 2  # 逻辑宽 240（手写元素按 240×135 逻辑坐标）
+
+
+def vgrad(d, top: tuple, bottom: tuple, y0: int, y1: int) -> None:
+    # 直接按缓冲行画满（不经过缩放 line，避免隔行黑带）
+    S = d.S
     for y in range(y0, y1):
-        d.line([(0, y), (W, y)], fill=mix(top, bottom, (y - y0) / max(1, y1 - y0)))
+        c = mix(top, bottom, (y - y0) / max(1, y1 - y0))
+        d._d.rectangle([0, y * S, W, (y + 1) * S - 1], fill=c)
 
 
 def stars(d, rng, n, y_max, colors):
     for _ in range(n):
-        x, y = rng.randrange(W), rng.randrange(y_max)
+        x, y = rng.randrange(LW), rng.randrange(y_max)
         d.point((x, y), fill=rng.choice(colors))
         if rng.random() < 0.15:
             d.point((x + 1, y), fill=rng.choice(colors))
 
 
 def blob(d, cx, cy, r, color):
-    """像素圆（菱形填充，保持 crisp 颗粒感）"""
-    for dy in range(-r, r + 1):
-        w = int((r * r - dy * dy) ** 0.5)
-        d.line([(cx - w, cy + dy), (cx + w, cy + dy)], fill=color)
+    """像素圆（实心，缩放上下文 ellipse）"""
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=color)
 
 
 def hills(d, rng, y_base, amp, color, step=3):
     x = 0
-    while x < W:
+    while x < LW:
         h = rng.randint(amp // 2, amp)
         w2 = rng.randint(14, 30)
         d.polygon([(x, y_base), (x + w2 // 2, y_base - h), (x + w2, y_base)], fill=color)
@@ -80,13 +109,13 @@ def ridge(d, rng, y_base, amp, color, seg=18):
     pts = [(0, y_base)]
     x = 0
     up = rng.random() < 0.5
-    while x < W:
+    while x < LW:
         x += rng.randint(seg // 2, seg)
         y_base += rng.randint(-amp, amp) if up else rng.randint(-amp // 2, amp // 2)
         y_base = max(30, min(H - 20, y_base))
         pts.append((x, y_base))
         up = not up if rng.random() < 0.3 else up
-    pts += [(W, H), (0, H)]
+    pts += [(LW, H // 2), (0, H // 2)]
     d.polygon(pts, fill=color)
 
 
@@ -111,17 +140,17 @@ def grassland() -> None:
     vgrad(d, hx("#6FAF4E"), hx("#3E7A2B"), 100, 135)                   # 前景草
     # 草丛
     for _ in range(90):
-        x, y = rng.randrange(W), rng.randrange(96, 135)
+        x, y = rng.randrange(LW), rng.randrange(96, 135)
         c = rng.choice([hx("#57C74C"), hx("#7AC74C"), hx("#4A9C2F")])
         d.line([(x, y), (x - 1, y - 2)], fill=c)
         d.line([(x, y), (x + 1, y - 2)], fill=c)
     # 花
     for _ in range(26):
-        x, y = rng.randrange(W), rng.randrange(92, 132)
+        x, y = rng.randrange(LW), rng.randrange(92, 132)
         d.point((x, y), fill=rng.choice([hx("#F2788A"), hx("#FFE169"), hx("#FFFFFF")]))
     # 光斑
     for _ in range(12):
-        x, y = rng.randrange(W), rng.randrange(70, 110)
+        x, y = rng.randrange(LW), rng.randrange(70, 110)
         d.point((x, y), fill=hx("#F7D02C"))
     # 右侧灌木
     blob(d, 208, 118, 10, hx("#2E5A1E")); blob(d, 220, 112, 8, hx("#2E5A1E"))
@@ -150,7 +179,7 @@ def ocean() -> None:
         d.line([(x - w2, y), (x + w2, y)], fill=hx("#2E6A8E"))
     # 浪层（三层，白沫错位）
     for (y, amp, col) in [(58, 2, hx("#2E9BD6")), (72, 2, hx("#2E9BD6")), (88, 3, hx("#57C7E0"))]:
-        for x in range(0, W, 4):
+        for x in range(0, LW, 4):
             dy = amp if (x // 4) % 2 == 0 else -amp
             d.line([(x, y + dy), (x + 3, y + dy)], fill=col)
             if (x // 4) % 5 == 0:
@@ -179,10 +208,10 @@ def cave() -> None:
     blob(d, 120, 70, 18, hx("#2A2A3A"))
     # 洞壁纹理
     for _ in range(160):
-        x, y = rng.randrange(W), rng.randrange(H)
+        x, y = rng.randrange(LW), rng.randrange(H // 2)
         d.point((x, y), fill=rng.choice([hx("#2A2A34"), hx("#20202A"), hx("#303040")]))
     # 顶部钟乳石（两排）
-    for x in range(0, W, 14):
+    for x in range(0, LW, 14):
         h = rng.randint(6, 14)
         d.polygon([(x, 0), (x + 5, 0), (x + 2, h)], fill=hx("#26262E"))
     for x in range(7, W, 22):
@@ -211,7 +240,7 @@ def cave() -> None:
         d.point((x, y), fill=hx("#7BD3C8")); d.point((x, y + 3), fill=hx("#57B8AC"))
     # 地面矿石点缀
     for _ in range(24):
-        x, y = rng.randrange(W), rng.randrange(120, 135)
+        x, y = rng.randrange(LW), rng.randrange(120, 135)
         d.point((x, y), fill=rng.choice([hx("#6B5B95"), hx("#8A9A5B"), hx("#3B3B42")]))
     save(img, "cave")
 
@@ -235,14 +264,14 @@ def magma() -> None:
     vgrad(d, hx("#A82418"), hx("#6E1408"), 90, 135)                    # 岩浆近层
     # 岩浆波纹（亮边）
     for (y, col) in [(56, hx("#F5A623")), (72, hx("#F5A623")), (92, hx("#FF8C42")), (112, hx("#D43D2A"))]:
-        for x in range(0, W, 6):
+        for x in range(0, LW, 6):
             dy = 1 if (x // 6) % 2 == 0 else -1
             d.line([(x, y + dy), (x + 4, y + dy)], fill=col)
             if (x // 6) % 2 == 0:
                 d.line([(x, y + dy - 1), (x + 3, y + dy - 1)], fill=hx("#FFD166"))
     # 岩浆泡
     for _ in range(6):
-        x, y = rng.randrange(W), rng.randrange(60, 124)
+        x, y = rng.randrange(LW), rng.randrange(60, 124)
         r = rng.randint(1, 2)
         blob(d, x, y, r, hx("#F5A623")); d.point((x, y - 1), fill=hx("#FFE169"))
     # 漂浮岩台（带裂纹）
@@ -254,7 +283,7 @@ def magma() -> None:
             d.line([(cx, ry + 2), (cx + 2, ry + 6)], fill=hx("#FFD166"))
     # 余烬飘浮（小而暗的琥珀点，个别亮星）
     for _ in range(46):
-        x, y = rng.randrange(W), rng.randrange(H)
+        x, y = rng.randrange(LW), rng.randrange(H // 2)
         d.point((x, y), fill=hx("#F5A623") if rng.random() < 0.75 else hx("#FFD166"))
     save(img, "magma")
 
@@ -268,7 +297,7 @@ def snowfield() -> None:
     blob(d, 204, 14, 6, hx("#E8F4FC")); blob(d, 204, 14, 8, hx("#C8E0F0"))
     # 极光（两条波带）
     for band, col in [(0, hx("#57C7A0")), (1, hx("#6BA8D8"))]:
-        for x in range(W):
+        for x in range(LW):
             y = 18 + band * 10 + int(6 * __import__("math").sin((x + band * 40) / 18))
             d.point((x, y), fill=col)
             if rng.random() < 0.3:
@@ -295,7 +324,7 @@ def snowfield() -> None:
         tree(x, 76, 3, hx("#2E4A66"))
     # 飘雪
     for _ in range(70):
-        x, y = rng.randrange(W), rng.randrange(H)
+        x, y = rng.randrange(LW), rng.randrange(H // 2)
         d.point((x, y), fill=rng.choice([hx("#FFFFFF"), hx("#EAF6FC"), hx("#C8E4F2")]))
     save(img, "snowfield")
 
@@ -306,10 +335,10 @@ def plant() -> None:
     img, d = canvas()
     vgrad(d, hx("#262A33"), hx("#161A21"), 0, 135)                     # 厂房
     for _ in range(120):                                               # 墙板噪点
-        x, y = rng.randrange(W), rng.randrange(80)
+        x, y = rng.randrange(LW), rng.randrange(80)
         d.point((x, y), fill=rng.choice([hx("#232730"), hx("#1A1D24")]))
     for y in range(0, 80, 16):                                         # 墙板缝
-        d.line([(0, y), (W, y)], fill=hx("#0A0C0F"))
+        d.line([(0, y), (LW, y)], fill=hx("#0A0C0F"))
     # 破窗 ×3（月光透入）
     for wx in (24, 104, 184):
         d.rectangle([wx, 12, wx + 28, 34], fill=hx("#3A4A5C"))
@@ -328,14 +357,14 @@ def plant() -> None:
             d.point((lx, 76), fill=c); d.point((lx, 79), fill=rng.choice([hx("#F2788A"), hx("#3A3F47")]))
     # 顶部电线
     for y, sag in [(44, 6), (50, 8)]:
-        for x in range(0, W, 4):
+        for x in range(0, LW, 4):
             dy = int(sag * __import__("math").sin(x / 30))
             d.point((x, y + dy), fill=hx("#0A0C0F"))
     # 闪电鸟落点：左机组顶
     d.rectangle([16, 54, 62, 58], fill=hx("#23272E"))
     # 火花（明亮的电焊星）
     for _ in range(34):
-        x, y = rng.randrange(W), rng.randrange(48, 112)
+        x, y = rng.randrange(LW), rng.randrange(48, 112)
         c = rng.choice([hx("#F8D030"), hx("#FFE169"), hx("#F8D030"), hx("#C46A1E")])
         d.point((x, y), fill=c)
         if rng.random() < 0.4:
@@ -346,7 +375,7 @@ def plant() -> None:
             c = hx("#F8D030") if (y // 8) % 2 == 0 else hx("#14171C")
             d.rectangle([px, y, px + 12, y + 8], fill=c)
     vgrad(d, hx("#181C24"), hx("#0E1116"), 96, 135)                    # 地面
-    for x in range(0, W, 12):                                          # 地面反光缝
+    for x in range(0, LW, 12):                                          # 地面反光缝
         d.line([(x, 100), (x, 135)], fill=hx("#08090B"))
     save(img, "plant")
 
@@ -378,7 +407,7 @@ def space() -> None:
         d.point((30, y), fill=hx("#FFD700"))
     # 云层（三层，底部）
     for (cy, col) in [(108, hx("#23234A")), (118, hx("#2E2E56")), (128, hx("#3A3A6A"))]:
-        for x in range(0, W, 8):
+        for x in range(0, LW, 8):
             blob(d, x + rng.randint(-2, 2), cy + rng.randint(-1, 1), rng.randint(4, 7), col)
     # 裂空坐掠影（细长三角 + 翼）
     d.polygon([(150, 84), (168, 80), (166, 84), (168, 88)], fill=hx("#0B0B1E"))
@@ -420,8 +449,8 @@ def city() -> None:
         d.point((mx, my), fill=mix(hx("#F8B4D9"), hx("#2E1050"), i / 5))
     blob(d, 96, 42, 2, hx("#F8B4D9"))
     # 街道 + 车流灯
-    d.rectangle([0, 108, W, 135], fill=hx("#0E0618"))
-    d.rectangle([0, 108, W, 110], fill=hx("#1A0B2E"))
+    d.rectangle([0, 108, LW, 135], fill=hx("#0E0618"))
+    d.rectangle([0, 108, LW, 110], fill=hx("#1A0B2E"))
     for x in range(6, W, 18):                                          # 路灯
         d.line([(x, 112), (x, 122)], fill=hx("#241242"))
         d.point((x, 111), fill=hx("#FFD700"))
@@ -437,8 +466,8 @@ def lab() -> None:
     img, d = canvas()
     vgrad(d, hx("#0D1420"), hx("#0A0F18"), 0, 135)                     # 实验室内
     for y in range(0, 96, 12):                                         # 墙面板
-        d.line([(0, y), (W, y)], fill=hx("#131E2E"))
-    for x in range(0, W, 32):
+        d.line([(0, y), (LW, y)], fill=hx("#131E2E"))
+    for x in range(0, LW, 32):
         d.line([(x, 0), (x, 96)], fill=hx("#101A28"))
     # 顶部灯带
     d.rectangle([10, 4, 110, 5], fill=hx("#2E4A5A"))
@@ -476,7 +505,7 @@ def lab() -> None:
     pod(102, 36, hx("#2A2A5A"), mewtwo)
     pod(172, 26, hx("#1A4A5A"))
     # 管线
-    d.rectangle([0, 100, W, 103], fill=hx("#1E3248"))
+    d.rectangle([0, 100, LW, 103], fill=hx("#1E3248"))
     for x in (74, 120, 198):
         d.point((x, 101), fill=hx("#F2788A") if x == 120 else hx("#7BD3F0"))
     # 地板 + 反光
@@ -484,7 +513,7 @@ def lab() -> None:
     d.rectangle([102, 106, 138, 108], fill=hx("#1A2C40"))
     d.rectangle([48, 106, 74, 107], fill=hx("#14202E"))
     d.rectangle([172, 106, 198, 107], fill=hx("#14202E"))
-    for x in range(0, W, 20):
+    for x in range(0, LW, 20):
         d.line([(x, 104), (x - 6, 135)], fill=hx("#080D16"))
     save(img, "lab")
 

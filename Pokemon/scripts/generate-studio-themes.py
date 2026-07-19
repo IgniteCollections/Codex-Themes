@@ -31,7 +31,7 @@ SCENE_VARS = ["grassland", "ocean", "cave", "magma", "snowfield", "plant", "spac
 MIME = {".png": "image/png", ".svg": "image/svg+xml"}
 
 # Wallpaper render size: 16:9, crisp nearest-neighbour upscale of the pixel art.
-ART_W, ART_H = 2560, 1440
+ART_W, ART_H = 3840, 2160   # 4K 壁纸
 
 
 def parse_scenes(ts: str) -> dict[str, dict]:
