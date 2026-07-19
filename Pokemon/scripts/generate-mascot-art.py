@@ -53,8 +53,6 @@ def data_url(img: Image.Image, target_h: int) -> str:
 
 
 def main() -> None:
-    import numpy as np
-
     ids = collect_ids()
     art: dict[str, dict[str, str]] = {}
     missing = []
@@ -64,13 +62,14 @@ def main() -> None:
             missing.append(pid)
             continue
         im = Image.open(f).convert("RGBA")
-        alpha = np.array(im)[:, :, 3]
-        rows, cols = np.where(alpha > 8)
-        pad = 3
-        im = im.crop((
-            max(0, cols.min() - pad), max(0, rows.min() - pad),
-            min(im.width, cols.max() + pad), min(im.height, rows.max() + pad),
-        ))
+        # alpha 通道 >8 的包围盒（纯 PIL，避免 numpy 依赖）
+        bbox = im.getchannel("A").point(lambda a: 255 if a > 8 else 0).getbbox()
+        if bbox:
+            pad = 3
+            im = im.crop((
+                max(0, bbox[0] - pad), max(0, bbox[1] - pad),
+                min(im.width, bbox[2] + pad), min(im.height, bbox[3] + pad),
+            ))
         art[str(pid)] = {"full": data_url(im, 96), "half": data_url(im, 48)}
 
     module = (

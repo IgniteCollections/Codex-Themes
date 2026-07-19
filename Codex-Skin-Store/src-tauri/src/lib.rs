@@ -228,7 +228,7 @@ fn active_theme(state: &Path) -> (Option<String>, Option<String>) {
     )
 }
 
-#[cfg(unix)]
+#[cfg(target_os = "macos")]
 fn codex_main_running() -> bool {
     // 与官方 install 脚本的 codex_is_running() 逐一对齐：
     // 只匹配主可执行文件（$CODEX_EXE 开头），Electron 的 Renderer/Service 子进程不算。
@@ -263,6 +263,7 @@ fn codex_main_running() -> bool {
 
 #[cfg(not(target_os = "macos"))]
 fn codex_main_running() -> bool {
+    // Windows / Linux：皮肤引擎的 codex 检测仅 macOS 有官方语义，其余平台恒 false
     false
 }
 
