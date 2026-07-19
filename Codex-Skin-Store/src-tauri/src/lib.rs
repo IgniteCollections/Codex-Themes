@@ -580,14 +580,15 @@ fn cli_slug(scene_id: &str) -> String {
     }
 }
 
-/// 把 `tui.theme = "<slug>"` 写入 config.toml（有则替换，无则在 [tui] 段或文件尾追加）。
+/// 把主题写入 config.toml 的 [tui] 段：theme = "<slug>"。
+/// 已有的 theme / tui.theme 键一并替换（旧的 theme 键会覆盖新值，必须清掉）。
 fn set_tui_theme(config_path: &Path, slug: &str) -> Result<(), String> {
     let text = fs::read_to_string(config_path).unwrap_or_default();
-    let new_line = format!("tui.theme = \"{slug}\"");
+    let new_line = format!("theme = \"{slug}\"");
     if let Some(out) = replace_tui_theme(&text, &new_line) {
         atomic_write(config_path, out.as_bytes())
     } else {
-        // 无 tui.theme 行：追加一个 [tui] 段
+        // 无 theme 键：追加一个 [tui] 段
         let mut out = text.trim_end().to_string();
         if !out.is_empty() {
             out.push_str("\n\n");
@@ -597,7 +598,7 @@ fn set_tui_theme(config_path: &Path, slug: &str) -> Result<(), String> {
     }
 }
 
-/// 找到 tui 段内的 theme 行并替换；找不到返回 None。
+/// 在 [tui] 段内替换 theme 键（含平铺 tui.theme 写法）；找不到返回 None。
 fn replace_tui_theme(text: &str, new_line: &str) -> Option<String> {
     let mut in_tui = false;
     let mut replaced = false;
@@ -609,14 +610,14 @@ fn replace_tui_theme(text: &str, new_line: &str) -> Option<String> {
             out.push(line.to_string());
             continue;
         }
-        if in_tui && t.starts_with("theme") && t.contains('=') {
+        if in_tui && t.starts_with("theme") && t.contains('=') && !t.starts_with("theme_") {
+            // [tui] 段内 theme = ...（旧键会覆盖，统一替换）
             out.push(new_line.to_string());
             replaced = true;
             continue;
         }
-        // 兼容平铺写法 tui.theme（无 [tui] 段）
         if t.starts_with("tui.theme") && t.contains('=') {
-            out.push(new_line.to_string());
+            // 平铺 tui.theme（无前缀段）——用新的段内 theme 统一承载，删旧行
             replaced = true;
             continue;
         }
