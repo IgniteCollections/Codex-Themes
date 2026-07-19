@@ -889,6 +889,102 @@ fn import_theme_zip(app: tauri::AppHandle, zip_path: String) -> Result<ImportRes
     })
 }
 
+
+/* ------------------------------------------------------------------ */
+/* 皮肤持久化（重启 Codex 后自动重注）                                     */
+/* ------------------------------------------------------------------ */
+
+/// macOS：写 LaunchAgent，登录时自动以 watch 模式常驻 injector。
+/// Codex 经皮肤商店/启动脚本以 CDP 端口启动后，watch injector 即自动重注皮肤。
+#[cfg(unix)]
+fn install_persistence(state: &Path) -> Result<(), String> {
+    let home = std::env::var("HOME").map_err(|_| "HOME is not set".to_string())?;
+    let node = engine_node()?;
+    let injector = engine_scripts(state).join("injector.mjs");
+    let theme_dir = active_theme_dir(state);
+    let port = read_engine_state(state).and_then(|s| s.port).unwrap_or(9341);
+    let label = "com.codex-themes.skin-store.injector";
+    let agents = PathBuf::from(&home).join("Library").join("LaunchAgents");
+    fs::create_dir_all(&agents).map_err(|e| format!("mkdir LaunchAgents: {e}"))?;
+    let plist = format!(
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>{label}</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>{node}</string>
+    <string>{injector}</string>
+    <string>--watch</string>
+    <string>--port</string>
+    <string>{port}</string>
+    <string>--theme-dir</string>
+    <string>{theme_dir}</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>{log}</string>
+  <key>StandardErrorPath</key><string>{err}</string>
+</dict>
+</plist>
+"#,
+        label = label,
+        node = node.display(),
+        injector = injector.display(),
+        port = port,
+        theme_dir = theme_dir.display(),
+        log = state.join("injector.log").display(),
+        err = state.join("injector-error.log").display(),
+    );
+    let plist_path = agents.join(format!("{label}.plist"));
+    atomic_write(&plist_path, plist.as_bytes())?;
+    // 加载（已加载则先卸再载）
+    let _ = Command::new("launchctl")
+        .args(["unload", &plist_path.to_string_lossy()])
+        .output();
+    Command::new("launchctl")
+        .args(["load", &plist_path.to_string_lossy()])
+        .output()
+        .map_err(|e| format!("launchctl load: {e}"))?;
+    Ok(())
+}
+
+#[cfg(unix)]
+fn engine_node() -> Result<PathBuf, String> {
+    // ChatGPT 内置签名 Node（与官方引擎一致）
+    Ok(PathBuf::from(
+        "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+    ))
+}
+
+#[cfg(unix)]
+fn remove_persistence() -> Result<(), String> {
+    let home = std::env::var("HOME").map_err(|_| "HOME is not set".to_string())?;
+    let plist = PathBuf::from(home)
+        .join("Library")
+        .join("LaunchAgents")
+        .join("com.codex-themes.skin-store.injector.plist");
+    if plist.exists() {
+        let _ = Command::new("launchctl")
+            .args(["unload", &plist.to_string_lossy()])
+            .output();
+        fs::remove_file(&plist).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[cfg(windows)]
+fn install_persistence(_state: &Path) -> Result<(), String> {
+    // Windows：引擎 start 脚本已通过启动流程注册 injector；持久化依赖引擎自身机制。
+    Ok(())
+}
+
+#[cfg(windows)]
+fn remove_persistence() -> Result<(), String> {
+    Ok(())
+}
+
 #[tauri::command]
 async fn start_engine() -> Result<String, String> {
     // 实测注意：start 脚本结尾的 verify 会等 Codex shell 渲染完成，
@@ -901,7 +997,10 @@ async fn start_engine() -> Result<String, String> {
         let args: &[&str] = &["-RestartExisting"];
         #[cfg(unix)]
         let args: &[&str] = &["--restart-existing"];
-        run_engine_script(&state, script, args)
+        let out = run_engine_script(&state, script, args)?;
+        // 注册持久化：登录自启 watch injector，重启 Codex（经皮肤商店/CDP 启动）后自动重注
+        let _ = install_persistence(&state);
+        Ok(out)
     })
     .await
     .map_err(|e| format!("start task join: {e}"))?
@@ -921,6 +1020,7 @@ async fn stop_engine(app: tauri::AppHandle) -> Result<String, String> {
         // 恢复官方：以 vendor 原版为 base 重建（清掉 pokemon 块，还原基础规则）
         let base = vendor_engine_css(&app).ok();
         rebuild_engine_css_with_base(&state, base.as_deref(), None)?;
+        let _ = remove_persistence();
         Ok(out)
     })
     .await
