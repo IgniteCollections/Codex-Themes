@@ -188,10 +188,10 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          <span className="brand-ball">◓</span>
+          <span className="brand-ball">🎨</span>
           <div>
             <h1>Codex 皮肤商店</h1>
-            <p>DREAM SKIN STORE · 宝可梦系列</p>
+            <p>DREAM SKIN STORE · 应用到 CODEX 桌面 APP</p>
           </div>
         </div>
         <div className="status-chips">
@@ -312,7 +312,7 @@ export default function App() {
                       onClick={() => applyScene(selected)}
                       disabled={phase.kind === "busy" || (isActive && status.injectorRunning && !status.paused)}
                     >
-                      {isActive ? "✓ 当前皮肤" : `应用「${selected.name}」`}
+                      {isActive ? "✓ 当前皮肤" : `应用「${selected.name}」到桌面 App`}
                     </button>
                   ) : (
                     <button className="btn btn-primary btn-apply" disabled title="安装引擎后可一键应用">
@@ -331,7 +331,7 @@ export default function App() {
                     </button>
                   </div>
                   {status.activeThemeName && (
-                    <span className="detail-current">当前生效：{status.activeThemeName}</span>
+                    <span className="detail-current">当前桌面 App 皮肤：{status.activeThemeName}</span>
                   )}
                 </div>
               </aside>
