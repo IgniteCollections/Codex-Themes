@@ -162,7 +162,7 @@ def rasterize_svg(svg_path: Path, out_png: Path, width: int, height: int) -> Non
                 sys.exit(f"unsupported path in {svg_path.name}: {d[:60]}… (extend rasterize_svg)")
     img = img.convert("RGB")
     out_png.parent.mkdir(parents=True, exist_ok=True)
-    img.save(out_png, "PNG", optimize=True)
+    img.save(out_png, "PNG", compress_level=6)
 
 
 def upscale_png(src_png: Path, out_png: Path, width: int, height: int) -> None:
@@ -180,7 +180,7 @@ def upscale_png(src_png: Path, out_png: Path, width: int, height: int) -> None:
     left = (resized.width - width) // 2
     top = (resized.height - height) // 2
     out_png.parent.mkdir(parents=True, exist_ok=True)
-    resized.crop((left, top, left + width, top + height)).save(out_png, "PNG", optimize=True)
+    resized.crop((left, top, left + width, top + height)).save(out_png, "PNG", compress_level=6)
 
 
 def data_url(path: Path) -> str:

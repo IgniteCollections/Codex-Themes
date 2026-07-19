@@ -68,7 +68,7 @@ def canvas() -> tuple[Image.Image, "_ScaledDraw"]:
 
 def save(img: Image.Image, name: str) -> None:
     # 480×270 缓冲 ×4 = 1920×1080 网站壁纸（nearest 保持像素颗粒）
-    img.resize((W * 4, H * 4), Image.NEAREST).save(OUT / f"scene-{name}.png")
+    img.resize((W * 4, H * 4), Image.NEAREST).save(OUT / f"scene-{name}.png", compress_level=6)
     print(f"scene-{name}.png ({W*4}x{H*4})")
 
 
