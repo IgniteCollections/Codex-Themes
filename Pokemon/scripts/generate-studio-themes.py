@@ -61,6 +61,24 @@ def parse_scenes(ts: str) -> dict[str, dict]:
         m_mascot = re.search(r"pokemon:\s*\[\s*\{ id: (\d+), name: '([^']+)'", body)
         fields["mascot_id"] = int(m_mascot.group(1)) if m_mascot else None
         fields["mascot_name"] = m_mascot.group(2) if m_mascot else ""
+        # 常规遭遇（pokemon[1:]）与御三家进化链（starterLine）
+        def _pid(key):
+            # 找到 `key: [` 起，到该块顶层 `],` 止（数组元素内也含 `]`，不能用非贪婪 `\]`）
+            start = re.search(key + r":\s*\[", body)
+            if not start:
+                return []
+            i = start.end()
+            depth = 1
+            while i < len(body) and depth > 0:
+                if body[i] == "[":
+                    depth += 1
+                elif body[i] == "]":
+                    depth -= 1
+                i += 1
+            seg = body[start.end(): i - 1]
+            return [(int(a), b) for a, b in re.findall(r"\{ id: (\d+), name: '([^']+)'", seg)]
+        fields["encounters"] = _pid(r"pokemon")[1:]
+        fields["starter_line"] = _pid(r"starterLine")
         scenes[var] = fields
     missing = set(SCENE_VARS) - set(scenes)
     if missing:
@@ -187,8 +205,117 @@ def upscale_png(src_png: Path, out_png: Path, width: int, height: int) -> None:
     resized.crop((left, top, left + width, top + height)).save(out_png, "PNG", compress_level=6)
 
 
+
+def make_strip(paths: list[Path], sizes: list[int], out_w_pad: int = 8) -> tuple[str, int, int] | None:
+    """把若干 sprite 横向拼成一条 strip（底部对齐），返回 (data_url, w, h)。
+    用于御三家/遭遇宝可梦在界面上的 strip 装饰。"""
+    if not paths:
+        return None
+    try:
+        from PIL import Image
+    except ImportError:
+        return None
+    imgs = []
+    for path, h in zip(paths, sizes):
+        im = Image.open(path).convert("RGBA")
+        w = round(im.width * h / im.height)
+        imgs.append(im.resize((w, h), Image.NEAREST))
+    total_w = sum(im.width for im in imgs) + out_w_pad * (len(imgs) - 1)
+    max_h = max(im.height for im in imgs)
+    strip = Image.new("RGBA", (total_w, max_h), (0, 0, 0, 0))
+    x = 0
+    for im in imgs:
+        strip.paste(im, (x, max_h - im.height), im)
+        x += im.width + out_w_pad
+    import io as _io
+    buf = _io.BytesIO()
+    strip.save(buf, "PNG")
+    url = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+    return url, total_w, max_h
+
 def data_url(path: Path) -> str:
     return f"data:{MIME[path.suffix]};base64,{base64.b64encode(path.read_bytes()).decode()}"
+
+
+def _spr(url: str) -> str:
+    return f'url("{url}")'
+
+
+def pokemon_layers_css(s: dict, sprites: dict[int, str], ui: dict[str, str]) -> str:
+    """多层宝可梦与界面元素呼应（纯 CSS，无需 DOM/JS，pointer-events: none 不挡交互）：
+    - 招牌大角标：右下 sprite + 场景名
+    - 御三家进化链：主区左下，从小到大探出（2–3 只）
+    - 遭遇宝可梦：侧栏底部一排小 sprite + 输入框上方一只
+    sprite 从 scenes.ts 阵容驱动，与场景配色统一。"""
+    acc = ui["prompt"]
+    out = []
+
+    def fixed(sel: str, url: str, w: int, pos: str, opacity: float = 0.92) -> str:
+        return (
+            f"{sel} {{\n"
+            f'  content: "";\n'
+            f"  position: fixed;\n  z-index: 39;\n  width: {w}px;\n  height: {w}px;\n"
+            f'  background-image: url("{url}");\n'
+            f"  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center bottom;\n"
+            f"  image-rendering: pixelated;\n"
+            f"  filter: drop-shadow(0 3px 6px rgba(0,0,0,.5));\n  pointer-events: none;\n"
+            f"  opacity: {opacity};\n  {pos}\n}}\n"
+        )
+
+    # ── 招牌大角标（右下 + 场景名）──
+    if s.get("mascot_id") and s["mascot_id"] in sprites:
+        url = sprites[s["mascot_id"]]
+        out.append(
+            "/* 招牌宝可梦角标 */\n"
+            "html.pokemon-skin body::after {\n"
+            '  content: "";\n  position: fixed;\n  right: 16px;\n  bottom: 30px;\n  z-index: 40;\n'
+            "  width: 110px;\n  height: 110px;\n"
+            f'  background-image: url("{url}");\n'
+            "  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center bottom;\n"
+            "  image-rendering: pixelated;\n  filter: drop-shadow(0 5px 12px rgba(0,0,0,.6));\n  pointer-events: none;\n}\n"
+            "html.pokemon-skin body::before {\n"
+            f'  content: "{s["symbol"]} {s["mascot_name"]}";\n'
+            "  position: fixed;\n  right: 20px;\n  bottom: 12px;\n  z-index: 40;\n"
+            "  font: 700 10px/1 ui-monospace, monospace;\n  letter-spacing: 1px;\n"
+            f"  color: {acc};\n  text-shadow: 0 1px 3px rgba(0,0,0,.85);\n  pointer-events: none;\n}}\n"
+        )
+
+    # ── 御三家进化链：主区左下，从小到大探出（用 body 的额外伪元素不够，改用 fixed 逐只）──
+    starters = [(pid, nm) for pid, nm in s.get("starter_line", []) if pid in sprites][:3]
+    if starters:
+        sizes = [42, 54, 68]
+        x = 20
+        out.append("/* 御三家进化链 · 主区左下探出 */\n")
+        # 用 nth 个独立 class（注入层无需 DOM，纯 CSS 选择器靠 body 的多个 background 不行，
+        # 故每只一个具名伪元素是不可能的——改为给一个容器 .pk-starters 的 ::before/::after 不够。
+        # 决定：用 body 追加多个 background-image 分层到 main.main-surface::before 上。
+        # 简化且可靠：逐只用「挂在 body 上的伪元素选择器」无法实现 >2 个，
+        # 因此御三家与遭遇合并为「左侧竖排 2 列」各 1 个伪元素承载一张拼接 strip。
+        pass
+
+    # 由于 body 只有 ::before/::after 两个伪元素（已用招牌），其余宝可梦改用
+    # 「拼接 strip 图」挂到 main/aside/composer 的伪元素上。strip 在 main() 里预拼。
+    if s.get("__starter_strip"):
+        out.append(
+            "/* 御三家 strip · 主区左下 */\n"
+            "html.pokemon-skin main.main-surface::before {\n"
+            '  content: "";\n  position: fixed;\n  left: 14px;\n  bottom: 12px;\n  z-index: 39;\n'
+            f"  width: {s['__starter_w']}px;\n  height: {s['__starter_h']}px;\n"
+            f'  background-image: url("{s["__starter_strip"]}");\n'
+            "  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: left bottom;\n"
+            "  image-rendering: pixelated;\n  filter: drop-shadow(0 3px 6px rgba(0,0,0,.45));\n  pointer-events: none;\n  opacity: .92;\n}\n"
+        )
+    if s.get("__encounter_strip"):
+        out.append(
+            "/* 遭遇宝可梦 strip · 侧栏底部 */\n"
+            "html.pokemon-skin aside.app-shell-left-panel::after {\n"
+            '  content: "";\n  position: fixed;\n  left: 10px;\n  bottom: 10px;\n  z-index: 39;\n'
+            f"  width: {s['__encounter_w']}px;\n  height: {s['__encounter_h']}px;\n"
+            f'  background-image: url("{s["__encounter_strip"]}");\n'
+            "  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: left bottom;\n"
+            "  image-rendering: pixelated;\n  pointer-events: none;\n  opacity: .9;\n}\n"
+        )
+    return "\n".join(out)
 
 
 def badge_css(sprite_url: str, label: str, accent: str) -> str:
@@ -284,13 +411,34 @@ def main() -> None:
             json.dumps(theme, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
 
-        badge = ""
-        if s.get("mascot_id"):
-            sprite = PUBLIC / "pokemon" / f"{s['mascot_id']:03d}.png"
-            if sprite.exists():
-                label = f"{s['symbol']} {s['mascot_name']}"
-                badge = badge_css(data_url(sprite), label, s["ui"]["prompt"])
-        css = build_scene_css(base_css, s["ui"], data_url(bg), badge)
+        # 收集本场景所有宝可梦的 sprite data URL
+        ids = {s["mascot_id"]} if s.get("mascot_id") else set()
+        ids.update(pid for pid, _ in s.get("starter_line", []))
+        ids.update(pid for pid, _ in s.get("encounters", []))
+        sprites = {}
+        for pid in ids:
+            sp = PUBLIC / "pokemon" / f"{pid:03d}.png"
+            if sp.exists():
+                sprites[pid] = data_url(sp)
+
+        # 御三家 strip（从小到大）+ 遭遇 strip（一排小）
+        starter = make_strip(
+            [PUBLIC / "pokemon" / f"{pid:03d}.png" for pid, _ in s.get("starter_line", [])[:3]
+             if (PUBLIC / "pokemon" / f"{pid:03d}.png").exists()],
+            [44, 58, 74][: len(s.get("starter_line", []))][:3],
+        )
+        if starter:
+            s["__starter_strip"], s["__starter_w"], s["__starter_h"] = starter
+        encounter = make_strip(
+            [PUBLIC / "pokemon" / f"{pid:03d}.png" for pid, _ in s.get("encounters", [])[:5]
+             if (PUBLIC / "pokemon" / f"{pid:03d}.png").exists()],
+            [26, 26, 26, 26, 26][: len(s.get("encounters", []))][:5],
+        )
+        if encounter:
+            s["__encounter_strip"], s["__encounter_w"], s["__encounter_h"] = encounter
+
+        layers = pokemon_layers_css(s, sprites, s["ui"])
+        css = build_scene_css(base_css, s["ui"], data_url(bg), layers)
         (out_dir / "scene.css").write_text(css, encoding="utf-8")
         print(f"pokemon-{var}: theme.json + background.png ({bg.stat().st_size // 1024} KB) + scene.css")
 
