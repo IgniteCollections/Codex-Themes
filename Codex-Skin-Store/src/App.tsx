@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { confirm } from "@tauri-apps/plugin-dialog";
+import { confirm, open } from "@tauri-apps/plugin-dialog";
 import { SHOP_SCENES, type ShopScene } from "./scenes";
 import { SCENE_MAP, type SceneDef } from "./scene-data";
 import TerminalPreview from "./TerminalPreview";
@@ -47,6 +47,16 @@ const DEMO_STATUS: StudioStatus = {
   codexVersion: "150.0",
   codexRunning: true,
 };
+
+/** 导入的主题（ZIP）在商店的展示形态 */
+interface ImportedTheme {
+  id: string;
+  name: string;
+  accent: string;
+  hasCss: boolean;
+  wallpaper: string | null;
+  flavor: string | null;
+}
 
 /** 场景 ui 色板 → --sc-* 变量（详情区整区换肤用） */
 function sceneVars(s: SceneDef): Record<string, string> {
@@ -103,11 +113,13 @@ export default function App() {
     inTauri ? { kind: "idle" } : { kind: "ok", text: "浏览器预览模式：无 Tauri 后端，以下为假数据，「应用皮肤」不可用。" }
   );
   const [selectedId, setSelectedId] = useState("grassland");
+  const [imported, setImported] = useState<ImportedTheme[]>([]);
 
   const refresh = useCallback(async () => {
     if (!("__TAURI_INTERNALS__" in window)) return;
     try {
       setStatus(await invoke<StudioStatus>("get_status"));
+      setImported(await invoke<ImportedTheme[]>("list_scenes"));
     } catch (e) {
       setPhase({ kind: "error", text: String(e) });
     }
@@ -161,6 +173,39 @@ export default function App() {
       return invoke<string>("apply_cli", { sceneId: scene.packId });
     });
 
+  const applyImported = (t: ImportedTheme) =>
+    run(`正在应用「${t.name}」皮肤…`, async () => {
+      const needRestart = !status?.injectorRunning;
+      if (needRestart) {
+        const yes = await confirm(
+          "Codex 需要以调试模式重启一次才能注入皮肤（未保存的输入可能丢失）。继续？",
+          { title: "启动皮肤引擎", kind: "warning" }
+        );
+        if (!yes) return "已取消";
+      }
+      const out = await invoke<string>("switch_scene", { sceneId: t.id });
+      if (needRestart) {
+        await invoke<string>("start_engine");
+      }
+      return out;
+    });
+
+  const importZip = () =>
+    run("正在导入主题 ZIP…", async () => {
+      const file = await open({
+        title: "选择主题 ZIP 包",
+        multiple: false,
+        filters: [{ name: "主题包", extensions: ["zip"] }],
+      });
+      if (!file || typeof file !== "string") return "已取消";
+      const res = await invoke<{ id: string; name: string; hasCss: boolean; cliTheme: string | null }>(
+        "import_theme_zip",
+        { zipPath: file }
+      );
+      setSelectedId(res.id.replace(/^pokemon-/, "") === res.id ? res.id : res.id.replace(/^pokemon-/, ""));
+      return `已导入「${res.name}」${res.cliTheme ? "（含 CLI 主题）" : ""}，可在列表中应用`;
+    });
+
   const restore = () =>
     run("正在恢复官方外观…", async () => {
       const yes = await confirm("恢复 Codex 官方外观并关闭皮肤引擎？", {
@@ -178,16 +223,23 @@ export default function App() {
       await invoke("set_paused", { paused: !status?.paused });
     });
 
-  const selected = SHOP_SCENES.find((s) => s.sceneId === selectedId) ?? SHOP_SCENES[0];
-  const sceneDef: SceneDef = SCENE_MAP[selected.sceneId as keyof typeof SCENE_MAP];
-  const vars = useMemo(() => sceneVars(sceneDef), [sceneDef]);
+  const builtin = SHOP_SCENES.find((s) => s.sceneId === selectedId);
+  const importedTheme = imported.find((t) => t.id === selectedId);
+  const selected = builtin ?? SHOP_SCENES[0];
+  const isImported = !builtin && !!importedTheme;
+  const sceneDef: SceneDef | null = builtin
+    ? SCENE_MAP[builtin.sceneId as keyof typeof SCENE_MAP]
+    : null;
+  const vars = useMemo(() => (sceneDef ? sceneVars(sceneDef) : {}), [sceneDef]);
 
   if (!status) {
     return <div className="boot">正在扫描环境…</div>;
   }
 
   const ready = status.codexInstalled && status.nodeVersion !== null;
-  const isActive = status.activeTheme === selected.packId;
+  const isActive = isImported
+    ? status.activeTheme === importedTheme?.id
+    : status.activeTheme === selected.packId;
 
   return (
     <div className="app">
@@ -248,41 +300,75 @@ export default function App() {
             <div className="shop-grid-head">
               <h2>宝可梦栖息地系列</h2>
               <span className="shop-count">{SHOP_SCENES.length} 款皮肤</span>
+              <button className="btn btn-import" onClick={importZip} disabled={phase.kind === "busy"}>
+                ＋ 导入主题 ZIP
+              </button>
             </div>
             <div className="shop-cards">
               {SHOP_SCENES.map((s) => (
                 <SceneCard
                   key={s.packId}
                   scene={s}
-                  selected={s.sceneId === selected.sceneId}
+                  selected={s.sceneId === selected.sceneId && !isImported}
                   active={status.activeTheme === s.packId}
                   onSelect={() => setSelectedId(s.sceneId)}
                 />
+              ))}
+              {imported.map((t) => (
+                <button
+                  key={t.id}
+                  className={`shop-card shop-card-imported ${isImported && importedTheme?.id === t.id ? "shop-card-selected" : ""}`}
+                  onClick={() => setSelectedId(t.id)}
+                  style={{ ["--card-accent" as string]: t.accent }}
+                >
+                  <div className="shop-card-wall">
+                    {t.wallpaper
+                      ? <img src={t.wallpaper} alt="" loading="lazy" />
+                      : <div className="shop-card-wall-fallback" style={{ background: `linear-gradient(135deg, ${t.accent}33, transparent)` }} />}
+                    {status.activeTheme === t.id && <span className="shop-card-live">使用中</span>}
+                    <span className="shop-card-no">导入</span>
+                  </div>
+                  <div className="shop-card-body">
+                    <span className="shop-card-imported-badge" style={{ background: t.accent }}>🎨</span>
+                    <div className="shop-card-text">
+                      <span className="shop-card-name">{t.name}</span>
+                      <span className="shop-card-tagline">{t.flavor ?? "第三方主题"}</span>
+                    </div>
+                  </div>
+                </button>
               ))}
             </div>
           </section>
 
           <section className="detail" style={vars as React.CSSProperties}>
             <div className="detail-wall">
-              <img src={selected.wallpaper} alt={`${selected.name}壁纸`} />
+              {isImported && importedTheme?.wallpaper
+                ? <img src={importedTheme.wallpaper} alt={`${importedTheme.name}壁纸`} />
+                : !isImported && <img src={selected.wallpaper} alt={`${selected.name}壁纸`} />}
               <div className="detail-wall-overlay">
-                <span className="detail-no">{selected.no}</span>
+                <span className="detail-no">{isImported ? "导入主题" : selected.no}</span>
                 <h2>
-                  {selected.symbol} {selected.name}
-                  <span className="detail-en">{selected.en}</span>
+                  {isImported ? importedTheme?.name : `${selected.symbol} ${selected.name}`}
+                  {!isImported && <span className="detail-en">{selected.en}</span>}
                 </h2>
-                <p>{selected.flavor}</p>
+                <p>{isImported ? (importedTheme?.flavor ?? "") : selected.flavor}</p>
               </div>
             </div>
 
             <div className="detail-body">
               <div className="detail-preview">
-                <TerminalPreview scene={sceneDef} />
+                {!isImported && sceneDef && <TerminalPreview scene={sceneDef} />}
+                {isImported && (
+                  <div className="imported-note">
+                    <p>第三方主题包：壁纸 + 强调色{importedTheme?.hasCss ? " + 完整 CSS 皮肤" : ""}。可直接应用到桌面 App{importedTheme?.hasCss ? " 或 CLI（若含 .tmTheme）" : ""}。</p>
+                  </div>
+                )}
               </div>
 
               <aside className="detail-side">
-                <p className="detail-desc">{selected.desc}</p>
+                {!isImported && <p className="detail-desc">{selected.desc}</p>}
 
+                {!isImported && (
                 <div className="detail-block">
                   <h3>出没宝可梦</h3>
                   <div className="detail-pokemon">
@@ -294,7 +380,9 @@ export default function App() {
                     ))}
                   </div>
                 </div>
+                )}
 
+                {!isImported && (
                 <div className="detail-block">
                   <h3>ANSI 16 色</h3>
                   <div className="detail-ansi">
@@ -303,27 +391,31 @@ export default function App() {
                     ))}
                   </div>
                 </div>
+                )}
 
+                {!isImported && (
                 <div className="detail-keywords">
                   {selected.keywords.map((k) => (
                     <span key={k}>{k}</span>
                   ))}
                 </div>
+                )}
 
                 <div className="detail-actions">
                   {status.engineInstalled ? (
                     <button
                       className="btn btn-primary btn-apply"
-                      onClick={() => applyScene(selected)}
+                      onClick={() => isImported && importedTheme ? applyImported(importedTheme) : applyScene(selected)}
                       disabled={phase.kind === "busy" || (isActive && status.injectorRunning && !status.paused)}
                     >
-                      {isActive ? "✓ 当前皮肤" : `应用「${selected.name}」到桌面 App`}
+                      {isActive ? "✓ 当前皮肤" : `应用「${isImported ? importedTheme?.name : selected.name}」到桌面 App`}
                     </button>
                   ) : (
                     <button className="btn btn-primary btn-apply" disabled title="安装引擎后可一键应用">
                       安装引擎后可一键应用
                     </button>
                   )}
+                  {!isImported && (
                   <button
                     className="btn btn-cli"
                     onClick={() => applyCli(selected)}
@@ -332,6 +424,7 @@ export default function App() {
                   >
                     应用「{selected.name}」到 CLI
                   </button>
+                  )}
                   <div className="detail-actions-row">
                     <button className="btn" onClick={togglePause} disabled={phase.kind === "busy" || !status.injectorRunning}>
                       {status.paused ? "恢复皮肤" : "暂停皮肤"}
