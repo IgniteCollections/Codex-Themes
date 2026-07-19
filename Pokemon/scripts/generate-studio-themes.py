@@ -24,7 +24,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 SCENES_TS = REPO / "Pokemon/app/src/themes/scenes.ts"
 PUBLIC = REPO / "Pokemon/app/public"
-SKIN_CSS = REPO / "Pokemon/skins/pokemon-skin.css"
+SKIN_CSS = REPO / "Pokemon/skins/pokemon-skin.css"  # CSS 模板（含完整场景皮肤规则）
 OUT_ROOT = REPO / "Codex-Skin-Store/src-tauri/resources/themes"
 
 SCENE_VARS = ["grassland", "ocean", "cave", "magma", "snowfield", "plant", "space", "city", "lab"]
