@@ -99,14 +99,17 @@ jobs:
           python3 Pokemon/scripts/generate-studio-themes.py
           python3 Pokemon/scripts/generate-mascot-art.py
           python3 Pokemon/scripts/check-data-sync.py
-          # 文本产物必须逐字节一致（防配色/阵容 drift）
-          if ! git diff --exit-code --quiet -- '*.ts' '*.css' '*.json' '*.toml' '*.conf' '*.tmTheme' '*.txt'; then
+          # 纯文本产物逐字节一致（防配色/阵容 drift）
+          if ! git diff --exit-code --quiet -- '*.json' '*.toml' '*.conf' '*.tmTheme' '*.txt'; then
             echo "::error::Text artifacts out of sync with scenes.ts. Re-run generators and commit."
-            git diff --stat -- '*.ts' '*.css' '*.json' '*.toml' '*.conf' '*.tmTheme' '*.txt'
+            git diff --stat -- '*.json' '*.toml' '*.conf' '*.tmTheme' '*.txt'
             exit 1
           fi
-          # 二进制 PNG 受 Pillow/zlib 版本影响字节不可跨环境复现，只校验尺寸一致
+          # 含 PNG base64 的产物（scene.css/mascotArt.ts/PNG）与 PNG 本身，
+          # 字节受 Pillow/zlib 版本影响不可跨环境复现 → 只校验内容语义：
+          # 图片尺寸、宝可梦 id 集合、场景数量、配色色值一致
           python3 Pokemon/scripts/check-image-dims.py
+          python3 Pokemon/scripts/check-generated-content.py
           echo "All generated artifacts are in sync."
 
   ci-gate:
