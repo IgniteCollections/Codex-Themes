@@ -531,3 +531,29 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .tp-screen::after, .tp-cursor, .tp-banner { animation: none !important; }
 }
+
+/* 导入主题卡片 */
+.shop-card-imported-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  flex: none;
+}
+.shop-card-wall-fallback {
+  width: 100%;
+  height: 100%;
+}
+.btn-import {
+  margin-left: auto;
+  font-size: 12px;
+  padding: 6px 14px;
+}
+.imported-note {
+  padding: 24px;
+  color: var(--sc-fg-dim, var(--dim));
+  font-size: 13px;
+  line-height: 1.8;
+}

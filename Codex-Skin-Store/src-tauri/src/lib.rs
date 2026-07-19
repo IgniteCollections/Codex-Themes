@@ -305,6 +305,30 @@ struct SceneInfo {
     name: String,
     accent: String,
     has_css: bool,
+    /// 壁纸 base64（列表缩略用，过大则空让前端用渐变色块兜底）
+    wallpaper: Option<String>,
+    /// theme.json 的 flavorShort/tagline（可空）
+    flavor: Option<String>,
+}
+
+/// 读壁纸为 base64 data URL（限 4 MB）。
+fn wallpaper_data_url(dir: &Path, image_name: &str) -> Option<String> {
+    let path = dir.join(image_name);
+    let meta = fs::metadata(&path).ok()?;
+    if meta.len() > 4 * 1024 * 1024 {
+        return None;
+    }
+    let bytes = fs::read(&path).ok()?;
+    use base64::Engine;
+    let mime = match path.extension().and_then(|e| e.to_str()) {
+        Some("jpg") | Some("jpeg") => "image/jpeg",
+        Some("webp") => "image/webp",
+        _ => "image/png",
+    };
+    Some(format!(
+        "data:{mime};base64,{}",
+        base64::engine::general_purpose::STANDARD.encode(bytes)
+    ))
 }
 
 #[tauri::command]
@@ -326,6 +350,11 @@ fn list_scenes(app: tauri::AppHandle) -> Result<Vec<SceneInfo>, String> {
             Ok(v) => v,
             Err(_) => continue,
         };
+        let image_name = v["image"].as_str().unwrap_or("background.png").to_string();
+        let flavor = v["flavorShort"]
+            .as_str()
+            .or_else(|| v["tagline"].as_str())
+            .map(String::from);
         out.push(SceneInfo {
             id: v["id"].as_str().unwrap_or_default().to_string(),
             name: v["name"].as_str().unwrap_or_default().to_string(),
@@ -334,6 +363,8 @@ fn list_scenes(app: tauri::AppHandle) -> Result<Vec<SceneInfo>, String> {
                 .unwrap_or("#888888")
                 .to_string(),
             has_css: dir.join("scene.css").is_file(),
+            wallpaper: wallpaper_data_url(&dir, &image_name),
+            flavor,
         });
     }
     out.sort_by(|a, b| a.id.cmp(&b.id));
@@ -470,10 +501,21 @@ fn atomic_write(path: &Path, bytes: &[u8]) -> Result<(), String> {
     Ok(())
 }
 
-fn rebuild_engine_css(state: &Path, scene_css: Option<&str>) -> Result<(), String> {
+/// 重建 engine 的 dream-skin.css（pokemon 块幂等管理）。
+/// `base` 为 None 时读当前文件；首次或文件缺失/不含 codex-dream-skin 基础规则时，
+/// 调用方应传 vendor 原版作为 base，否则会把 pokemon 块叠到「已被覆盖的文件」上，
+/// 丢掉 #codex-dream-skin-chrome{{pointer-events:none}} 等基础规则导致 verify 失败。
+fn rebuild_engine_css_with_base(
+    state: &Path,
+    base: Option<&Path>,
+    scene_css: Option<&str>,
+) -> Result<(), String> {
     let css_path = engine_css_path(state);
-    let current = fs::read_to_string(&css_path)
-        .map_err(|e| format!("read {}: {e}", css_path.display()))?;
+    let current = match base {
+        Some(b) => fs::read_to_string(b).map_err(|e| format!("read base {}: {e}", b.display()))?,
+        None => fs::read_to_string(&css_path)
+            .map_err(|e| format!("read {}: {e}", css_path.display()))?,
+    };
     let stripped = match (current.find(CSS_BEGIN), current.find(CSS_END)) {
         (Some(b), Some(e)) if b < e => {
             format!("{}{}", &current[..b], &current[e + CSS_END.len()..])
@@ -491,6 +533,13 @@ fn rebuild_engine_css(state: &Path, scene_css: Option<&str>) -> Result<(), Strin
         None => format!("{}\n", stripped.trim_end()),
     };
     atomic_write(&css_path, next.as_bytes())
+}
+
+/// engine 的 vendor dream-skin.css 源（安装包 resources 里的原版）。
+fn vendor_engine_css(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    Ok(engine_resource_dir(app)?
+        .join("assets")
+        .join("dream-skin.css"))
 }
 
 #[tauri::command]
@@ -546,10 +595,13 @@ fn switch_scene(app: tauri::AppHandle, scene_id: String) -> Result<String, Strin
     }
     let _ = fs::remove_dir_all(&staging);
 
-    // 3) 重建 engine CSS 的 pokemon 块（完整场景皮肤层）
+    // 3) 以 vendor 原版为 base 重建 engine CSS 的 pokemon 块。
+    //    若当前 engine css 已被覆盖成「仅 pokemon 块」，直接在其上叠加会丢掉
+    //    #codex-dream-skin-chrome{{pointer-events:none}} 等基础规则 → verify 失败。
     let scene_css = fs::read_to_string(saved.join("scene.css"))
         .map_err(|e| format!("read scene.css: {e}"))?;
-    rebuild_engine_css(&state, Some(&scene_css))?;
+    let base = vendor_engine_css(&app).ok();
+    rebuild_engine_css_with_base(&state, base.as_deref(), Some(&scene_css))?;
 
     // 4) 清除暂停标记，让 watch injector 立即热应用
     let _ = fs::remove_file(state.join("paused"));
@@ -656,6 +708,187 @@ fn apply_cli(app: tauri::AppHandle, scene_id: String) -> Result<String, String> 
     ))
 }
 
+
+/* ------------------------------------------------------------------ */
+/* 导入主题 ZIP（第三方主题包 → 主题库，可应用到桌面/CLI）                 */
+/* ------------------------------------------------------------------ */
+
+const MAX_ZIP_BYTES: u64 = 64 * 1024 * 1024; // 64 MB
+const MAX_FILE_BYTES: u64 = 16 * 1024 * 1024; // 单文件 16 MB（对齐引擎壁纸上限）
+
+fn sanitize_component(s: &str) -> Result<String, String> {
+    let out: String = s
+        .chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c == '-' || c == '_' {
+                c
+            } else {
+                '-'
+            }
+        })
+        .collect();
+    let out = out.trim_matches('-').to_string();
+    if out.is_empty() {
+        Err("主题 id 非法（清洗后为空）".into())
+    } else {
+        Ok(out)
+    }
+}
+
+/// 从 ZIP 提取一套主题包到 `dest`，返回是否有 scene.css / tmTheme。
+/// 兼容两种布局：ZIP 根即主题目录，或 ZIP 内含单个顶层目录。
+fn extract_theme_zip(zip_path: &Path, dest: &Path) -> Result<(bool, Option<String>), String> {
+    let file = fs::File::open(zip_path).map_err(|e| format!("打开 ZIP 失败: {e}"))?;
+    let meta = file.metadata().map_err(|e| e.to_string())?;
+    if meta.len() > MAX_ZIP_BYTES {
+        return Err(format!("ZIP 过大（{} MB > 64 MB）", meta.len() / 1024 / 1024));
+    }
+    let mut archive = zip::ZipArchive::new(file).map_err(|e| format!("ZIP 解析失败: {e}"))?;
+
+    // 探测公共顶层目录（处理 "mytheme/theme.json" 这类单目录 ZIP）
+    let mut top: Option<String> = None;
+    let mut single_top = true;
+    for i in 0..archive.len() {
+        let name = archive.by_index(i).map_err(|e| e.to_string())?.name().to_string();
+        let first = name.split('/').next().unwrap_or("");
+        if name.ends_with('/') {
+            continue;
+        }
+        match &top {
+            None => top = Some(first.to_string()),
+            Some(t) if t != first => {
+                single_top = false;
+                break;
+            }
+            _ => {}
+        }
+    }
+    let strip = if single_top && top.as_deref().map(|t| t != "theme.json").unwrap_or(false) {
+        top.clone().map(|t| format!("{t}/"))
+    } else {
+        None
+    };
+
+    let mut has_theme_json = false;
+    let mut has_css = false;
+    let mut tmtheme: Option<String> = None;
+
+    fs::create_dir_all(dest).map_err(|e| format!("mkdir {}: {e}", dest.display()))?;
+    for i in 0..archive.len() {
+        let mut entry = archive.by_index(i).map_err(|e| e.to_string())?;
+        let raw_name = entry.name().to_string();
+        if raw_name.ends_with('/') {
+            continue;
+        }
+        // 去掉公共顶层目录
+        let name = match &strip {
+            Some(prefix) => match raw_name.strip_prefix(prefix.as_str()) {
+                Some(r) => r.to_string(),
+                None => continue,
+            },
+            None => raw_name.clone(),
+        };
+        // 安全：拒绝绝对路径与 ..（zip-slip）
+        let rel = Path::new(&name);
+        if rel.is_absolute()
+            || rel
+                .components()
+                .any(|c| matches!(c, std::path::Component::ParentDir))
+        {
+            continue;
+        }
+        let base = rel.file_name().map(|f| f.to_string_lossy().to_string());
+        let out_path = dest.join(rel);
+        if let Some(parent) = out_path.parent() {
+            fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+        }
+        if entry.size() > MAX_FILE_BYTES {
+            return Err(format!("文件过大: {name}"));
+        }
+        let mut buf = Vec::with_capacity(entry.size() as usize);
+        std::io::Read::read_to_end(&mut entry, &mut buf).map_err(|e| format!("读取 {name}: {e}"))?;
+        fs::write(&out_path, &buf).map_err(|e| format!("写入 {name}: {e}"))?;
+
+        match base.as_deref() {
+            Some("theme.json") => has_theme_json = true,
+            Some("scene.css") => has_css = true,
+            Some(n) if n.ends_with(".tmTheme") => tmtheme = Some(name.clone()),
+            _ => {}
+        }
+    }
+    if !has_theme_json {
+        let _ = fs::remove_dir_all(dest);
+        return Err("ZIP 里缺少 theme.json（不是有效的 Dream Skin 主题包）".into());
+    }
+    Ok((has_css, tmtheme))
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ImportResult {
+    id: String,
+    name: String,
+    has_css: bool,
+    cli_theme: Option<String>,
+}
+
+#[tauri::command]
+fn import_theme_zip(app: tauri::AppHandle, zip_path: String) -> Result<ImportResult, String> {
+    let zip_path = PathBuf::from(&zip_path);
+    if !zip_path.is_file() {
+        return Err(format!("文件不存在: {}", zip_path.display()));
+    }
+    let state = state_root()?;
+    // 先解到临时目录读 theme.json 拿 id
+    let tmp = state.join(".import-tmp");
+    if tmp.exists() {
+        fs::remove_dir_all(&tmp).map_err(|e| e.to_string())?;
+    }
+    let (has_css, tmtheme) = extract_theme_zip(&zip_path, &tmp)?;
+    let theme_text = fs::read_to_string(tmp.join("theme.json"))
+        .map_err(|e| format!("读 theme.json: {e}"))?;
+    let v: serde_json::Value =
+        serde_json::from_str(&theme_text).map_err(|e| format!("theme.json 解析失败: {e}"))?;
+    let id = sanitize_component(
+        v.get("id")
+            .and_then(|x| x.as_str())
+            .ok_or("theme.json 缺少 id 字段")?,
+    )?;
+    let name = v
+        .get("name")
+        .and_then(|x| x.as_str())
+        .unwrap_or(&id)
+        .to_string();
+
+    // 入主题库（覆盖同名）
+    let saved = themes_dir(&state).join(&id);
+    if saved.exists() {
+        fs::remove_dir_all(&saved).map_err(|e| e.to_string())?;
+    }
+    fs::create_dir_all(themes_dir(&state)).map_err(|e| e.to_string())?;
+    fs::rename(&tmp, &saved).map_err(|e| format!("移入主题库失败: {e}"))?;
+
+    // 附带的 .tmTheme 复制到引擎资源 cli-themes（供 apply_cli）
+    let mut cli_theme = None;
+    if let Some(rel) = tmtheme {
+        let src = saved.join(&rel);
+        if src.is_file() {
+            let fname = src.file_name().unwrap().to_string_lossy().to_string();
+            let cli_dir = resource_dir(&app)?.join("cli-themes");
+            fs::create_dir_all(&cli_dir).map_err(|e| e.to_string())?;
+            fs::copy(&src, cli_dir.join(&fname)).map_err(|e| format!("copy tmTheme: {e}"))?;
+            cli_theme = Some(fname);
+        }
+    }
+
+    Ok(ImportResult {
+        id,
+        name,
+        has_css,
+        cli_theme,
+    })
+}
+
 #[tauri::command]
 async fn start_engine() -> Result<String, String> {
     // 实测注意：start 脚本结尾的 verify 会等 Codex shell 渲染完成，
@@ -675,9 +908,9 @@ async fn start_engine() -> Result<String, String> {
 }
 
 #[tauri::command]
-async fn stop_engine() -> Result<String, String> {
+async fn stop_engine(app: tauri::AppHandle) -> Result<String, String> {
     // 恢复官方外观（关 injector + 移除注入），但保留引擎安装与主题库。
-    tauri::async_runtime::spawn_blocking(|| {
+    tauri::async_runtime::spawn_blocking(move || {
         let state = state_root()?;
         let script = engine_script(&state, "restore-dream-skin.ps1", "restore-dream-skin-macos.sh");
         #[cfg(windows)]
@@ -685,7 +918,9 @@ async fn stop_engine() -> Result<String, String> {
         #[cfg(unix)]
         let args: &[&str] = &["--force-restart"];
         let out = run_engine_script(&state, script, args)?;
-        rebuild_engine_css(&state, None)?;
+        // 恢复官方：以 vendor 原版为 base 重建（清掉 pokemon 块，还原基础规则）
+        let base = vendor_engine_css(&app).ok();
+        rebuild_engine_css_with_base(&state, base.as_deref(), None)?;
         Ok(out)
     })
     .await
@@ -731,6 +966,7 @@ pub fn run() {
             install_engine,
             switch_scene,
             apply_cli,
+            import_theme_zip,
             start_engine,
             stop_engine,
             set_paused,
