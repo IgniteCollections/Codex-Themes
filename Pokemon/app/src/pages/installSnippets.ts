@@ -199,7 +199,7 @@ function buildKitty(s: SceneDef): string {
   return lines.join('\n');
 }
 
-/** 7 场景配置片段（模块加载时计算一次） */
+/** 9 场景配置片段（模块加载时计算一次） */
 export const SNIPPETS: Record<SceneId, SceneSnippets> = Object.fromEntries(
   SCENES.map((s) => [s.id, {
     install: buildInstall(s),

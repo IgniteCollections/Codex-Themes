@@ -39,7 +39,7 @@ CI 检查与日期版本 release 流水线的[需求](docs/ci-release/requiremen
 ├── app/                    # 展示网站（Vite + React，含 scenes.ts 单一数据源）
 ├── themes/                 # TUI .tmTheme × 6 + desktop/codex-theme-v1 × 7
 ├── skins/                  # 桌面 App CSS 皮肤包（轻量 CDP 注入器）
-├── studio/                 # 桌面切换工具（Tauri App，Dream Skin 引擎外壳）
+Codex-Skin-Store/        # 皮肤商店桌面 App（Tauri，Dream Skin 引擎；CLI/桌面双应用）
 └── scripts/                # 生成脚本（tmTheme / desktop / skins / studio 主题包）
 docs/                       # 全部文档（见上）
 ```

@@ -42,10 +42,69 @@ jobs:
             npm --prefix "$app" run build
           done
 
+  skin-store:
+    name: Skin Store (lint + build + rust)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Frontend lint + build
+        run: |
+          npm --prefix Codex-Skin-Store ci
+          npm --prefix Codex-Skin-Store run lint -- --max-warnings=0
+          npm --prefix Codex-Skin-Store run build
+
+      - name: Rust build + clippy
+        run: |
+          cargo build --manifest-path Codex-Skin-Store/src-tauri/Cargo.toml
+          cargo clippy --manifest-path Codex-Skin-Store/src-tauri/Cargo.toml -- -D warnings
+
+  data-sync:
+    name: Generated data in sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Pillow
+        run: pip install Pillow
+
+      - name: Re-run all generators and verify no drift
+        run: |
+          set -e
+          python3 Pokemon/scripts/generate-themes.py
+          python3 Pokemon/scripts/generate-desktop-themes.py
+          python3 Pokemon/scripts/generate-terminal-schemes.py
+          python3 Pokemon/scripts/generate-skins.py
+          python3 Pokemon/scripts/generate-scene-art.py
+          python3 Pokemon/scripts/generate-studio-themes.py
+          python3 Pokemon/scripts/generate-mascot-art.py
+          python3 Pokemon/scripts/check-data-sync.py
+          if ! git diff --exit-code --quiet; then
+            echo "::error::Generated artifacts are out of sync with scenes.ts. Re-run Pokemon/scripts/generate-*.py and commit."
+            git diff --stat
+            exit 1
+          fi
+          echo "All generated artifacts are in sync."
+
   ci-gate:
     name: CI Gate
     runs-on: ubuntu-latest
-    needs: [theme-app-build]
+    needs: [theme-app-build, skin-store, data-sync]
     if: always()
     steps:
       - name: Verify all checks passed

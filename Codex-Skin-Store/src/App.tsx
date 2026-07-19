@@ -114,9 +114,9 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    refresh();
+    refresh(); // eslint-disable-line react-hooks/set-state-in-effect -- 挂载时拉取引擎状态（外部系统），setStatus 是数据同步
     if (!("__TAURI_INTERNALS__" in window)) return;
-    const t = setInterval(refresh, 5000);
+    const t = setInterval(refresh, 15000);
     return () => clearInterval(t);
   }, [refresh]);
 

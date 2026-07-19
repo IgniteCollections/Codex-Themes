@@ -31,6 +31,8 @@ fn engine_scripts(state: &Path) -> PathBuf {
     {
         state.join("engine").join("scripts")
     }
+    #[cfg(not(windows))]
+    let _ = state;
     #[cfg(target_os = "macos")]
     {
         // macOS: engine lives in ~/.codex/codex-dream-skin-studio
@@ -47,6 +49,8 @@ fn engine_css_path(state: &Path) -> PathBuf {
     {
         state.join("engine").join("assets").join("dream-skin.css")
     }
+    #[cfg(not(windows))]
+    let _ = state;
     #[cfg(target_os = "macos")]
     {
         let home = std::env::var("HOME").unwrap_or_default();
@@ -359,7 +363,7 @@ fn run_engine_script(state: &Path, script: PathBuf, args: &[&str]) -> Result<Str
             script.display()
         ));
     }
-    let _ = state;
+    let _ = state; // 脚本自带状态根解析；保留参数以统一调用签名
     #[cfg(windows)]
     let mut cmd = {
         let mut c = Command::new("powershell");

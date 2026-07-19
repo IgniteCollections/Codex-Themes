@@ -8,9 +8,9 @@
       "port": 5175
     },
     {
-      "name": "pokemon-studio",
+      "name": "codex-skin-store",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "Pokemon/studio"],
+      "runtimeArgs": ["run", "dev", "--prefix", "Codex-Skin-Store"],
       "port": 5174
     }
   ]

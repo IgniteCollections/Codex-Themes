@@ -92,7 +92,11 @@ export default function TerminalPreview({ scene }: { scene: SceneDef }) {
   const timerRef = useRef<number | undefined>(undefined);
   const progRef = useRef<{ line: number; char: number; phase: Phase }>({ line: 0, char: 0, phase: "banner" });
   const sceneRef = useRef(scene);
-  sceneRef.current = scene;
+
+  // 最新 scene 经 ref 提供给打字机循环读取（渲染期间不写 ref，由 effect 同步）
+  useEffect(() => {
+    sceneRef.current = scene;
+  }, [scene]);
 
   // 挂载时（含场景切换）真随机选定：神兽 1 只 + 遭遇 5 只
   const legendary = useMemo(
@@ -111,11 +115,14 @@ export default function TerminalPreview({ scene }: { scene: SceneDef }) {
   const [fading, setFading] = useState(false);
   const [cycle, setCycle] = useState(0);
 
+  const stepRef = useRef<() => void>(() => {});
+
   const step = useCallback(() => {
     const p = progRef.current;
     const sc = sceneRef.current;
     const later = (ms: number) => {
-      timerRef.current = window.setTimeout(step, ms);
+      // 经 ref 自引用，避免在声明前捕获 step 本身
+      timerRef.current = window.setTimeout(() => stepRef.current(), ms);
     };
     if (p.phase === "banner") {
       p.phase = "typing";
@@ -165,14 +172,19 @@ export default function TerminalPreview({ scene }: { scene: SceneDef }) {
     later(350);
   }, []);
 
+  // step 通过 ref 暴露给 later() 的自引用调用；渲染期间不写 ref，由 effect 同步
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
+
   /* 场景切换时重置并重播 */
   useEffect(() => {
     window.clearTimeout(timerRef.current);
     progRef.current = { line: 0, char: 0, phase: "banner" };
-    setDone([]);
+    setDone([]); // eslint-disable-line react-hooks/set-state-in-effect -- 场景 prop 变化即外部事件，重置打字机进度是预期同步
     setCur(null);
     setFading(false);
-    timerRef.current = window.setTimeout(step, 250);
+    timerRef.current = window.setTimeout(stepRef.current, 250);
     return () => window.clearTimeout(timerRef.current);
   }, [scene, step]);
 
