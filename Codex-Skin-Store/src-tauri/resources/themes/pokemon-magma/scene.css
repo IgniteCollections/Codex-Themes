@@ -11,7 +11,7 @@ html.pokemon-skin {
 }
 
 /* 招牌宝可梦角标 */
-html.pokemon-skin body::after {
+html.codex-dream-skin body::after {
   content: "";
   position: fixed;
   right: 16px;
@@ -27,7 +27,7 @@ html.pokemon-skin body::after {
   filter: drop-shadow(0 5px 12px rgba(0,0,0,.6));
   pointer-events: none;
 }
-html.pokemon-skin body::before {
+html.codex-dream-skin body::before {
   content: "▲ 原始固拉多";
   position: fixed;
   right: 20px;
@@ -42,27 +42,17 @@ html.pokemon-skin body::before {
 
 /* 御三家进化链 · 主区左下探出 */
 
-/* 御三家 strip · 主区左下 */
-html.pokemon-skin main.main-surface::before {
-  content: "";
-  position: fixed;
-  left: 14px;
-  bottom: 12px;
-  z-index: 39;
-  width: 192px;
-  height: 74px;
-  background-image: url("data:image/png;base64,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");
-  background-size: contain;
+/* 御三家 strip · 主区左下（挂在 main 元素的背景层，不占 ::before 壁纸层） */
+html.codex-dream-skin main.main-surface {
+  background-image: url("data:image/png;base64,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") !important;
   background-repeat: no-repeat;
-  background-position: left bottom;
+  background-position: left 14px bottom 12px;
+  background-size: 192px 74px;
   image-rendering: pixelated;
-  filter: drop-shadow(0 3px 6px rgba(0,0,0,.45));
-  pointer-events: none;
-  opacity: .92;
 }
 
 /* 遭遇宝可梦 strip · 侧栏底部 */
-html.pokemon-skin aside.app-shell-left-panel::after {
+html.codex-dream-skin aside.app-shell-left-panel::after {
   content: "";
   position: fixed;
   left: 10px;
@@ -81,12 +71,12 @@ html.pokemon-skin aside.app-shell-left-panel::after {
 /* ============================================================
    宝可梦场景皮肤 · Codex 桌面 App（CDP 注入版）
    数据来自 skins.ts（scenes.ts 派生），注入器：Pokemon/skins/apply.sh
-   激活方式：html.pokemon-skin[data-pokemon-skin="<scene>"]
+   激活方式：html.codex-dream-skin[data-pokemon-skin="<scene>"]
    ============================================================ */
 
 /* ---------------- 场景色板（由 skins.ts 内联注入为 CSS 变量） ---------------- */
 
-html.pokemon-skin {
+html.codex-dream-skin {
   --pk-safe-x: 50%;
   --pk-scanline: repeating-linear-gradient(
     0deg,
@@ -98,16 +88,16 @@ html.pokemon-skin {
 
 /* ---------------- 全局壁纸层 ---------------- */
 
-html.pokemon-skin body {
+html.codex-dream-skin body {
   background-color: var(--pk-bg) !important;
 }
 
 /* 主区域：像素风景壁纸 + scrim（保证文字可读） */
-html.pokemon-skin main.main-surface {
+html.codex-dream-skin main.main-surface {
   position: relative;
   background: transparent !important;
 }
-html.pokemon-skin main.main-surface::before {
+html.codex-dream-skin main.main-surface::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -121,7 +111,7 @@ html.pokemon-skin main.main-surface::before {
   pointer-events: none;
 }
 /* 扫描线 + 颗粒 */
-html.pokemon-skin main.main-surface::after {
+html.codex-dream-skin main.main-surface::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -131,14 +121,14 @@ html.pokemon-skin main.main-surface::after {
   opacity: 0.5;
   pointer-events: none;
 }
-html.pokemon-skin main.main-surface > * {
+html.codex-dream-skin main.main-surface > * {
   position: relative;
   z-index: 2;
 }
 
 /* ---------------- 侧栏 ---------------- */
 
-html.pokemon-skin aside.app-shell-left-panel {
+html.codex-dream-skin aside.app-shell-left-panel {
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--pk-panel) 92%, transparent),
@@ -147,39 +137,39 @@ html.pokemon-skin aside.app-shell-left-panel {
   backdrop-filter: blur(10px) saturate(110%);
   border-right: 1px solid var(--pk-line) !important;
 }
-html.pokemon-skin aside.app-shell-left-panel [aria-current='page'] {
+html.codex-dream-skin aside.app-shell-left-panel [aria-current='page'] {
   background: color-mix(in srgb, var(--pk-accent) 14%, transparent) !important;
   box-shadow: inset 2px 0 0 var(--pk-accent);
 }
-html.pokemon-skin aside.app-shell-left-panel a,
-html.pokemon-skin aside.app-shell-left-panel button {
+html.codex-dream-skin aside.app-shell-left-panel a,
+html.codex-dream-skin aside.app-shell-left-panel button {
   border-radius: 6px;
 }
-html.pokemon-skin aside.app-shell-left-panel a:hover,
-html.pokemon-skin aside.app-shell-left-panel button:hover {
+html.codex-dream-skin aside.app-shell-left-panel a:hover,
+html.codex-dream-skin aside.app-shell-left-panel button:hover {
   background: color-mix(in srgb, var(--pk-accent) 8%, transparent);
 }
 
 /* ---------------- 文字与前景 ---------------- */
 
-html.pokemon-skin {
+html.codex-dream-skin {
   color: var(--pk-ink);
 }
-html.pokemon-skin main.main-surface h1,
-html.pokemon-skin main.main-surface h2,
-html.pokemon-skin main.main-surface h3 {
+html.codex-dream-skin main.main-surface h1,
+html.codex-dream-skin main.main-surface h2,
+html.codex-dream-skin main.main-surface h3 {
   color: var(--pk-ink);
 }
-html.pokemon-skin .text-token-text-secondary,
-html.pokemon-skin [class*='text-secondary'] {
+html.codex-dream-skin .text-token-text-secondary,
+html.codex-dream-skin [class*='text-secondary'] {
   color: color-mix(in srgb, var(--pk-ink) 62%, transparent) !important;
 }
 
 /* ---------------- 消息卡片（玻璃质感） ---------------- */
 
-html.pokemon-skin main.main-surface article,
-html.pokemon-skin main.main-surface [class*='message'],
-html.pokemon-skin main.main-surface [class*='card'] {
+html.codex-dream-skin main.main-surface article,
+html.codex-dream-skin main.main-surface [class*='message'],
+html.codex-dream-skin main.main-surface [class*='card'] {
   background: color-mix(in srgb, var(--pk-panel) 62%, transparent);
   backdrop-filter: blur(8px) saturate(105%);
   border: 1px solid var(--pk-line);
@@ -188,14 +178,14 @@ html.pokemon-skin main.main-surface [class*='card'] {
 
 /* ---------------- 输入框（composer） ---------------- */
 
-html.pokemon-skin .composer-surface-chrome,
-html.pokemon-skin [class*='composer'] {
+html.codex-dream-skin .composer-surface-chrome,
+html.codex-dream-skin [class*='composer'] {
   background: color-mix(in srgb, var(--pk-panel) 78%, transparent) !important;
   backdrop-filter: blur(12px);
   border: 1px solid var(--pk-line) !important;
   border-radius: 16px !important;
 }
-html.pokemon-skin [class*='composer']:focus-within {
+html.codex-dream-skin [class*='composer']:focus-within {
   border-color: var(--pk-accent) !important;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--pk-accent) 55%, transparent),
     0 0 24px color-mix(in srgb, var(--pk-accent) 22%, transparent);
@@ -203,50 +193,50 @@ html.pokemon-skin [class*='composer']:focus-within {
 
 /* ---------------- 按钮与强调 ---------------- */
 
-html.pokemon-skin button[class*='btn-primary'],
-html.pokemon-skin button[class*='primary'] {
+html.codex-dream-skin button[class*='btn-primary'],
+html.codex-dream-skin button[class*='primary'] {
   background: var(--pk-accent) !important;
   color: var(--pk-bg) !important;
 }
-html.pokemon-skin a { color: var(--pk-accent); }
+html.codex-dream-skin a { color: var(--pk-accent); }
 
 /* 选中文字 */
-html.pokemon-skin ::selection {
+html.codex-dream-skin ::selection {
   background: color-mix(in srgb, var(--pk-accent) 35%, transparent);
 }
 
 /* ---------------- 代码块与 diff（场景语义色） ---------------- */
 
-html.pokemon-skin pre,
-html.pokemon-skin code {
+html.codex-dream-skin pre,
+html.codex-dream-skin code {
   font-variant-ligatures: none;
 }
-html.pokemon-skin pre {
+html.codex-dream-skin pre {
   background: color-mix(in srgb, var(--pk-bg) 72%, black) !important;
   border: 1px solid var(--pk-line) !important;
   border-radius: 8px;
 }
-html.pokemon-skin [class*='diff-add'],
-html.pokemon-skin [class*='inserted'] {
+html.codex-dream-skin [class*='diff-add'],
+html.codex-dream-skin [class*='inserted'] {
   background: color-mix(in srgb, var(--pk-success) 14%, transparent) !important;
   color: var(--pk-success) !important;
 }
-html.pokemon-skin [class*='diff-del'],
-html.pokemon-skin [class*='deleted'] {
+html.codex-dream-skin [class*='diff-del'],
+html.codex-dream-skin [class*='deleted'] {
   background: color-mix(in srgb, var(--pk-error) 14%, transparent) !important;
   color: var(--pk-error) !important;
 }
 
 /* ---------------- 滚动条 ---------------- */
 
-html.pokemon-skin ::-webkit-scrollbar { width: 10px; height: 10px; }
-html.pokemon-skin ::-webkit-scrollbar-thumb {
+html.codex-dream-skin ::-webkit-scrollbar { width: 10px; height: 10px; }
+html.codex-dream-skin ::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--pk-accent) 30%, transparent);
   border-radius: 5px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
-html.pokemon-skin ::-webkit-scrollbar-track { background: transparent; }
+html.codex-dream-skin ::-webkit-scrollbar-track { background: transparent; }
 
 /* ---------------- 场景角标（装饰 DOM 由 renderer-inject.js 挂载） ---------------- */
 
@@ -277,5 +267,5 @@ html.pokemon-skin ::-webkit-scrollbar-track { background: transparent; }
 /* ---------------- reduced motion ---------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  html.pokemon-skin * { transition: none !important; animation: none !important; }
+  html.codex-dream-skin * { transition: none !important; animation: none !important; }
 }
