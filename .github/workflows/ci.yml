@@ -42,10 +42,80 @@ jobs:
             npm --prefix "$app" run build
           done
 
+  skin-store:
+    name: Skin Store (lint + build + rust)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Install Tauri Linux system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Frontend lint + build
+        run: |
+          npm --prefix Codex-Skin-Store ci
+          npm --prefix Codex-Skin-Store run lint -- --max-warnings=0
+          npm --prefix Codex-Skin-Store run build
+
+      - name: Rust build + clippy
+        run: |
+          cargo build --manifest-path Codex-Skin-Store/src-tauri/Cargo.toml
+          cargo clippy --manifest-path Codex-Skin-Store/src-tauri/Cargo.toml -- -D warnings
+
+  data-sync:
+    name: Generated data in sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Pillow
+        run: pip install Pillow
+
+      - name: Re-run all generators and verify no drift
+        run: |
+          set -e
+          python3 Pokemon/scripts/generate-themes.py
+          python3 Pokemon/scripts/generate-desktop-themes.py
+          python3 Pokemon/scripts/generate-terminal-schemes.py
+          python3 Pokemon/scripts/generate-skins.py
+          python3 Pokemon/scripts/generate-scene-art.py
+          python3 Pokemon/scripts/generate-studio-themes.py
+          python3 Pokemon/scripts/generate-mascot-art.py
+          python3 Pokemon/scripts/check-data-sync.py
+          # 纯文本产物逐字节一致（防配色/阵容 drift）
+          if ! git diff --exit-code --quiet -- '*.json' '*.toml' '*.conf' '*.tmTheme' '*.txt'; then
+            echo "::error::Text artifacts out of sync with scenes.ts. Re-run generators and commit."
+            git diff --stat -- '*.json' '*.toml' '*.conf' '*.tmTheme' '*.txt'
+            exit 1
+          fi
+          # 含 PNG base64 的产物（scene.css/mascotArt.ts/PNG）与 PNG 本身，
+          # 字节受 Pillow/zlib 版本影响不可跨环境复现 → 只校验内容语义：
+          # 图片尺寸、宝可梦 id 集合、场景数量、配色色值一致
+          python3 Pokemon/scripts/check-image-dims.py
+          python3 Pokemon/scripts/check-generated-content.py
+          echo "All generated artifacts are in sync."
+
   ci-gate:
     name: CI Gate
     runs-on: ubuntu-latest
-    needs: [theme-app-build]
+    needs: [theme-app-build, skin-store, data-sync]
     if: always()
     steps:
       - name: Verify all checks passed

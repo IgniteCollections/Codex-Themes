@@ -13,12 +13,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
-    name: Create dated release
+  version:
+    name: Compute version
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
-
       - name: Compute version
         id: version
         run: |
@@ -31,12 +32,58 @@ jobs:
           done
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
-      - name: Create GitHub release
+  build-installers:
+    name: Build installer (${{ matrix.os }})
+    needs: [version]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: nsis
+          - os: macos-latest
+            artifact: dmg
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install frontend deps
+        run: npm --prefix Codex-Skin-Store ci
+
+      - name: tauri build
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: Codex-Skin-Store
+          tagName: ${{ needs.version.outputs.tag }}
+          releaseName: ${{ needs.version.outputs.tag }}
+          releaseBody: See the assets below
+          releaseDraft: true
+          prerelease: false
+
+  release:
+    name: Publish release
+    needs: [version, build-installers]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish dated release with notes
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.version.outputs.tag }}
+          TAG: ${{ needs.version.outputs.tag }}
         run: |
-          gh release create "$TAG" \
+          # tauri-action 已建草稿 release 并上传安装包；补上自动生成 notes 并发布
+          gh release edit "$TAG" \
             --title "$TAG" \
             --generate-notes \
-            --target "${{ github.sha }}"
+            --draft=false

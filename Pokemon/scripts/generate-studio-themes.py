@@ -24,7 +24,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 SCENES_TS = REPO / "Pokemon/app/src/themes/scenes.ts"
 PUBLIC = REPO / "Pokemon/app/public"
-SKIN_CSS = REPO / "Pokemon/skins/pokemon-skin.css"
+SKIN_CSS = REPO / "Pokemon/skins/pokemon-skin.css"  # CSS 模板（含完整场景皮肤规则）
 OUT_ROOT = REPO / "Codex-Skin-Store/src-tauri/resources/themes"
 
 SCENE_VARS = ["grassland", "ocean", "cave", "magma", "snowfield", "plant", "space", "city", "lab"]
@@ -162,7 +162,7 @@ def rasterize_svg(svg_path: Path, out_png: Path, width: int, height: int) -> Non
                 sys.exit(f"unsupported path in {svg_path.name}: {d[:60]}… (extend rasterize_svg)")
     img = img.convert("RGB")
     out_png.parent.mkdir(parents=True, exist_ok=True)
-    img.save(out_png, "PNG", optimize=True)
+    img.save(out_png, "PNG", compress_level=6)
 
 
 def upscale_png(src_png: Path, out_png: Path, width: int, height: int) -> None:
@@ -180,7 +180,7 @@ def upscale_png(src_png: Path, out_png: Path, width: int, height: int) -> None:
     left = (resized.width - width) // 2
     top = (resized.height - height) // 2
     out_png.parent.mkdir(parents=True, exist_ok=True)
-    resized.crop((left, top, left + width, top + height)).save(out_png, "PNG", optimize=True)
+    resized.crop((left, top, left + width, top + height)).save(out_png, "PNG", compress_level=6)
 
 
 def data_url(path: Path) -> str:

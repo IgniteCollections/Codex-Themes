@@ -230,7 +230,7 @@ export default function Home() {
 
             {/* 副文案 */}
             <p className="mb-8 max-w-[420px] text-base leading-[1.75]" style={{ ...rise(0.39), color: 'var(--sc-fg-dim)' }}>
-              7 个精心调校的终端场景 —— 草原、海洋、洞穴、岩浆、雪原、无人发电厂、宇宙。选择栖息地，你的 AI 编程搭档就会换上对应的配色、横幅与宝可梦伙伴。
+              9 个精心调校的终端场景 —— 草原、海洋、洞穴、岩浆、雪原、无人发电厂、宇宙、城市、实验室。选择栖息地，你的 AI 编程搭档就会换上对应的配色、横幅与宝可梦伙伴。
             </p>
 
             {/* CTA 行 */}
@@ -244,9 +244,9 @@ export default function Home() {
             {/* 统计行 */}
             <div className="mb-10 flex gap-10" style={rise(0.55)}>
               {[
-                { n: '06', l: '场景' },
-                { n: '24', l: '出没宝可梦' },
-                { n: '96+', l: '调校色值' },
+                { n: '09', l: '场景' },
+                { n: '85', l: '出没宝可梦' },
+                { n: '300+', l: '调校色值' },
               ].map((s) => (
                 <div key={s.l} className="flex flex-col gap-1.5">
                   <span className="font-pixel text-[22px] leading-none" style={{ color: 'var(--sc-prompt)' }}>{s.n}</span>
@@ -279,7 +279,7 @@ export default function Home() {
       {/* ============ S3 场景漫游 ============ */}
       <section className="py-24">
         <div className="mx-auto max-w-[1200px] px-6 max-sm:px-4">
-          <SectionHeading label="SCENE DEX" title="七个栖息地，七种手感" />
+          <SectionHeading label="SCENE DEX" title="九个栖息地，九种手感" />
         </div>
         <div className="relative">
           <div
@@ -407,7 +407,7 @@ export default function Home() {
               准备好收服你的场景了吗？
             </h2>
             <p className="cta-el mb-8 text-base" style={{ color: 'var(--sc-fg-dim)' }}>
-              7 个栖息地 · 70+ 只宝可梦 · 完全免费
+              9 个栖息地 · 85 只宝可梦 · 完全免费
             </p>
             <div className="cta-el flex flex-wrap items-center justify-center gap-4">
               <Link to="/scenes">

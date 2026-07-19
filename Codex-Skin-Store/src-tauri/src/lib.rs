@@ -14,7 +14,7 @@ fn state_root() -> Result<PathBuf, String> {
             .map_err(|_| "LOCALAPPDATA is not set".to_string())?;
         return Ok(PathBuf::from(base).join("CodexDreamSkin"));
     }
-    #[cfg(target_os = "macos")]
+    #[cfg(unix)]
     {
         let home = std::env::var("HOME").map_err(|_| "HOME is not set".to_string())?;
         return Ok(PathBuf::from(home)
@@ -31,7 +31,9 @@ fn engine_scripts(state: &Path) -> PathBuf {
     {
         state.join("engine").join("scripts")
     }
-    #[cfg(target_os = "macos")]
+    #[cfg(not(windows))]
+    let _ = state;
+    #[cfg(unix)]
     {
         // macOS: engine lives in ~/.codex/codex-dream-skin-studio
         let home = std::env::var("HOME").unwrap_or_default();
@@ -47,7 +49,9 @@ fn engine_css_path(state: &Path) -> PathBuf {
     {
         state.join("engine").join("assets").join("dream-skin.css")
     }
-    #[cfg(target_os = "macos")]
+    #[cfg(not(windows))]
+    let _ = state;
+    #[cfg(unix)]
     {
         let home = std::env::var("HOME").unwrap_or_default();
         PathBuf::from(home)
@@ -65,7 +69,7 @@ fn active_theme_dir(state: &Path) -> PathBuf {
     {
         state.join("active-theme")
     }
-    #[cfg(target_os = "macos")]
+    #[cfg(unix)]
     {
         state.join("theme")
     }
@@ -103,7 +107,7 @@ fn engine_resource_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     {
         Ok(res.join("engine-windows"))
     }
-    #[cfg(target_os = "macos")]
+    #[cfg(unix)]
     {
         Ok(res.join("engine-macos"))
     }
@@ -179,7 +183,7 @@ fn codex_installed() -> bool {
         .unwrap_or(false)
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 fn codex_installed() -> bool {
     Command::new("mdfind")
         .args(["kMDItemCFBundleIdentifier == 'com.openai.codex'"])
@@ -203,7 +207,7 @@ fn node_version() -> Option<String> {
     }
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 fn node_version() -> Option<String> {
     // macOS 引擎用 ChatGPT 内置的签名 Node，无需系统 Node。
     Some("bundled (ChatGPT)".to_string())
@@ -259,6 +263,7 @@ fn codex_main_running() -> bool {
 
 #[cfg(not(target_os = "macos"))]
 fn codex_main_running() -> bool {
+    // Windows / Linux：皮肤引擎的 codex 检测仅 macOS 有官方语义，其余平台恒 false
     false
 }
 
@@ -345,7 +350,7 @@ fn engine_script(state: &Path, windows_name: &str, macos_name: &str) -> PathBuf 
         let _ = macos_name;
         engine_scripts(state).join(windows_name)
     }
-    #[cfg(target_os = "macos")]
+    #[cfg(unix)]
     {
         let _ = windows_name;
         engine_scripts(state).join(macos_name)
@@ -359,7 +364,7 @@ fn run_engine_script(state: &Path, script: PathBuf, args: &[&str]) -> Result<Str
             script.display()
         ));
     }
-    let _ = state;
+    let _ = state; // 脚本自带状态根解析；保留参数以统一调用签名
     #[cfg(windows)]
     let mut cmd = {
         let mut c = Command::new("powershell");
@@ -373,7 +378,7 @@ fn run_engine_script(state: &Path, script: PathBuf, args: &[&str]) -> Result<Str
         .args(args);
         c
     };
-    #[cfg(target_os = "macos")]
+    #[cfg(unix)]
     let mut cmd = {
         let mut c = Command::new("bash");
         c.arg(&script).args(args);
@@ -434,11 +439,11 @@ async fn install_engine(app: tauri::AppHandle) -> Result<String, String> {
         copy_dir_recursive(&vendor, &staging)?;
         #[cfg(windows)]
         let install = staging.join("scripts").join("install-dream-skin.ps1");
-        #[cfg(target_os = "macos")]
+        #[cfg(unix)]
         let install = staging.join("scripts").join("install-dream-skin-macos.sh");
         #[cfg(windows)]
         let result = run_engine_script(&state, install, &["-NoShortcuts"]);
-        #[cfg(target_os = "macos")]
+        #[cfg(unix)]
         let result = run_engine_script(
             &state,
             install,
@@ -661,7 +666,7 @@ async fn start_engine() -> Result<String, String> {
         let script = engine_script(&state, "start-dream-skin.ps1", "start-dream-skin-macos.sh");
         #[cfg(windows)]
         let args: &[&str] = &["-RestartExisting"];
-        #[cfg(target_os = "macos")]
+        #[cfg(unix)]
         let args: &[&str] = &["--restart-existing"];
         run_engine_script(&state, script, args)
     })
@@ -677,7 +682,7 @@ async fn stop_engine() -> Result<String, String> {
         let script = engine_script(&state, "restore-dream-skin.ps1", "restore-dream-skin-macos.sh");
         #[cfg(windows)]
         let args: &[&str] = &["-ForceRestart"];
-        #[cfg(target_os = "macos")]
+        #[cfg(unix)]
         let args: &[&str] = &["--force-restart"];
         let out = run_engine_script(&state, script, args)?;
         rebuild_engine_css(&state, None)?;

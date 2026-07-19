@@ -657,7 +657,7 @@ export default function Scenes() {
       <header className="mx-auto flex max-w-[1200px] items-end justify-between gap-8 px-6 pb-12 pt-24 max-sm:px-4">
         <div>
           <p className="pixel-label anim-pixel-flash mb-4" style={{ color: 'var(--sc-accent)' }}>
-            SCENE DEX · 図鑑 No.001–007
+            SCENE DEX · 図鑑 No.001–009
           </p>
           <h1
             className="font-display text-[34px] leading-[1.15] tracking-wide md:text-5xl"
@@ -750,7 +750,7 @@ export default function Scenes() {
             className="cta-el font-display mb-4 text-[32px] tracking-wide"
             style={{ color: 'var(--sc-fg)' }}
           >
-            收服全部 7 个场景
+            收服全部 9 个场景
           </h2>
           <p className="cta-el mb-8 text-base" style={{ color: 'var(--sc-fg-dim)' }}>
             每一套配置都可以直接复制。
