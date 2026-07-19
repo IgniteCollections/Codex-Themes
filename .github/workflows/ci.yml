@@ -102,6 +102,7 @@ jobs:
           if ! git diff --exit-code --quiet; then
             echo "::error::Generated artifacts are out of sync with scenes.ts. Re-run Pokemon/scripts/generate-*.py and commit."
             git diff --stat
+            git diff
             exit 1
           fi
           echo "All generated artifacts are in sync."
