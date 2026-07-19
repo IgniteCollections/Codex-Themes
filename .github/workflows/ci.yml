@@ -99,12 +99,14 @@ jobs:
           python3 Pokemon/scripts/generate-studio-themes.py
           python3 Pokemon/scripts/generate-mascot-art.py
           python3 Pokemon/scripts/check-data-sync.py
-          if ! git diff --exit-code --quiet; then
-            echo "::error::Generated artifacts are out of sync with scenes.ts. Re-run Pokemon/scripts/generate-*.py and commit."
-            git diff --stat
-            git diff
+          # 文本产物必须逐字节一致（防配色/阵容 drift）
+          if ! git diff --exit-code --quiet -- '*.ts' '*.css' '*.json' '*.toml' '*.conf' '*.tmTheme' '*.txt'; then
+            echo "::error::Text artifacts out of sync with scenes.ts. Re-run generators and commit."
+            git diff --stat -- '*.ts' '*.css' '*.json' '*.toml' '*.conf' '*.tmTheme' '*.txt'
             exit 1
           fi
+          # 二进制 PNG 受 Pillow/zlib 版本影响字节不可跨环境复现，只校验尺寸一致
+          python3 Pokemon/scripts/check-image-dims.py
           echo "All generated artifacts are in sync."
 
   ci-gate:
