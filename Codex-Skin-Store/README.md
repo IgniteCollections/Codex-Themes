@@ -22,7 +22,7 @@ Codex-Skin-Store/src-tauri/resources/
 | 目标 | 机制 | 按钮 |
 |---|---|---|
 | **Codex 桌面 App** | Dream Skin 引擎 CDP 注入（全局换肤：4K 壁纸 + 整套 UI） | 「应用 XX 到桌面 App」 |
-| **Codex CLI / TUI** | 写 `~/.codex/themes/*.tmTheme` + `config.toml` 的 `tui.theme`（代码块/diff 语法高亮） | 「应用 XX 到 CLI」 |
+| **Codex CLI / TUI** | 写 `~/.codex/themes/*.tmTheme` + `config.toml` 的 `[tui] theme`（代码块/diff 语法高亮） | 「应用 XX 到 CLI」 |
 
 ## 开发与打包
 
@@ -39,3 +39,5 @@ npx tauri build    # 打包 → src-tauri/target/release/bundle/{macos,dmg}
 - 官方 Codex 桌面 App（Windows: 商店包 `OpenAI.Codex`；macOS: `com.openai.codex`，即 /Applications/ChatGPT.app）
 - Node.js ≥ 22（Windows）；macOS 自动用 ChatGPT 内置签名 Node
 - CLI 应用仅需 Codex CLI（`npm i -g @openai/codex`）
+
+> **注意**：CLI 的 `.tmTheme` 只管**代码块/diff 的语法高亮**，不是全局换肤——整体 UI 颜色官方不开放给 CLI。`/theme` 里能实时预览；`config.toml` 里若已有旧的 `[tui] theme=` 键，apply_cli 会一并替换（避免旧值覆盖）。
