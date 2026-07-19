@@ -6,7 +6,7 @@
 
 ## 1. 一句话
 
-Tauri 2 托盘 App（`Pokemon/studio/`），囊括官方 Dream Skin 运行时（vendor 进仓库，随 App 资源分发），一键安装引擎、内置 7 个宝可梦场景主题、点卡片热切换 Codex 桌面 App 皮肤。平台：Windows + macOS。
+Tauri 2 托盘 App（`Codex-Skin-Store/`），囊括官方 Dream Skin 运行时（vendor 进仓库，随 App 资源分发），一键安装引擎、内置 7 个宝可梦场景主题、点卡片热切换 Codex 桌面 App 皮肤。平台：Windows + macOS。
 
 ## 2. 引擎源码级结论（调研结果）
 
@@ -61,7 +61,7 @@ watch 模式每 ≤30s 审计 `active-theme` 的 fingerprint（也检查文件 m
 ## 3. 总体架构
 
 ```
-Pokemon/studio/                     # Tauri 2 App（新目录）
+Codex-Skin-Store/                     # Tauri 2 App（新目录）
 ├── src/                            # React 前端（复用展示站视觉语言：场景卡片、像素风）
 ├── src-tauri/                      # Rust：进程/文件/状态管理
 │   └── resources/
@@ -150,7 +150,7 @@ Pokemon/studio/                     # Tauri 2 App（新目录）
 ## 8. 实现顺序
 
 1. `scripts/generate-studio-themes.py` — 从 skins.ts/scenes.ts 生成 7 套主题包（含 scene.css 派生）✅
-2. `Pokemon/studio/` Tauri 脚手架 + Rust 引擎管理（安装/切换/状态/恢复）✅
+2. `Codex-Skin-Store/` Tauri 脚手架 + Rust 引擎管理（安装/切换/状态/恢复）✅
 3. React 场景网格 UI（复用展示站组件与样式）✅
 4. Windows 端到端实测（Codex App 实机）✅（2026-07-18，见 §9）
 5. 文档 + PR（任务分支 → pre-release）

@@ -1,5 +1,5 @@
 [package]
-name = "pokemon-studio"
+name = "codex-skin-store"
 version = "0.1.0"
 description = "Pokemon skin studio for the Codex desktop app (Dream Skin engine shell)"
 edition = "2021"
@@ -9,7 +9,7 @@ rust-version = "1.77"
 tauri-build = { version = "2", features = [] }
 
 [lib]
-name = "pokemon_studio_lib"
+name = "codex_skin_store_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [dependencies]

@@ -556,6 +556,100 @@ fn switch_scene(app: tauri::AppHandle, scene_id: String) -> Result<String, Strin
 /* 引擎操作                                                            */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/* 引擎操作                                                            */
+/* ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------ */
+// 应用到 Codex CLI（写 ~/.codex/themes 的 tmTheme + config.toml 的 tui.theme）
+/* ------------------------------------------------------------------ */
+
+fn codex_home() -> Result<PathBuf, String> {
+    let home = std::env::var("HOME")
+        .or_else(|_| std::env::var("USERPROFILE"))
+        .map_err(|_| "HOME/USERPROFILE is not set".to_string())?;
+    Ok(PathBuf::from(home).join(".codex"))
+}
+
+/// tmTheme 文件名 slug：pokemon-plant → power-plant，其余同场景 id。
+fn cli_slug(scene_id: &str) -> String {
+    let id = scene_id.strip_prefix("pokemon-").unwrap_or(scene_id);
+    match id {
+        "plant" => "power-plant".to_string(),
+        other => other.to_string(),
+    }
+}
+
+/// 把 `tui.theme = "<slug>"` 写入 config.toml（有则替换，无则在 [tui] 段或文件尾追加）。
+fn set_tui_theme(config_path: &Path, slug: &str) -> Result<(), String> {
+    let text = fs::read_to_string(config_path).unwrap_or_default();
+    let new_line = format!("tui.theme = \"{slug}\"");
+    if let Some(out) = replace_tui_theme(&text, &new_line) {
+        atomic_write(config_path, out.as_bytes())
+    } else {
+        // 无 tui.theme 行：追加一个 [tui] 段
+        let mut out = text.trim_end().to_string();
+        if !out.is_empty() {
+            out.push_str("\n\n");
+        }
+        out.push_str(&format!("[tui]\ntheme = \"{slug}\"\n"));
+        atomic_write(config_path, out.as_bytes())
+    }
+}
+
+/// 找到 tui 段内的 theme 行并替换；找不到返回 None。
+fn replace_tui_theme(text: &str, new_line: &str) -> Option<String> {
+    let mut in_tui = false;
+    let mut replaced = false;
+    let mut out = Vec::new();
+    for line in text.lines() {
+        let t = line.trim();
+        if t.starts_with('[') && t.ends_with(']') {
+            in_tui = t == "[tui]";
+            out.push(line.to_string());
+            continue;
+        }
+        if in_tui && t.starts_with("theme") && t.contains('=') {
+            out.push(new_line.to_string());
+            replaced = true;
+            continue;
+        }
+        // 兼容平铺写法 tui.theme（无 [tui] 段）
+        if t.starts_with("tui.theme") && t.contains('=') {
+            out.push(new_line.to_string());
+            replaced = true;
+            continue;
+        }
+        out.push(line.to_string());
+    }
+    if replaced { Some(out.join("\n") + "\n") } else { None }
+}
+
+#[tauri::command]
+fn apply_cli(app: tauri::AppHandle, scene_id: String) -> Result<String, String> {
+    if !scene_id
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '-')
+    {
+        return Err("非法场景 id".into());
+    }
+    let slug = cli_slug(&scene_id);
+    let file = format!("pokemon-{slug}.tmTheme");
+    let src = resource_dir(&app)?.join("cli-themes").join(&file);
+    if !src.is_file() {
+        return Err(format!("CLI 主题文件不存在: {}", src.display()));
+    }
+    let home = codex_home()?;
+    let themes_dir = home.join("themes");
+    fs::create_dir_all(&themes_dir).map_err(|e| format!("mkdir {}: {e}", themes_dir.display()))?;
+    fs::copy(&src, themes_dir.join(&file)).map_err(|e| format!("copy tmTheme: {e}"))?;
+    let config = home.join("config.toml");
+    set_tui_theme(&config, &format!("pokemon-{slug}"))?;
+    Ok(format!(
+        "已应用「{slug}」到 Codex CLI（{file} → ~/.codex/themes，config.toml tui.theme 已写入）。重启 codex 或用 /theme 生效"
+    ))
+}
+
 #[tauri::command]
 async fn start_engine() -> Result<String, String> {
     // 实测注意：start 脚本结尾的 verify 会等 Codex shell 渲染完成，
@@ -630,6 +724,7 @@ pub fn run() {
             list_scenes,
             install_engine,
             switch_scene,
+            apply_cli,
             start_engine,
             stop_engine,
             set_paused,

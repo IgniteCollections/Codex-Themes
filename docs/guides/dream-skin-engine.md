@@ -4,7 +4,7 @@
 
 本文是引擎机制说明与源码级结论（基于 upstream main @ 2026-07-17，skin version 1.2.0）。概念层调研见 [references/dream-skin-research.md](references/dream-skin-research.md)；怎么给它开发主题见 [dream-skin-theme-development.md](dream-skin-theme-development.md)。
 
-> 本项目已将该引擎 vendor 进 `Pokemon/studio/src-tauri/resources/engine-{windows,macos}/`（含 LICENSE/NOTICE），宝可梦皮肤工作室 App 以它为运行时。
+> 本项目已将该引擎 vendor 进 `Codex-Skin-Store/src-tauri/resources/engine-{windows,macos}/`（含 LICENSE/NOTICE），宝可梦皮肤工作室 App 以它为运行时。
 
 ## 1. 工作原理
 

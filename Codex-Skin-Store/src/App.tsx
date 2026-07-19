@@ -156,6 +156,11 @@ export default function App() {
       return out;
     });
 
+  const applyCli = (scene: ShopScene) =>
+    run(`正在应用「${scene.name}」到 CLI…`, async () => {
+      return invoke<string>("apply_cli", { sceneId: scene.packId });
+    });
+
   const restore = () =>
     run("正在恢复官方外观…", async () => {
       const yes = await confirm("恢复 Codex 官方外观并关闭皮肤引擎？", {
@@ -319,6 +324,14 @@ export default function App() {
                       安装引擎后可一键应用
                     </button>
                   )}
+                  <button
+                    className="btn btn-cli"
+                    onClick={() => applyCli(selected)}
+                    disabled={phase.kind === "busy"}
+                    title="写入 ~/.codex/themes/*.tmTheme + config.toml tui.theme"
+                  >
+                    应用「{selected.name}」到 CLI
+                  </button>
                   <div className="detail-actions-row">
                     <button className="btn" onClick={togglePause} disabled={phase.kind === "busy" || !status.injectorRunning}>
                       {status.paused ? "恢复皮肤" : "暂停皮肤"}

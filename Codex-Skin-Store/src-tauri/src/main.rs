@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    pokemon_studio_lib::run()
+    codex_skin_store_lib::run()
 }
