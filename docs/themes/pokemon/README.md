@@ -23,7 +23,7 @@
 | TUI 主题 ×6 | [`Pokemon/themes/*.tmTheme`](../../../Pokemon/themes/) | ✅ |
 | 桌面 codex-theme-v1 ×7 | [`Pokemon/themes/desktop/`](../../../Pokemon/themes/desktop/) | ✅ |
 | CSS 皮肤包（轻量注入器） | [`Pokemon/skins/`](../../../Pokemon/skins/) | ✅ |
-| 皮肤工作室 App | [`Pokemon/studio/`](../../../Pokemon/studio/) | ✅ Windows 实测通过 |
+| 皮肤工作室 App | [`Codex-Skin-Store/`](../../../Codex-Skin-Store/) | ✅ Windows 实测通过 |
 | 单一数据源 | [`Pokemon/app/src/themes/scenes.ts`](../../../Pokemon/app/src/themes/scenes.ts) | — |
 
 ## 通用开发指南

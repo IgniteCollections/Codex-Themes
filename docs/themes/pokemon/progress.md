@@ -15,7 +15,7 @@
 | 5.6 | 阵容 v4 + 宇宙场景 | 御三家进化链 + 宇宙（烈空坐）+ 新 sprite 入库 | ✅ | #10–#12 |
 | 5.10 | **招牌神兽化 + 城市/实验室场景** | 7 场景招牌换神兽/Mega 形态（时拉比/起源盖欧卡/Mega巨金怪/Mega喷火龙Y/蕾冠王骑白马/闪电鸟/Mega裂空座）；新增城市(梦幻)/实验室(超梦)场景 × 全产物线 | ✅ | 本 PR |
 | 5.7 | CSS 皮肤包（轨道 B） | `Pokemon/skins/`：pokemon-skin.css + renderer-inject.js + apply.mjs 注入器 | ✅ | #15 |
-| 5.8 | **皮肤工作室 App** | `Pokemon/studio/`：Tauri 托盘 App + vendor Dream Skin 引擎 + 7 套 preset 生成器 | ✅ | #16 |
+| 5.8 | **皮肤工作室 App** | `Codex-Skin-Store/`：Tauri 托盘 App + vendor Dream Skin 引擎 + 7 套 preset 生成器 | ✅ | #16 |
 | 5.9 | **皮肤商店化 + macOS 适配** | 商店式 UI（皮肤卡片网格 + 详情大预览 + 打字机终端演示 + ANSI 色板 + 出没宝可梦）；macOS 实测修复 5 个缺陷 | ✅ | 本 PR |
 | 5 | 终端模拟器配色导出 | `themes/terminal/` 7 场景 × 4 格式（Windows Terminal JSON / iTerm2 .itermcolors / Alacritty TOML / kitty conf）+ 生成脚本 + 安装页 ③④⑤ 片段 | ✅ | 本 PR |
 | 6 | lint 债务清理 | 12 error 归零（8 个非组件导出拆文件 + 4 个 hooks 规则）；CI 恢复 lint 硬失败 | ✅ | #20 |

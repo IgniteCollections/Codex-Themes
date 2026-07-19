@@ -25,7 +25,7 @@ REPO = Path(__file__).resolve().parents[2]
 SCENES_TS = REPO / "Pokemon/app/src/themes/scenes.ts"
 PUBLIC = REPO / "Pokemon/app/public"
 SKIN_CSS = REPO / "Pokemon/skins/pokemon-skin.css"
-OUT_ROOT = REPO / "Pokemon/studio/src-tauri/resources/themes"
+OUT_ROOT = REPO / "Codex-Skin-Store/src-tauri/resources/themes"
 
 SCENE_VARS = ["grassland", "ocean", "cave", "magma", "snowfield", "plant", "space", "city", "lab"]
 MIME = {".png": "image/png", ".svg": "image/svg+xml"}

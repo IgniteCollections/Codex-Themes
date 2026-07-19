@@ -491,6 +491,12 @@ body {
   color: var(--sc-bg, #0d1b0a);
 }
 .btn-apply { width: 100%; padding: 11px 18px; font-size: 14px; }
+.btn-cli {
+  width: 100%;
+  padding: 9px 18px;
+  font-size: 13px;
+  border-style: dashed;
+}
 .btn-danger:hover:not(:disabled) { border-color: var(--danger); color: var(--danger); }
 
 .toast {
