@@ -296,14 +296,14 @@ def pokemon_layers_css(s: dict, sprites: dict[int, str], ui: dict[str, str]) -> 
     # 由于 body 只有 ::before/::after 两个伪元素（已用招牌），其余宝可梦改用
     # 「拼接 strip 图」挂到 main/aside/composer 的伪元素上。strip 在 main() 里预拼。
     if s.get("__starter_strip"):
+        # 御三家 strip 挂 main.main-surface 的元素本身（不占用 ::before 壁纸层）
         out.append(
-            "/* 御三家 strip · 主区左下 */\n"
-            "html.pokemon-skin main.main-surface::before {\n"
-            '  content: "";\n  position: fixed;\n  left: 14px;\n  bottom: 12px;\n  z-index: 39;\n'
-            f"  width: {s['__starter_w']}px;\n  height: {s['__starter_h']}px;\n"
-            f'  background-image: url("{s["__starter_strip"]}");\n'
-            "  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: left bottom;\n"
-            "  image-rendering: pixelated;\n  filter: drop-shadow(0 3px 6px rgba(0,0,0,.45));\n  pointer-events: none;\n  opacity: .92;\n}\n"
+            "/* 御三家 strip · 主区左下（挂在 main 元素的背景层，不占 ::before 壁纸层） */\n"
+            "html.codex-dream-skin main.main-surface {\n"
+            f'  background-image: url("{s["__starter_strip"]}") !important;\n'
+            "  background-repeat: no-repeat;\n  background-position: left 14px bottom 12px;\n"
+            f"  background-size: {s['__starter_w']}px {s['__starter_h']}px;\n  image-rendering: pixelated;\n"
+            "}\n"
         )
     if s.get("__encounter_strip"):
         out.append(
@@ -438,6 +438,8 @@ def main() -> None:
             s["__encounter_strip"], s["__encounter_w"], s["__encounter_h"] = encounter
 
         layers = pokemon_layers_css(s, sprites, s["ui"])
+        # 选择器 html.pokemon-skin → html.codex-dream-skin（引擎实际激活的类，角标/层才能生效）
+        layers = layers.replace("html.pokemon-skin", "html.codex-dream-skin")
         css = build_scene_css(base_css, s["ui"], data_url(bg), layers)
         (out_dir / "scene.css").write_text(css, encoding="utf-8")
         print(f"pokemon-{var}: theme.json + background.png ({bg.stat().st_size // 1024} KB) + scene.css")
