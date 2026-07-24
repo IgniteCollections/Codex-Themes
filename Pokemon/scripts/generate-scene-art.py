@@ -13,6 +13,7 @@ Studio packs (2560×1440) are produced by generate-studio-themes.py from
 these PNGs.
 """
 
+import base64
 import random
 import sys
 from pathlib import Path
@@ -24,6 +25,55 @@ except ImportError:
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "Pokemon/app/public"
+POKEMON_DIR = OUT / "pokemon"
+
+
+def load_sprite(pid: int, target_h: int) -> Image.Image | None:
+    """加载宝可梦 sprite 并缩放到目标高度（保持宽高比，nearest 保持像素颗粒）。"""
+    path = POKEMON_DIR / f"{pid:03d}.png"
+    if not path.is_file():
+        return None
+    img = Image.open(path).convert("RGBA")
+    # alpha 裁边（去掉全透明边距）
+    bbox = img.getbbox()
+    if bbox:
+        img = img.crop(bbox)
+    ratio = target_h / img.height
+    new_w = max(1, round(img.width * ratio))
+    return img.resize((new_w, target_h), Image.NEAREST)
+
+
+def paste_pokemon(canvas_img: Image.Image, sprite: Image.Image, x: int, y: int,
+                  shadow: bool = True) -> None:
+    """把 sprite 粘贴到画布（x,y 为底部中心坐标），带柔和投影让宝可梦"落"在场景里。"""
+    sx = x - sprite.width // 2
+    sy = y - sprite.height
+    if shadow:
+        # 简单投影：sprite alpha 的黑色剪影，偏移 1px
+        shadow_img = Image.new("RGBA", sprite.size, (0, 0, 0, 96))
+        canvas_img.paste(shadow_img, (sx + 1, sy + 1), sprite)
+    canvas_img.paste(sprite, (sx, sy), sprite)
+
+
+# ============================================================ 场景定义（宝可梦阵容）
+# 格式：[(图鉴编号, x, y_bottom, 高度, 是否有投影)]，坐标为 240×135 逻辑像素
+SCENE_POKEMON = {
+    "grassland": [
+        # 御三家进化链：左侧小径旁，从小到大（妙蛙种子→妙蛙草→妙蛙花）
+        (1, 88, 128, 20, True),    # 妙蛙种子（前景左侧）
+        (2, 96, 126, 24, True),    # 妙蛙草（稍大，稍后）
+        (3, 106, 124, 28, True),   # 妙蛙花（最大，最后）
+        # 遭遇宝可梦：散布在草丛/小径
+        (43, 140, 130, 18, True),  # 走路草（中景草丛）
+        (192, 168, 126, 20, True), # 向日花怪（右侧，面向太阳）
+        (16, 196, 122, 16, True),  # 波波（右侧灌木上）
+        (10, 76, 132, 14, True),   # 绿毛虫（前景左下角）
+        (133, 122, 128, 20, True), # 伊布（小径中央，招牌位）
+        # 招牌/神兽：时拉比（右上角空中，森林守护神飞过）
+        (251, 200, 32, 18, False), # 时拉比（空中无投影）
+    ],
+    # 其他场景待补（保持与 scenes.ts 的 pokemon/starterLine 一致）
+}
 
 W, H = 480, 270          # 渲染缓冲 = 逻辑画布 240×135 的 ×2（supersample，细节翻倍）
 SCALE = 8                 # ×8 = 1920×1080 网站壁纸；工作室由 generate-studio-themes 放大到 4K
@@ -155,6 +205,12 @@ def grassland() -> None:
     # 右侧灌木
     blob(d, 208, 118, 10, hx("#2E5A1E")); blob(d, 220, 112, 8, hx("#2E5A1E"))
     blob(d, 206, 116, 8, hx("#3E7A2B")); blob(d, 218, 110, 6, hx("#4A9C2F"))
+    # ── 宝可梦融入场景（御三家进化链 + 遭遇 + 招牌神兽）──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("grassland", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            # 240×135 逻辑坐标 → 480×270 缓冲坐标 ×2
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "grassland")
 
 
