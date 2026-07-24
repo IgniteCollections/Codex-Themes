@@ -67,10 +67,19 @@ export async function probeCdp(port, fetchImpl = globalThis.fetch) {
   }
 }
 
-/** 默认进程观察（macOS）：pgrep 匹配 Codex 主进程，返回最老的 pid。 */
+/** 默认进程观察（macOS）：pgrep 匹配 Codex 主进程（.app/Contents/MacOS/ 下的可执行文件），
+ *  返回最老的 pid。只匹配主进程，不匹配 helper/子进程（crashpad/injector 等）。 */
 export async function findCodexPid(pattern) {
+  // 匹配 Codex/ChatGPT 主进程：路径含 .app/Contents/MacOS/<pattern>
+  const mainProcess = await tryPgrep(["-o", "-f", `\\.app/Contents/MacOS/${pattern}`]);
+  if (mainProcess) return mainProcess;
+  // 兜底：精确进程名（某些安装可能路径不同）
+  return tryPgrep(["-x", "-o", pattern]);
+}
+
+async function tryPgrep(args) {
   try {
-    const { stdout } = await execFileAsync("pgrep", ["-x", "-o", "-f", pattern]);
+    const { stdout } = await execFileAsync("pgrep", args);
     const pid = Number.parseInt(stdout.trim(), 10);
     return Number.isInteger(pid) && pid > 0 ? pid : null;
   } catch {
@@ -145,11 +154,17 @@ export async function runSupervisor(options, deps = {}) {
     // 端口优先级：配置 > 引擎 state.json > 默认
     state.port = config.port ?? engineState?.port ?? state.port;
 
-    // 当前 injector 是否报告注入完成（复用引擎 state.json 契约）
+    // 注入完成的判定：supervisor 拉起的 injector 进程稳定存活超过 10 秒。
+    // （injector 不写 state.json，所以不能用 injectorPid 匹配判定；
+    //  稳定存活即视为注入成功——injector 启动失败会立即退出）
+    const injectorAliveNow = injectorPid !== null && pidAlive(injectorPid);
+    if (injectorAliveNow && !state.injectorStartedAtMs) {
+      state.injectorStartedAtMs = now();
+    }
     const injected =
-      injectorPid !== null &&
-      engineState?.injectorPid === injectorPid &&
-      typeof engineState?.injectorStartedAt === "string";
+      injectorAliveNow &&
+      state.injectorStartedAtMs !== undefined &&
+      now() - state.injectorStartedAtMs > 10_000;
 
     let cdpOk = false;
     const needsProbe =
@@ -195,6 +210,7 @@ export async function runSupervisor(options, deps = {}) {
   };
 
   // 主循环：setInterval 驱动；Codex 消失时也会保持低频观察
+  let firstRun = true;
   const runLoop = async () => {
     const keepGoing = await tick().catch(async (error) => {
       state.lastError = { stage: "tick", message: String(error), at: new Date(now()).toISOString() };
@@ -203,6 +219,12 @@ export async function runSupervisor(options, deps = {}) {
       return true;
     });
     if (!keepGoing) return;
+    // 首次 tick 后立即写一次状态（让 UI 尽快看到 watching），之后靠 decide 的 persist action
+    if (firstRun) {
+      firstRun = false;
+      const config = (await readJson(configPath)) ?? { enabled: true };
+      await atomicWriteJson(statusPath, toStateFile(state, config, now())).catch(() => {});
+    }
     setTimeout(runLoop, options.pollIntervalMs);
   };
   await runLoop();
