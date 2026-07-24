@@ -1,3 +1,7 @@
+mod application;
+mod domain;
+mod infrastructure;
+
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -150,6 +154,7 @@ struct StudioStatus {
     paused: bool,
     codex_version: Option<String>,
     codex_running: bool,
+    persistence: PersistenceStatus,
 }
 
 fn read_engine_state(state: &Path) -> Option<EngineState> {
@@ -284,6 +289,18 @@ fn get_status() -> Result<StudioStatus, String> {
         .map(pid_running)
         .unwrap_or(false);
     let (active_theme, active_theme_name) = active_theme(&state);
+    let persistence = {
+        #[cfg(not(test))]
+        {
+            build_persistence_service(&state)
+                .map(|svc| svc.status())
+                .unwrap_or_else(|_| PersistenceStatus::disabled())
+        }
+        #[cfg(test)]
+        {
+            PersistenceStatus::disabled()
+        }
+    };
     Ok(StudioStatus {
         platform: if cfg!(windows) { "windows" } else { "macos" }.into(),
         state_root: state.display().to_string(),
@@ -298,6 +315,7 @@ fn get_status() -> Result<StudioStatus, String> {
         paused: state.join("paused").is_file(),
         codex_version: engine_state.and_then(|s| s.codex_version),
         codex_running: codex_main_running(),
+        persistence,
     })
 }
 
@@ -399,41 +417,6 @@ fn list_scenes(app: tauri::AppHandle) -> Result<Vec<SceneInfo>, String> {
         }
     }
 
-    out.sort_by(|a, b| a.id.cmp(&b.id));
-    let themes = resource_dir(&app)?.join("themes");
-    let mut out = Vec::new();
-    let entries = fs::read_dir(&themes)
-        .map_err(|e| format!("read {}: {e}", themes.display()))?;
-    for entry in entries.flatten() {
-        let dir = entry.path();
-        if !dir.is_dir() {
-            continue;
-        }
-        let text = match fs::read_to_string(dir.join("theme.json")) {
-            Ok(t) => t,
-            Err(_) => continue,
-        };
-        let v: serde_json::Value = match serde_json::from_str(&text) {
-            Ok(v) => v,
-            Err(_) => continue,
-        };
-        let image_name = v["image"].as_str().unwrap_or("background.png").to_string();
-        let flavor = v["flavorShort"]
-            .as_str()
-            .or_else(|| v["tagline"].as_str())
-            .map(String::from);
-        out.push(SceneInfo {
-            id: v["id"].as_str().unwrap_or_default().to_string(),
-            name: v["name"].as_str().unwrap_or_default().to_string(),
-            accent: v["palette"]["accent"]
-                .as_str()
-                .unwrap_or("#888888")
-                .to_string(),
-            has_css: dir.join("scene.css").is_file(),
-            wallpaper: wallpaper_data_url(&dir, &image_name),
-            flavor,
-        });
-    }
     out.sort_by(|a, b| a.id.cmp(&b.id));
     Ok(out)
 }
@@ -639,25 +622,6 @@ fn switch_scene(app: tauri::AppHandle, scene_id: String) -> Result<String, Strin
     // 1) 场景包入主题库（幂等）
     let saved = themes_dir(&state).join(&scene_id);
     copy_dir_recursive(&pack, &saved)?;
-    if !scene_id
-        .chars()
-        .all(|c| c.is_ascii_alphanumeric() || c == '-')
-    {
-        return Err("非法场景 id".into());
-    }
-    let state = state_root()?;
-    let pack = resource_dir(&app)?.join("themes").join(&scene_id);
-    let theme_json = pack.join("theme.json");
-    if !theme_json.is_file() {
-        return Err(format!("主题包不存在: {}", pack.display()));
-    }
-    if !engine_scripts(&state).is_dir() {
-        return Err("引擎未安装，请先完成初始设置".into());
-    }
-
-    // 1) 场景包入主题库（幂等）
-    let saved = themes_dir(&state).join(&scene_id);
-    copy_dir_recursive(&pack, &saved)?;
 
     // 2) 原子替换活跃主题目录（staging → 逐文件 rename，先图后 json）
     let active = active_theme_dir(&state);
@@ -701,12 +665,17 @@ fn switch_scene(app: tauri::AppHandle, scene_id: String) -> Result<String, Strin
     // 4) 清除暂停标记，让 watch injector 立即热应用
     let _ = fs::remove_file(state.join("paused"));
 
+    // 5) 持久化启用时同步 active theme（验收 A5：重启后恢复最后一次应用的主题）
+    #[cfg(not(test))]
+    {
+        if let Ok(svc) = build_persistence_service(&state) {
+            let theme_name = theme_v["name"].as_str();
+            let _ = svc.sync_active_theme(&scene_id, theme_name);
+        }
+    }
+
     Ok(format!("已切换到 {scene_id}，watch injector 将在数秒内热应用"))
 }
-
-/* ------------------------------------------------------------------ */
-/* 引擎操作                                                            */
-/* ------------------------------------------------------------------ */
 
 /* ------------------------------------------------------------------ */
 /* 引擎操作                                                            */
@@ -1013,95 +982,51 @@ fn import_theme_zip(_app: tauri::AppHandle, zip_path: String) -> Result<ImportRe
 /* 皮肤持久化（重启 Codex 后自动重注）                                     */
 /* ------------------------------------------------------------------ */
 
-/// macOS：写 LaunchAgent，登录时自动以 watch 模式常驻 injector。
-/// Codex 经皮肤商店/启动脚本以 CDP 端口启动后，watch injector 即自动重注皮肤。
-#[cfg(unix)]
-fn install_persistence(state: &Path) -> Result<(), String> {
-    let home = std::env::var("HOME").map_err(|_| "HOME is not set".to_string())?;
-    let node = engine_node()?;
-    let injector = engine_scripts(state).join("injector.mjs");
+#[cfg(not(test))]
+use crate::application::persistence_service;
+#[cfg(not(test))]
+use crate::application::persistence_service::PersistenceServiceTrait;
+use crate::domain::persistence::PersistenceStatus;
+
+/// 构建默认持久化服务（macOS：supervisor 脚本与 injector 同目录）。
+#[cfg(not(test))]
+fn build_persistence_service(
+    state: &Path,
+) -> Result<impl PersistenceServiceTrait, String> {
     let theme_dir = active_theme_dir(state);
-    let port = read_engine_state(state).and_then(|s| s.port).unwrap_or(9341);
-    let label = "com.codex-themes.skin-store.injector";
-    let agents = PathBuf::from(&home).join("Library").join("LaunchAgents");
-    fs::create_dir_all(&agents).map_err(|e| format!("mkdir LaunchAgents: {e}"))?;
-    let plist = format!(
-        r#"<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key><string>{label}</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>{node}</string>
-    <string>{injector}</string>
-    <string>--watch</string>
-    <string>--port</string>
-    <string>{port}</string>
-    <string>--theme-dir</string>
-    <string>{theme_dir}</string>
-  </array>
-  <key>RunAtLoad</key><true/>
-  <key>KeepAlive</key><true/>
-  <key>StandardOutPath</key><string>{log}</string>
-  <key>StandardErrorPath</key><string>{err}</string>
-</dict>
-</plist>
-"#,
-        label = label,
-        node = node.display(),
-        injector = injector.display(),
-        port = port,
-        theme_dir = theme_dir.display(),
-        log = state.join("injector.log").display(),
-        err = state.join("injector-error.log").display(),
-    );
-    let plist_path = agents.join(format!("{label}.plist"));
-    atomic_write(&plist_path, plist.as_bytes())?;
-    // 加载（已加载则先卸再载）
-    let _ = Command::new("launchctl")
-        .args(["unload", &plist_path.to_string_lossy()])
-        .output();
-    Command::new("launchctl")
-        .args(["load", &plist_path.to_string_lossy()])
-        .output()
-        .map_err(|e| format!("launchctl load: {e}"))?;
-    Ok(())
+    let scripts_dir = engine_scripts(state);
+    persistence_service::default_service(state.to_path_buf(), theme_dir, scripts_dir)
+        .map_err(|e| e.to_string())
 }
 
-#[cfg(unix)]
-fn engine_node() -> Result<PathBuf, String> {
-    // ChatGPT 内置签名 Node（与官方引擎一致）
-    Ok(PathBuf::from(
-        "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
-    ))
-}
-
-#[cfg(unix)]
-fn remove_persistence() -> Result<(), String> {
-    let home = std::env::var("HOME").map_err(|_| "HOME is not set".to_string())?;
-    let plist = PathBuf::from(home)
-        .join("Library")
-        .join("LaunchAgents")
-        .join("com.codex-themes.skin-store.injector.plist");
-    if plist.exists() {
-        let _ = Command::new("launchctl")
-            .args(["unload", &plist.to_string_lossy()])
-            .output();
-        fs::remove_file(&plist).map_err(|e| e.to_string())?;
+/// 注册持久化：supervisor 守护（不再直接守护 injector）。
+fn install_persistence(state: &Path) -> Result<(), String> {
+    #[cfg(not(test))]
+    {
+        let svc = build_persistence_service(state)?;
+        let theme = active_theme(state);
+        let theme = theme.0.zip(theme.1);
+        svc.enable(theme)
     }
-    Ok(())
+    #[cfg(test)]
+    {
+        let _ = state;
+        Ok(())
+    }
 }
 
-#[cfg(windows)]
-fn install_persistence(_state: &Path) -> Result<(), String> {
-    // Windows：引擎 start 脚本已通过启动流程注册 injector；持久化依赖引擎自身机制。
-    Ok(())
-}
-
-#[cfg(windows)]
-fn remove_persistence() -> Result<(), String> {
-    Ok(())
+/// 注销持久化：停掉 supervisor + 清理状态（Official Restore 的一部分）。
+fn remove_persistence(state: &Path) -> Result<(), String> {
+    #[cfg(not(test))]
+    {
+        let svc = build_persistence_service(state)?;
+        svc.remove_all()
+    }
+    #[cfg(test)]
+    {
+        let _ = state;
+        Ok(())
+    }
 }
 
 #[tauri::command]
@@ -1139,7 +1064,7 @@ async fn stop_engine(app: tauri::AppHandle) -> Result<String, String> {
         // 恢复官方：以 vendor 原版为 base 重建（清掉 pokemon 块，还原基础规则）
         let base = vendor_engine_css(&app).ok();
         rebuild_engine_css_with_base(&state, base.as_deref(), None)?;
-        remove_persistence().map_err(|e| format!("持久化注销失败: {e}"))?;
+        remove_persistence(&state).map_err(|e| format!("持久化注销失败: {e}"))?;
         Ok(out)
     })
     .await
@@ -1171,6 +1096,47 @@ async fn verify_engine() -> Result<String, String> {
 }
 
 /* ------------------------------------------------------------------ */
+/* 持久化开关与修复（FR-1 / FR-4）                                        */
+/* ------------------------------------------------------------------ */
+
+/// 开启/关闭「重启后自动恢复主题」。
+#[tauri::command]
+fn set_persistence_enabled(enabled: bool) -> Result<(), String> {
+    let state = state_root()?;
+    #[cfg(not(test))]
+    {
+        let svc = build_persistence_service(&state)?;
+        if enabled {
+            let theme = active_theme(&state);
+            svc.enable(theme.0.zip(theme.1))
+        } else {
+            svc.disable()
+        }
+    }
+    #[cfg(test)]
+    {
+        let _ = (state, enabled);
+        Ok(())
+    }
+}
+
+/// 修复自动恢复：重跑注册流程（FR-4）。
+#[tauri::command]
+fn repair_persistence() -> Result<(), String> {
+    let state = state_root()?;
+    #[cfg(not(test))]
+    {
+        let svc = build_persistence_service(&state)?;
+        svc.repair()
+    }
+    #[cfg(test)]
+    {
+        let _ = state;
+        Ok(())
+    }
+}
+
+/* ------------------------------------------------------------------ */
 /* App 入口                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -1190,6 +1156,8 @@ pub fn run() {
             stop_engine,
             set_paused,
             verify_engine,
+            set_persistence_enabled,
+            repair_persistence,
         ])
         .setup(|app| {
             use tauri::menu::{Menu, MenuItem};
