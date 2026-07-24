@@ -6,7 +6,7 @@
 
 ## 1. 一句话
 
-Tauri 2 托盘 App（`Codex-Skin-Store/`），囊括官方 Dream Skin 运行时（vendor 进仓库，随 App 资源分发），一键安装引擎、内置 7 个宝可梦场景主题、点卡片热切换 Codex 桌面 App 皮肤。平台：Windows + macOS。
+Tauri 2 托盘 App（`Codex-Skin-Store/`），囊括官方 Dream Skin 运行时（vendor 进仓库，随 App 资源分发），一键安装引擎、内置 9 个宝可梦场景主题、点卡片热切换 Codex 桌面 App 皮肤。平台：Windows + macOS。
 
 ## 2. 引擎源码级结论（调研结果）
 
@@ -67,7 +67,7 @@ Codex-Skin-Store/                     # Tauri 2 App（新目录）
 │   └── resources/
 │       ├── engine-windows/         # vendor：windows/{assets,scripts}（MIT，附 LICENSE+NOTICE）
 │       ├── engine-macos/           # vendor：macos 对应文件
-│       └── themes/                 # 构建期生成的 7 套主题包
+│       └── themes/                 # 构建期生成的 9 套主题包
 │           └── pokemon-grassland/
 │               ├── theme.json      # Dream Skin 格式（含 palette.accent）
 │               ├── background.png  # 场景壁纸（scene-*.png）
@@ -75,7 +75,7 @@ Codex-Skin-Store/                     # Tauri 2 App（新目录）
 └── package.json
 ```
 
-**数据流**：`scenes.ts`（单一数据源）→ 构建脚本 `scripts/generate-studio-themes.mjs` → 7 套主题包（Tauri resources）→ 安装时写入状态根 `themes/pokemon-<scene>/`。
+**数据流**：`scenes.ts`（单一数据源）→ 构建脚本 `scripts/generate-studio-themes.mjs` → 9 套主题包（Tauri resources）→ 安装时写入状态根 `themes/pokemon-<scene>/`。
 
 **场景切换流程**（核心路径）：
 
@@ -122,15 +122,15 @@ Codex-Skin-Store/                     # Tauri 2 App（新目录）
 ```
 
 - `id` 用 `pokemon-` 前缀（避开官方 `preset-`/`custom-` 命名空间，官方种子脚本不会碰）
-- `appearance: "dark"`——7 个场景全是深色设计
+- `appearance: "dark"`——9 个场景全是深色设计
 - `focusX/focusY: null`——让引擎的显著性分析自动找壁纸焦点（scene-*.png 构图各异，手写焦点后续可调）
 - `palette.accent` 取 `skins.ts` 的 `ui.prompt`（场景主色）
 - `scene.css`：从 `Pokemon/skins/pokemon-skin.css` 派生 + skins.ts 的 19 个 ui 色值内联为 `--pk-*` 变量 + `data-pokemon-skin` 选择器
 
 ## 6. App 功能清单（MVP）
 
-1. **首次启动向导**：检测 Codex 已安装 → 检测 Node → 解压 vendor 引擎到临时目录并调官方 install 脚本 → 写入 7 套主题 → 完成
-2. **场景网格**：7 张场景卡片（壁纸缩略图 + 招牌 sprite + 名称），点击即切换；当前激活场景高亮
+1. **首次启动向导**：检测 Codex 已安装 → 检测 Node → 解压 vendor 引擎到临时目录并调官方 install 脚本 → 写入 9 套主题 → 完成
+2. **场景网格**：9 张场景卡片（壁纸缩略图 + 招牌 sprite + 名称），点击即切换；当前激活场景高亮
 3. **状态栏**：引擎运行状态（injector pid/port）、当前主题、Codex 运行状态
 4. **操作**：应用皮肤（start）/ 暂停（写 paused 文件）/ 恢复官方（restore）/ 自检（verify）
 5. **托盘**：左键开窗口，右键菜单（切换最近场景、暂停/恢复、退出）
@@ -149,7 +149,7 @@ Codex-Skin-Store/                     # Tauri 2 App（新目录）
 
 ## 8. 实现顺序
 
-1. `scripts/generate-studio-themes.py` — 从 skins.ts/scenes.ts 生成 7 套主题包（含 scene.css 派生）✅
+1. `scripts/generate-studio-themes.py` — 从 skins.ts/scenes.ts 生成 9 套主题包（含 scene.css 派生）✅
 2. `Codex-Skin-Store/` Tauri 脚手架 + Rust 引擎管理（安装/切换/状态/恢复）✅
 3. React 场景网格 UI（复用展示站组件与样式）✅
 4. Windows 端到端实测（Codex App 实机）✅（2026-07-18，见 §9）
@@ -162,7 +162,7 @@ Codex-Skin-Store/                     # Tauri 2 App（新目录）
 | 步骤 | 结果 |
 |---|---|
 | 官方 install 脚本（vendor 副本，-NoShortcuts） | ✅ engine 安装到 `%LOCALAPPDATA%\CodexDreamSkin\engine\` |
-| 7 套主题包入 `themes/` + grassland 激活 | ✅ |
+| 9 套主题包入 `themes/` + grassland 激活 | ✅ |
 | start 脚本（Codex 带 CDP 端口 9335 启动 + watch injector） | ✅ verify pass（installed/style/chrome 均为 true） |
 | 实机截图 | ✅ 草原像素壁纸 + 绿色系 UI（pokemon-grassland-live.png） |
 | 热切换 grassland → magma（只换 active-theme + CSS 块） | ✅ 秒级热应用，无需重启（pokemon-magma-live.png） |

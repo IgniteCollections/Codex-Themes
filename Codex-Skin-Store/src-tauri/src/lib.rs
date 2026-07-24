@@ -79,6 +79,13 @@ fn themes_dir(state: &Path) -> PathBuf {
     state.join("themes")
 }
 
+fn user_cli_themes_dir() -> Result<PathBuf, String> {
+    let state = state_root()?;
+    let dir = state.join("cli-themes");
+    fs::create_dir_all(&dir).map_err(|e| format!("mkdir {}: {e}", dir.display()))?;
+    Ok(dir)
+}
+
 /* ------------------------------------------------------------------ */
 /* 资源解析（dev 与 bundled 双模式）                                     */
 /* ------------------------------------------------------------------ */
@@ -332,7 +339,67 @@ fn wallpaper_data_url(dir: &Path, image_name: &str) -> Option<String> {
 }
 
 #[tauri::command]
+/// 从主题目录读取 SceneInfo；解析失败时返回 None。
+fn read_theme_from_dir(dir: &Path) -> Option<SceneInfo> {
+    let text = fs::read_to_string(dir.join("theme.json")).ok()?;
+    let v: serde_json::Value = serde_json::from_str(&text).ok()?;
+    let image_name = v["image"].as_str().unwrap_or("background.png").to_string();
+    let flavor = v["flavorShort"]
+        .as_str()
+        .or_else(|| v["tagline"].as_str())
+        .map(String::from);
+    Some(SceneInfo {
+        id: v["id"].as_str().unwrap_or_default().to_string(),
+        name: v["name"].as_str().unwrap_or_default().to_string(),
+        accent: v["palette"]["accent"]
+            .as_str()
+            .unwrap_or("#888888")
+            .to_string(),
+        has_css: dir.join("scene.css").is_file(),
+        wallpaper: wallpaper_data_url(dir, &image_name),
+        flavor,
+    })
+}
+
+#[tauri::command]
 fn list_scenes(app: tauri::AppHandle) -> Result<Vec<SceneInfo>, String> {
+    let mut out = Vec::new();
+    let mut seen = std::collections::HashSet::new();
+
+    // 1) 用户主题库（优先级更高，覆盖同名内置主题）
+    if let Ok(state) = state_root() {
+        let user_themes = themes_dir(&state);
+        if let Ok(entries) = fs::read_dir(&user_themes) {
+            for entry in entries.flatten() {
+                let dir = entry.path();
+                if !dir.is_dir() {
+                    continue;
+                }
+                if let Some(info) = read_theme_from_dir(&dir) {
+                    seen.insert(info.id.clone());
+                    out.push(info);
+                }
+            }
+        }
+    }
+
+    // 2) 内置主题（只补充用户库中没有的）
+    let builtin_themes = resource_dir(&app)?.join("themes");
+    let entries = fs::read_dir(&builtin_themes)
+        .map_err(|e| format!("read {}: {e}", builtin_themes.display()))?;
+    for entry in entries.flatten() {
+        let dir = entry.path();
+        if !dir.is_dir() {
+            continue;
+        }
+        if let Some(info) = read_theme_from_dir(&dir) {
+            if !seen.contains(&info.id) {
+                out.push(info);
+            }
+        }
+    }
+
+    out.sort_by(|a, b| a.id.cmp(&b.id));
     let themes = resource_dir(&app)?.join("themes");
     let mut out = Vec::new();
     let entries = fs::read_dir(&themes)
@@ -551,6 +618,34 @@ fn switch_scene(app: tauri::AppHandle, scene_id: String) -> Result<String, Strin
         return Err("非法场景 id".into());
     }
     let state = state_root()?;
+
+    // 优先从用户主题库查找，其次从内置资源查找
+    let pack = {
+        let user_pack = themes_dir(&state).join(&scene_id);
+        let builtin_pack = resource_dir(&app)?.join("themes").join(&scene_id);
+        if user_pack.join("theme.json").is_file() {
+            user_pack
+        } else if builtin_pack.join("theme.json").is_file() {
+            builtin_pack
+        } else {
+            return Err(format!("主题包不存在: {}", scene_id));
+        }
+    };
+
+    if !engine_scripts(&state).is_dir() {
+        return Err("引擎未安装，请先完成初始设置".into());
+    }
+
+    // 1) 场景包入主题库（幂等）
+    let saved = themes_dir(&state).join(&scene_id);
+    copy_dir_recursive(&pack, &saved)?;
+    if !scene_id
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '-')
+    {
+        return Err("非法场景 id".into());
+    }
+    let state = state_root()?;
     let pack = resource_dir(&app)?.join("themes").join(&scene_id);
     let theme_json = pack.join("theme.json");
     if !theme_json.is_file() {
@@ -659,11 +754,14 @@ fn set_tui_theme(config_path: &Path, slug: &str) -> Result<(), String> {
 fn replace_tui_theme(text: &str, new_line: &str) -> Option<String> {
     let mut in_tui = false;
     let mut replaced = false;
+    let mut has_tui_section = false;
+    let mut tui_has_theme = false;
     let mut out = Vec::new();
     for line in text.lines() {
         let t = line.trim();
         if t.starts_with('[') && t.ends_with(']') {
             in_tui = t == "[tui]";
+            has_tui_section = has_tui_section || in_tui;
             out.push(line.to_string());
             continue;
         }
@@ -671,6 +769,7 @@ fn replace_tui_theme(text: &str, new_line: &str) -> Option<String> {
             // [tui] 段内 theme = ...（旧键会覆盖，统一替换）
             out.push(new_line.to_string());
             replaced = true;
+            tui_has_theme = true;
             continue;
         }
         if t.starts_with("tui.theme") && t.contains('=') {
@@ -680,7 +779,23 @@ fn replace_tui_theme(text: &str, new_line: &str) -> Option<String> {
         }
         out.push(line.to_string());
     }
-    if replaced { Some(out.join("\n") + "\n") } else { None }
+    if replaced {
+        if !has_tui_section {
+            // 无 [tui] 段：在末尾追加
+            if !out.is_empty() && !out.last().unwrap().trim().is_empty() {
+                out.push(String::new());
+            }
+            out.push("[tui]".to_string());
+            out.push(new_line.to_string());
+        } else if !tui_has_theme {
+            // 有 [tui] 段但段内无 theme 键：在段首插入
+            let tui_idx = out.iter().position(|l| l.trim() == "[tui]").unwrap_or(out.len());
+            out.insert(tui_idx + 1, new_line.to_string());
+        }
+        Some(out.join("\n") + "\n")
+    } else {
+        None
+    }
 }
 
 #[tauri::command]
@@ -693,10 +808,15 @@ fn apply_cli(app: tauri::AppHandle, scene_id: String) -> Result<String, String> 
     }
     let slug = cli_slug(&scene_id);
     let file = format!("pokemon-{slug}.tmTheme");
-    let src = resource_dir(&app)?.join("cli-themes").join(&file);
-    if !src.is_file() {
-        return Err(format!("CLI 主题文件不存在: {}", src.display()));
-    }
+    // 优先从用户可写 cli-themes 目录查找（含导入的第三方主题），其次从内置资源
+    let src = {
+        let user_src = user_cli_themes_dir()?.join(&file);
+        if user_src.is_file() {
+            user_src
+        } else {
+            resource_dir(&app)?.join("cli-themes").join(&file)
+        }
+    };
     let home = codex_home()?;
     let themes_dir = home.join("themes");
     fs::create_dir_all(&themes_dir).map_err(|e| format!("mkdir {}: {e}", themes_dir.display()))?;
@@ -833,7 +953,7 @@ struct ImportResult {
 }
 
 #[tauri::command]
-fn import_theme_zip(app: tauri::AppHandle, zip_path: String) -> Result<ImportResult, String> {
+fn import_theme_zip(_app: tauri::AppHandle, zip_path: String) -> Result<ImportResult, String> {
     let zip_path = PathBuf::from(&zip_path);
     if !zip_path.is_file() {
         return Err(format!("文件不存在: {}", zip_path.display()));
@@ -868,14 +988,13 @@ fn import_theme_zip(app: tauri::AppHandle, zip_path: String) -> Result<ImportRes
     fs::create_dir_all(themes_dir(&state)).map_err(|e| e.to_string())?;
     fs::rename(&tmp, &saved).map_err(|e| format!("移入主题库失败: {e}"))?;
 
-    // 附带的 .tmTheme 复制到引擎资源 cli-themes（供 apply_cli）
+    // 附带的 .tmTheme 复制到用户可写 cli-themes 目录（供 apply_cli）
     let mut cli_theme = None;
     if let Some(rel) = tmtheme {
         let src = saved.join(&rel);
         if src.is_file() {
             let fname = src.file_name().unwrap().to_string_lossy().to_string();
-            let cli_dir = resource_dir(&app)?.join("cli-themes");
-            fs::create_dir_all(&cli_dir).map_err(|e| e.to_string())?;
+            let cli_dir = user_cli_themes_dir()?;
             fs::copy(&src, cli_dir.join(&fname)).map_err(|e| format!("copy tmTheme: {e}"))?;
             cli_theme = Some(fname);
         }
@@ -999,7 +1118,7 @@ async fn start_engine() -> Result<String, String> {
         let args: &[&str] = &["--restart-existing"];
         let out = run_engine_script(&state, script, args)?;
         // 注册持久化：登录自启 watch injector，重启 Codex（经皮肤商店/CDP 启动）后自动重注
-        let _ = install_persistence(&state);
+        install_persistence(&state).map_err(|e| format!("持久化注册失败: {e}"))?;
         Ok(out)
     })
     .await
@@ -1015,12 +1134,12 @@ async fn stop_engine(app: tauri::AppHandle) -> Result<String, String> {
         #[cfg(windows)]
         let args: &[&str] = &["-ForceRestart"];
         #[cfg(unix)]
-        let args: &[&str] = &["--force-restart"];
+        let args: &[&str] = &["--restart-codex", "--restore-base-theme"];
         let out = run_engine_script(&state, script, args)?;
         // 恢复官方：以 vendor 原版为 base 重建（清掉 pokemon 块，还原基础规则）
         let base = vendor_engine_css(&app).ok();
         rebuild_engine_css_with_base(&state, base.as_deref(), None)?;
-        let _ = remove_persistence();
+        remove_persistence().map_err(|e| format!("持久化注销失败: {e}"))?;
         Ok(out)
     })
     .await
@@ -1124,4 +1243,108 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running pokemon studio");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ------------------------------------------------------------------
+    // replace_tui_theme
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn replace_tui_theme_empty_config() {
+        assert_eq!(
+            replace_tui_theme("", "theme = \"grassland\""),
+            None
+        );
+    }
+
+    #[test]
+    fn replace_tui_theme_existing_section() {
+        let input = "[tui]\ntheme = \"old\"\n";
+        let out = replace_tui_theme(input, "theme = \"grassland\"").unwrap();
+        assert!(out.contains("theme = \"grassland\""));
+        assert!(!out.contains("theme = \"old\""));
+    }
+
+    #[test]
+    fn replace_tui_theme_flat_key() {
+        // 平铺 tui.theme 写法：删除旧行并创建 [tui] 段
+        let input = "tui.theme = \"old-theme\"\n";
+        let out = replace_tui_theme(input, "theme = \"grassland\"").unwrap();
+        assert!(!out.contains("tui.theme"));
+        assert!(out.contains("[tui]"));
+        assert!(out.contains("theme = \"grassland\""));
+    }
+
+    #[test]
+    fn replace_tui_theme_flat_key_with_existing_section() {
+        // 平铺 tui.theme + 已有 [tui] 段但无 theme 键
+        let input = "[other]\nkey = val\n\ntui.theme = \"old\"\n";
+        let out = replace_tui_theme(input, "theme = \"grassland\"").unwrap();
+        assert!(!out.contains("tui.theme"));
+        assert!(out.contains("[tui]"));
+        assert!(out.contains("theme = \"grassland\""));
+        assert!(out.contains("[other]")); // 其他段保留
+    }
+
+    #[test]
+    fn replace_tui_theme_preserve_other_sections() {
+        let input = "[api]\nkey = \"secret\"\n\n[tui]\ntheme = \"old\"\n\n[log]\nlevel = \"info\"\n";
+        let out = replace_tui_theme(input, "theme = \"grassland\"").unwrap();
+        assert!(out.contains("[api]"));
+        assert!(out.contains("[log]"));
+        assert!(out.contains("theme = \"grassland\""));
+        assert!(!out.contains("theme = \"old\""));
+    }
+
+    #[test]
+    fn replace_tui_theme_crlf() {
+        let input = "[tui]\r\ntheme = \"old\"\r\n";
+        let out = replace_tui_theme(input, "theme = \"grassland\"").unwrap();
+        assert!(out.contains("theme = \"grassland\""));
+    }
+
+    #[test]
+    fn replace_tui_theme_no_trailing_newline() {
+        let input = "[tui]\ntheme = \"old\"";
+        let out = replace_tui_theme(input, "theme = \"grassland\"").unwrap();
+        assert!(out.contains("theme = \"grassland\""));
+    }
+
+    // ------------------------------------------------------------------
+    // sanitize_component
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn sanitize_component_valid() {
+        assert_eq!(sanitize_component("grassland").unwrap(), "grassland");
+        assert_eq!(sanitize_component("power-plant").unwrap(), "power-plant");
+        assert_eq!(sanitize_component("my_theme").unwrap(), "my_theme");
+    }
+
+    #[test]
+    fn sanitize_component_special_chars() {
+        assert_eq!(sanitize_component("hello world!").unwrap(), "hello-world");
+        assert_eq!(sanitize_component("a/b\\c").unwrap(), "a-b-c");
+    }
+
+    #[test]
+    fn sanitize_component_empty_after_clean() {
+        assert!(sanitize_component("!!!").is_err());
+    }
+
+    // ------------------------------------------------------------------
+    // cli_slug
+    // ------------------------------------------------------------------
+
+    #[test]
+    fn cli_slug_mappings() {
+        assert_eq!(cli_slug("pokemon-grassland"), "grassland");
+        assert_eq!(cli_slug("pokemon-plant"), "power-plant");
+        assert_eq!(cli_slug("pokemon-ocean"), "ocean");
+        assert_eq!(cli_slug("grassland"), "grassland");
+    }
 }

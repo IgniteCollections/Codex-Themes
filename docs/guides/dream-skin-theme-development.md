@@ -49,7 +49,7 @@ node <engine>/scripts/injector.mjs --check-payload --theme-dir pokemon-grassland
 
 ### 方式 A：宝可梦皮肤工作室 App（推荐）
 
-`Codex-Skin-Store/`（Tauri 托盘 App）封装了全部流程：安装引擎 → 7 个场景入主题库 → 点卡片切换。首次使用：
+`Codex-Skin-Store/`（Tauri 托盘 App）封装了全部流程：安装引擎 → 9 个场景入主题库 → 点卡片切换。首次使用：
 
 1. 完全退出 Codex，App 里点「安装引擎」（调官方 `install-dream-skin.ps1 -NoShortcuts`）
 2. 点任意场景卡片 → 确认重启 Codex → 秒级换肤
@@ -92,7 +92,7 @@ html.pokemon-skin { --pk-bg: #0D1B0A; ... }   /* 场景变量 */
 /* pokemon-skin end */
 ```
 
-引擎会把合并后的整个 `dream-skin.css` 注入页面。恢复官方时把标记块删掉即可。本项目的 7 个 `scene.css` 由 `Pokemon/scripts/generate-studio-themes.py` 从 scenes.ts 生成，宝可梦皮肤工作室 App 自动完成合并/清除。
+引擎会把合并后的整个 `dream-skin.css` 注入页面。恢复官方时把标记块删掉即可。本项目的 9 个 `scene.css` 由 `Pokemon/scripts/generate-studio-themes.py` 从 scenes.ts 生成，宝可梦皮肤工作室 App 自动完成合并/清除。
 
 ## 4. 排错
 

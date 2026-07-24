@@ -6,7 +6,7 @@
 
 | 主题 | 目录 | 状态 |
 |---|---|---|
-| [宝可梦 Pokémon](docs/themes/pokemon/) | [`Pokemon/`](Pokemon/) | 7 场景全产物交付，桌面 App 皮肤 Windows 实测通过 |
+| [宝可梦 Pokémon](docs/themes/pokemon/) | [`Pokemon/`](Pokemon/) | 9 场景全产物交付，桌面 App 皮肤 Windows 实测通过 |
 
 ## 文档
 

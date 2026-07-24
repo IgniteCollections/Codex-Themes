@@ -4,7 +4,7 @@
 
 为 **Codex**（OpenAI 的 AI 编程助手，含 CLI/TUI 与桌面 App 两种形态）开发主题皮肤的仓库。每个主题交付一整条产物线，共用同一份场景数据源，保证任何环境下视觉一致。
 
-当前主题：**宝可梦**（7 个栖息地场景，见 [`docs/themes/pokemon/`](../themes/pokemon/)）。
+当前主题：**宝可梦**（9 个栖息地场景，见 [`docs/themes/pokemon/`](../themes/pokemon/)）。
 
 ## 产物矩阵
 
