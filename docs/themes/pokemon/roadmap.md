@@ -20,20 +20,20 @@
 | # | 任务 | 产出 | 状态 |
 |---|------|------|------|
 | 0 | 资料沉淀到 docs/ | docs/themes/pokemon/ 文档组 | ✅ PR #3/#4/#5/#6 |
-| 1 | 6 场景 .tmTheme 主题产物 | `Pokemon/themes/pokemon-*.tmTheme` × 6（plutil 通过） | ✅ PR #7 |
+| 1 | 9 场景 .tmTheme 主题产物 | `Pokemon/themes/pokemon-*.tmTheme` × 9（plutil 通过） | ✅ PR #7 |
 | 2 | 主题数据建模 + 素材入库 | 40 只 sprite 入库 `public/pokemon/`；数据源最终落在 `src/themes/scenes.ts`（与既有 UI 数据融合，含神兽池） | ✅ PR #7 + 本 PR |
 | 3 | 安装页对接真实产物 | tmTheme 安装命令 + tui.theme 片段 + /theme 流程；移除虚构的 codex theme 命令 | ✅ 本 PR |
 | 4 | 场景图鉴页补全 | sprite 芯片、招牌展示卡、神兽池 ??? 槽位已接入；16 色色板/迷你终端此前已有 | ✅ 本 PR |
 | 5 | 终端模拟器配色导出（可选） | 每场景 ANSI 16 色 JSON / itermcolors | 待办 |
-| 5.5 | **桌面 App 主题包（主线）** | `Pokemon/themes/desktop/` 7×(.json + .codex-theme.txt) + 生成脚本 + 安装页「桌面客户端」段 + 本机导入实测 | 待办（优先） |
+| 5.5 | **桌面 App 主题包（主线）                9×(.json + .codex-theme.txt) + 生成脚本 + 安装页「桌面客户端」段 + 本机导入实测 | 待办（优先） |
 | 5.6 | 阵容 v3 扩编 + 宇宙场景 | 常规位改御三家进化链（含全部进化型）；新增宇宙场景（烈空坐招牌 + 超能力系）；~18 只新 sprite 入库；图鉴页进化链组件 | 待办（与 5.5 同批） |
 | 6 | lint 债务清理 | 修复 12 个既有 lint error，CI 恢复 lint 硬失败 | 待办 |
 | 7 | 视觉与交互动效打磨 | 切换动效、响应式、CRT 细节 | 待办 |
-| 8 | **宝可梦皮肤工作室（Tauri App）** | `Codex-Skin-Store/`：vendor Dream Skin 引擎 + Tauri 托盘外壳，7 场景一键换肤；Windows 端到端实测通过（草原/岩浆热切换 + 恢复官方） | ✅ 本 PR（macOS 待实测） |
+| 8 | **宝可梦皮肤工作室（Tauri App）** | `Codex-Skin-Store/`：vendor Dream Skin 引擎 + Tauri 托盘外壳，9 场景一键换肤；Windows 端到端实测通过（草原/岩浆热切换 + 恢复官方） | ✅ 本 PR（macOS 待实测） |
 
 ## 任务详情
 
-### 任务 1 — 6 场景 .tmTheme 主题产物
+### 任务 1 — 9 场景 .tmTheme 主题产物
 
 - 在 `Pokemon/themes/` 下生成 `pokemon-grassland.tmTheme`、`pokemon-ocean.tmTheme`、`pokemon-cave.tmTheme`、`pokemon-magma.tmTheme`、`pokemon-snowfield.tmTheme`、`pokemon-power-plant.tmTheme`
 - TextMate plist XML 格式：全局 settings（foreground/background/selection/lineHighlight/caret）+ 语法 scope（comment/keyword/string/number/constant/entity/support/markup）+ diff scope（`markup.inserted.diff` 用成功绿、`markup.deleted.diff` 用错误红/熔岩红等场景语义色）
@@ -43,7 +43,7 @@
 
 ### 任务 2 — 主题数据建模（单一数据源）
 
-- `Pokemon/app/src/data/scenes.ts`：把 6 场景的所有信息（名称、编号、提示符 ❀≈◆▲❄⚡、5 主色、ANSI 16 色、宝可梦列表、flavor 文案、设计说明、tmTheme 文件名）收敛为一个类型化数据文件
+- `Pokemon/app/src/data/scenes.ts`：把 9 场景的所有信息（名称、编号、提示符 ❀≈◆▲❄⚡、5 主色、ANSI 16 色、宝可梦列表、flavor 文案、设计说明、tmTheme 文件名）收敛为一个类型化数据文件
 - 现有组件（SceneSwitcher、Scenes 页、终端演示、Install 页）改为从该文件读取，消除散落硬编码
 - 任务 1 的 .tmTheme 生成与任务 3/4 的页面渲染共用此数据（可用脚本从 scenes.ts 生成 tmTheme，保证一致性）
 

@@ -90,7 +90,7 @@
 | codex-theme-v1 字段 | 取值来源 |
 |---|---|
 | `codeThemeId` | `"codex"` |
-| `variant` | `"dark"`（7 场景全部深色底） |
+| `variant` | `"dark"`（9 场景全部深色底） |
 | `theme.accent` | `ui.prompt` |
 | `theme.surface` | `ui.bg` |
 | `theme.ink` | `ui.fg` |
