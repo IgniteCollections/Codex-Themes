@@ -72,6 +72,48 @@ SCENE_POKEMON = {
         # 招牌/神兽：时拉比（右上角空中，森林守护神飞过）
         (251, 200, 32, 18, False), # 时拉比（空中无投影）
     ],
+    "ocean": [
+        # 御三家进化链：左侧礁石上（杰尼龟→卡咪龟→水箭龟）
+        (7, 30, 124, 18, True),    # 杰尼龟（礁石上）
+        (8, 42, 122, 22, True),    # 卡咪龟
+        (9, 56, 120, 26, True),    # 水箭龟（最大）
+        # 遭遇宝可梦：海面与浪间
+        (129, 100, 108, 16, True), # 鲤鱼王（跃出海面）
+        (72, 128, 116, 16, True),  # 玛瑙水母（随海流漂浮）
+        (116, 152, 118, 16, True), # 墨海马（近景）
+        (131, 176, 112, 22, True), # 拉普拉斯（中景载人渡海）
+        (130, 208, 96, 24, True),  # 暴鲤龙（右侧破浪而出）
+        # 神兽：洛奇亚（左上角月光下飞过）
+        (249, 56, 36, 20, False),  # 洛奇亚（空中无投影）
+    ],
+    "cave": [
+        # 御三家进化链：左侧矿道上（铁哑铃→金属怪→巨金怪）
+        (374, 48, 122, 16, True),  # 铁哑铃（磁力浮空低）
+        (375, 62, 120, 20, True),  # 金属怪
+        (376, 78, 118, 24, True),  # 巨金怪（最大）
+        # 遭遇宝可梦：洞穴各处
+        (50, 108, 126, 14, True),  # 地鼠（探出头）
+        (74, 128, 124, 16, True),  # 小拳石（像普通石头）
+        (95, 160, 112, 22, True),  # 大岩蛇（中景掘进）
+        (41, 150, 36, 14, False),  # 超音蝠（洞顶倒挂/飞行）
+        (94, 196, 120, 20, True),  # 耿鬼（右侧阴影里）
+        # 神兽：雷吉洛克（隧道尽头岩壁）
+        (377, 216, 116, 22, True), # 雷吉洛克（右侧岩壁前）
+    ],
+    "magma": [
+        # 御三家进化链：左侧岩台上（小火龙→火恐龙→喷火龙）
+        (4, 44, 122, 16, True),    # 小火龙
+        (5, 58, 120, 20, True),    # 火恐龙
+        (6, 76, 112, 26, True),    # 喷火龙（最大，火山天空霸主）
+        # 遭遇宝可梦：岩浆各处
+        (218, 112, 126, 14, True), # 熔岩虫（岩浆边）
+        (58, 134, 124, 18, True),  # 卡蒂狗（奔跑）
+        (324, 156, 122, 20, True), # 煤炭龟（喷烟）
+        (126, 180, 118, 20, True), # 鸭嘴火兽（岩浆中）
+        (59, 204, 116, 22, True),  # 风速狗（右侧奔驰）
+        # 神兽：火焰鸟（火山口上空）
+        (146, 176, 30, 20, False), # 火焰鸟（空中无投影）
+    ],
     # 其他场景待补（保持与 scenes.ts 的 pokemon/starterLine 一致）
 }
 
@@ -252,6 +294,11 @@ def ocean() -> None:
     for _ in range(8):
         x, y = rng.randrange(120, 220), rng.randrange(96, 126)
         d.point((x, y), fill=hx("#8CC8E8"))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("ocean", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "ocean")
 
 
@@ -298,6 +345,11 @@ def cave() -> None:
     for _ in range(24):
         x, y = rng.randrange(LW), rng.randrange(120, 135)
         d.point((x, y), fill=rng.choice([hx("#6B5B95"), hx("#8A9A5B"), hx("#3B3B42")]))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("cave", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "cave")
 
 
@@ -341,6 +393,11 @@ def magma() -> None:
     for _ in range(46):
         x, y = rng.randrange(LW), rng.randrange(H // 2)
         d.point((x, y), fill=hx("#F5A623") if rng.random() < 0.75 else hx("#FFD166"))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("magma", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "magma")
 
 
