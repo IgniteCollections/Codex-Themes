@@ -114,6 +114,31 @@ SCENE_POKEMON = {
         # 神兽：火焰鸟（火山口上空）
         (146, 176, 30, 20, False), # 火焰鸟（空中无投影）
     ],
+    "snowfield": [
+        # 进化链：左侧雪地上（雪童子→冰鬼护→雪笠怪）
+        (361, 40, 124, 16, True),  # 雪童子
+        (362, 54, 122, 20, True),  # 冰鬼护
+        (459, 70, 120, 22, True),  # 雪笠怪（会走路的积雪）
+        # 遭遇宝可梦：雪原各处
+        (220, 104, 128, 14, True), # 小山猪（翻找食物）
+        (363, 128, 126, 16, True), # 海豹球（冰面滚动）
+        (471, 152, 124, 20, True), # 冰伊布（冰雾中）
+        (144, 100, 28, 18, False), # 急冻鸟（暴风雪中飞过）
+        # 神兽：雷吉艾斯（右侧冰窟）
+        (378, 204, 118, 22, True), # 雷吉艾斯（冰之巨人）
+    ],
+    "plant": [
+        # 进化链：左侧厂房（皮丘→皮卡丘→雷丘）
+        (172, 36, 126, 14, True),  # 皮丘（最小）
+        (25, 50, 124, 18, True),   # 皮卡丘（招牌）
+        (26, 66, 122, 22, True),   # 雷丘
+        # 遭遇宝可梦：发电厂各处
+        (100, 100, 128, 14, True), # 雷电球（像精灵球）
+        (81, 124, 40, 14, False),  # 小磁怪（吸附设备上，空中）
+        (125, 148, 122, 20, True), # 电击兽（常客）
+        # 神兽：闪电鸟（雷云中）
+        (145, 196, 32, 20, False), # 闪电鸟（空中无投影）
+    ],
     # 其他场景待补（保持与 scenes.ts 的 pokemon/starterLine 一致）
 }
 
@@ -439,6 +464,11 @@ def snowfield() -> None:
     for _ in range(70):
         x, y = rng.randrange(LW), rng.randrange(H // 2)
         d.point((x, y), fill=rng.choice([hx("#FFFFFF"), hx("#EAF6FC"), hx("#C8E4F2")]))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("snowfield", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "snowfield")
 
 
@@ -490,6 +520,11 @@ def plant() -> None:
     vgrad(d, hx("#181C24"), hx("#0E1116"), 96, 135)                    # 地面
     for x in range(0, LW, 12):                                          # 地面反光缝
         d.line([(x, 100), (x, 135)], fill=hx("#08090B"))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("plant", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "plant")
 
 
