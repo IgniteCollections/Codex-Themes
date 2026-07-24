@@ -72,7 +72,112 @@ SCENE_POKEMON = {
         # 招牌/神兽：时拉比（右上角空中，森林守护神飞过）
         (251, 200, 32, 18, False), # 时拉比（空中无投影）
     ],
-    # 其他场景待补（保持与 scenes.ts 的 pokemon/starterLine 一致）
+    "ocean": [
+        # 御三家进化链：左侧礁石上（杰尼龟→卡咪龟→水箭龟）
+        (7, 30, 124, 18, True),    # 杰尼龟（礁石上）
+        (8, 42, 122, 22, True),    # 卡咪龟
+        (9, 56, 120, 26, True),    # 水箭龟（最大）
+        # 遭遇宝可梦：海面与浪间
+        (129, 100, 108, 16, True), # 鲤鱼王（跃出海面）
+        (72, 128, 116, 16, True),  # 玛瑙水母（随海流漂浮）
+        (116, 152, 118, 16, True), # 墨海马（近景）
+        (131, 176, 112, 22, True), # 拉普拉斯（中景载人渡海）
+        (130, 208, 96, 24, True),  # 暴鲤龙（右侧破浪而出）
+        # 神兽：洛奇亚（左上角月光下飞过）
+        (249, 56, 36, 20, False),  # 洛奇亚（空中无投影）
+    ],
+    "cave": [
+        # 御三家进化链：左侧矿道上（铁哑铃→金属怪→巨金怪）
+        (374, 48, 122, 16, True),  # 铁哑铃（磁力浮空低）
+        (375, 62, 120, 20, True),  # 金属怪
+        (376, 78, 118, 24, True),  # 巨金怪（最大）
+        # 遭遇宝可梦：洞穴各处
+        (50, 108, 126, 14, True),  # 地鼠（探出头）
+        (74, 128, 124, 16, True),  # 小拳石（像普通石头）
+        (95, 160, 112, 22, True),  # 大岩蛇（中景掘进）
+        (41, 150, 36, 14, False),  # 超音蝠（洞顶倒挂/飞行）
+        (94, 196, 120, 20, True),  # 耿鬼（右侧阴影里）
+        # 神兽：雷吉洛克（隧道尽头岩壁）
+        (377, 216, 116, 22, True), # 雷吉洛克（右侧岩壁前）
+    ],
+    "magma": [
+        # 御三家进化链：左侧岩台上（小火龙→火恐龙→喷火龙）
+        (4, 44, 122, 16, True),    # 小火龙
+        (5, 58, 120, 20, True),    # 火恐龙
+        (6, 76, 112, 26, True),    # 喷火龙（最大，火山天空霸主）
+        # 遭遇宝可梦：岩浆各处
+        (218, 112, 126, 14, True), # 熔岩虫（岩浆边）
+        (58, 134, 124, 18, True),  # 卡蒂狗（奔跑）
+        (324, 156, 122, 20, True), # 煤炭龟（喷烟）
+        (126, 180, 118, 20, True), # 鸭嘴火兽（岩浆中）
+        (59, 204, 116, 22, True),  # 风速狗（右侧奔驰）
+        # 神兽：火焰鸟（火山口上空）
+        (146, 176, 30, 20, False), # 火焰鸟（空中无投影）
+    ],
+    "snowfield": [
+        # 进化链：左侧雪地上（雪童子→冰鬼护→雪笠怪）
+        (361, 40, 124, 16, True),  # 雪童子
+        (362, 54, 122, 20, True),  # 冰鬼护
+        (459, 70, 120, 22, True),  # 雪笠怪（会走路的积雪）
+        # 遭遇宝可梦：雪原各处
+        (220, 104, 128, 14, True), # 小山猪（翻找食物）
+        (363, 128, 126, 16, True), # 海豹球（冰面滚动）
+        (471, 152, 124, 20, True), # 冰伊布（冰雾中）
+        (144, 100, 28, 18, False), # 急冻鸟（暴风雪中飞过）
+        # 神兽：雷吉艾斯（右侧冰窟）
+        (378, 204, 118, 22, True), # 雷吉艾斯（冰之巨人）
+    ],
+    "plant": [
+        # 进化链：左侧厂房（皮丘→皮卡丘→雷丘）
+        (172, 36, 126, 14, True),  # 皮丘（最小）
+        (25, 50, 124, 18, True),   # 皮卡丘（招牌）
+        (26, 66, 122, 22, True),   # 雷丘
+        # 遭遇宝可梦：发电厂各处
+        (100, 100, 128, 14, True), # 雷电球（像精灵球）
+        (81, 124, 40, 14, False),  # 小磁怪（吸附设备上，空中）
+        (125, 148, 122, 20, True), # 电击兽（常客）
+        # 神兽：闪电鸟（雷云中）
+        (145, 196, 32, 20, False), # 闪电鸟（空中无投影）
+    ],
+    "space": [
+        # 御三家进化链：左侧云海上（宝贝龙→甲壳龙→暴飞龙）
+        (371, 40, 118, 16, True),  # 宝贝龙
+        (372, 54, 116, 20, True),  # 甲壳龙
+        (373, 72, 108, 24, True),  # 暴飞龙（终于长出翅膀）
+        # 遭遇宝可梦：宇宙各处
+        (337, 116, 96, 16, True),  # 月石（飘浮吸月光）
+        (338, 140, 100, 16, True), # 太阳岩（旋转发光）
+        (149, 168, 104, 22, True), # 快龙（绕地球飞行）
+        (386, 196, 112, 20, True), # 代欧奇希斯（变换形态）
+        # 神兽：烈空坐（臭氧层穿梭）
+        (384, 120, 28, 22, False), # 烈空坐（空中无投影）
+    ],
+    "city": [
+        # 招牌三人组：左侧街道（伊布→皮卡丘→路卡利欧）
+        (133, 36, 126, 16, True),  # 伊布
+        (25, 50, 124, 18, True),   # 皮卡丘（城市招牌）
+        (448, 68, 122, 22, True),  # 路卡利欧（训练家搭档）
+        # 遭遇宝可梦：城市各处
+        (143, 112, 124, 22, True), # 卡比兽（路边睡觉）
+        (94, 156, 126, 18, True),  # 耿鬼（阴暗角落）
+        (658, 184, 122, 20, True), # 甲贺忍蛙（高楼影子间）
+        # 神兽：梦幻（午夜霓虹中）
+        (151, 200, 36, 16, False), # 梦幻（空中无投影）
+    ],
+    "lab": [
+        # 御三家进化链：左侧实验台（铁哑铃→金属怪→巨金怪）
+        (374, 40, 122, 16, True),  # 铁哑铃（磁力浮空）
+        (375, 54, 120, 20, True),  # 金属怪
+        (376, 72, 118, 24, True),  # 巨金怪（最理想助手）
+        # 遭遇宝可梦：实验室各处
+        (100, 108, 128, 14, True), # 雷电球（事故常客）
+        (81, 132, 48, 14, False),  # 小磁怪（吸附设备）
+        (82, 150, 50, 16, False),  # 三合一磁怪（磁力失灵）
+        (571, 176, 124, 18, True), # 索罗亚（捣蛋鬼）
+        (386, 200, 120, 20, True), # 代欧奇希斯（变换形态）
+        # 神兽：超梦（培养舱中）
+        (150, 120, 60, 22, False), # 超梦（培养舱悬浮）
+    ],
 }
 
 W, H = 480, 270          # 渲染缓冲 = 逻辑画布 240×135 的 ×2（supersample，细节翻倍）
@@ -252,6 +357,11 @@ def ocean() -> None:
     for _ in range(8):
         x, y = rng.randrange(120, 220), rng.randrange(96, 126)
         d.point((x, y), fill=hx("#8CC8E8"))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("ocean", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "ocean")
 
 
@@ -298,6 +408,11 @@ def cave() -> None:
     for _ in range(24):
         x, y = rng.randrange(LW), rng.randrange(120, 135)
         d.point((x, y), fill=rng.choice([hx("#6B5B95"), hx("#8A9A5B"), hx("#3B3B42")]))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("cave", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "cave")
 
 
@@ -341,6 +456,11 @@ def magma() -> None:
     for _ in range(46):
         x, y = rng.randrange(LW), rng.randrange(H // 2)
         d.point((x, y), fill=hx("#F5A623") if rng.random() < 0.75 else hx("#FFD166"))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("magma", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "magma")
 
 
@@ -382,6 +502,11 @@ def snowfield() -> None:
     for _ in range(70):
         x, y = rng.randrange(LW), rng.randrange(H // 2)
         d.point((x, y), fill=rng.choice([hx("#FFFFFF"), hx("#EAF6FC"), hx("#C8E4F2")]))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("snowfield", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "snowfield")
 
 
@@ -433,6 +558,11 @@ def plant() -> None:
     vgrad(d, hx("#181C24"), hx("#0E1116"), 96, 135)                    # 地面
     for x in range(0, LW, 12):                                          # 地面反光缝
         d.line([(x, 100), (x, 135)], fill=hx("#08090B"))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("plant", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "plant")
 
 
@@ -470,6 +600,11 @@ def space() -> None:
     d.polygon([(158, 82), (152, 74), (162, 80)], fill=hx("#0B0B1E"))
     d.polygon([(158, 86), (152, 94), (162, 88)], fill=hx("#0B0B1E"))
     d.point((151, 84), fill=hx("#3FD99A"))                             # 目
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("space", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "space")
 
 
@@ -513,6 +648,11 @@ def city() -> None:
     for x in range(20, W, 46):                                         # 车灯光带（稀疏）
         d.line([(x, 126), (x + 5, 126)], fill=hx("#F8B4D9"))
         d.line([(x + 14, 130), (x + 19, 130)], fill=hx("#FFD700"))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("city", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "city")
 
 
@@ -571,6 +711,11 @@ def lab() -> None:
     d.rectangle([172, 106, 198, 107], fill=hx("#14202E"))
     for x in range(0, LW, 20):
         d.line([(x, 104), (x - 6, 135)], fill=hx("#080D16"))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("lab", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "lab")
 
 
