@@ -139,7 +139,45 @@ SCENE_POKEMON = {
         # 神兽：闪电鸟（雷云中）
         (145, 196, 32, 20, False), # 闪电鸟（空中无投影）
     ],
-    # 其他场景待补（保持与 scenes.ts 的 pokemon/starterLine 一致）
+    "space": [
+        # 御三家进化链：左侧云海上（宝贝龙→甲壳龙→暴飞龙）
+        (371, 40, 118, 16, True),  # 宝贝龙
+        (372, 54, 116, 20, True),  # 甲壳龙
+        (373, 72, 108, 24, True),  # 暴飞龙（终于长出翅膀）
+        # 遭遇宝可梦：宇宙各处
+        (337, 116, 96, 16, True),  # 月石（飘浮吸月光）
+        (338, 140, 100, 16, True), # 太阳岩（旋转发光）
+        (149, 168, 104, 22, True), # 快龙（绕地球飞行）
+        (386, 196, 112, 20, True), # 代欧奇希斯（变换形态）
+        # 神兽：烈空坐（臭氧层穿梭）
+        (384, 120, 28, 22, False), # 烈空坐（空中无投影）
+    ],
+    "city": [
+        # 招牌三人组：左侧街道（伊布→皮卡丘→路卡利欧）
+        (133, 36, 126, 16, True),  # 伊布
+        (25, 50, 124, 18, True),   # 皮卡丘（城市招牌）
+        (448, 68, 122, 22, True),  # 路卡利欧（训练家搭档）
+        # 遭遇宝可梦：城市各处
+        (143, 112, 124, 22, True), # 卡比兽（路边睡觉）
+        (94, 156, 126, 18, True),  # 耿鬼（阴暗角落）
+        (658, 184, 122, 20, True), # 甲贺忍蛙（高楼影子间）
+        # 神兽：梦幻（午夜霓虹中）
+        (151, 200, 36, 16, False), # 梦幻（空中无投影）
+    ],
+    "lab": [
+        # 御三家进化链：左侧实验台（铁哑铃→金属怪→巨金怪）
+        (374, 40, 122, 16, True),  # 铁哑铃（磁力浮空）
+        (375, 54, 120, 20, True),  # 金属怪
+        (376, 72, 118, 24, True),  # 巨金怪（最理想助手）
+        # 遭遇宝可梦：实验室各处
+        (100, 108, 128, 14, True), # 雷电球（事故常客）
+        (81, 132, 48, 14, False),  # 小磁怪（吸附设备）
+        (82, 150, 50, 16, False),  # 三合一磁怪（磁力失灵）
+        (571, 176, 124, 18, True), # 索罗亚（捣蛋鬼）
+        (386, 200, 120, 20, True), # 代欧奇希斯（变换形态）
+        # 神兽：超梦（培养舱中）
+        (150, 120, 60, 22, False), # 超梦（培养舱悬浮）
+    ],
 }
 
 W, H = 480, 270          # 渲染缓冲 = 逻辑画布 240×135 的 ×2（supersample，细节翻倍）
@@ -562,6 +600,11 @@ def space() -> None:
     d.polygon([(158, 82), (152, 74), (162, 80)], fill=hx("#0B0B1E"))
     d.polygon([(158, 86), (152, 94), (162, 88)], fill=hx("#0B0B1E"))
     d.point((151, 84), fill=hx("#3FD99A"))                             # 目
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("space", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "space")
 
 
@@ -605,6 +648,11 @@ def city() -> None:
     for x in range(20, W, 46):                                         # 车灯光带（稀疏）
         d.line([(x, 126), (x + 5, 126)], fill=hx("#F8B4D9"))
         d.line([(x + 14, 130), (x + 19, 130)], fill=hx("#FFD700"))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("city", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "city")
 
 
@@ -663,6 +711,11 @@ def lab() -> None:
     d.rectangle([172, 106, 198, 107], fill=hx("#14202E"))
     for x in range(0, LW, 20):
         d.line([(x, 104), (x - 6, 135)], fill=hx("#080D16"))
+    # ── 宝可梦融入场景 ──
+    for pid, px, py, ph, has_shadow in SCENE_POKEMON.get("lab", []):
+        sprite = load_sprite(pid, ph)
+        if sprite:
+            paste_pokemon(img, sprite, px * 2, py * 2, shadow=has_shadow)
     save(img, "lab")
 
 
